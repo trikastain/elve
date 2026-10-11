@@ -1,0 +1,2289 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERP Elvenium Grup — Integrated Multi-Company</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0b1220;
+    --panel: #131c2e;
+    --panel-2: #1b2740;
+    --panel-3: #24324f;
+    --text: #e6edf7;
+    --muted: #8ba0bf;
+    --accent: #10b981;
+    --accent-2: #3b82f6;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --purple: #a855f7;
+    --border: #2a3a58;
+    --radius: 12px;
+  }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background: radial-gradient(1200px 600px at 80% -10%, #16233c 0%, var(--bg) 60%);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .app { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: 285px;
+    background: linear-gradient(180deg, #101a2e 0%, #0d1526 100%);
+    border-right: 1px solid var(--border);
+    padding: 18px 14px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px 18px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .brand .logo {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), #059669);
+    display: grid; place-items: center;
+    font-size: 21px;
+    box-shadow: 0 6px 18px rgba(16,185,129,.35);
+    flex-shrink: 0;
+  }
+  .brand h1 { font-size: 15px; font-weight: 700; letter-spacing: .2px; line-height: 1.2; }
+  .brand small { display: block; color: var(--muted); font-size: 10.5px; font-weight: 500; margin-top: 2px; }
+
+  .section-label {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    padding: 10px 10px 6px;
+    font-weight: 600;
+  }
+
+  .company-switch { display: grid; gap: 6px; margin-bottom: 12px; }
+  .company-switch button {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--muted);
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-align: left;
+    transition: all .18s ease;
+    font-family: inherit;
+    line-height: 1.25;
+  }
+  .company-switch button:hover { background: var(--panel-2); color: var(--text); }
+  .company-switch button.active {
+    background: linear-gradient(90deg, rgba(16,185,129,.16), rgba(59,130,246,.08));
+    border-color: rgba(16,185,129,.35);
+    color: #fff;
+  }
+  .company-switch button .ico { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .company-switch button .co-sub { display: block; font-size: 10px; color: var(--muted); font-weight: 500; margin-top: 2px; }
+  .company-switch button.active .co-sub { color: #a7f3d0; }
+
+  .modules { display: grid; gap: 3px; margin-top: 6px; }
+  .modules a {
+    display: flex; align-items: center; gap: 9px;
+    padding: 9px 12px;
+    border-radius: 9px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .15s;
+    border-left: 2px solid transparent;
+  }
+  .modules a:hover { background: var(--panel-2); color: var(--text); }
+  .modules a.active {
+    background: var(--panel-2);
+    color: #fff;
+    border-left-color: var(--accent);
+  }
+  .modules a .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--muted); flex-shrink: 0;
+  }
+  .modules a.active .dot { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
+  .sidebar-footer {
+    margin-top: 20px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .sidebar-footer button {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: inherit;
+    transition: all .15s;
+  }
+  .sidebar-footer button:hover { color: var(--text); border-color: var(--accent); }
+
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+  .topbar {
+    padding: 22px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(13,21,38,.6);
+    backdrop-filter: blur(10px);
+    position: sticky; top: 0; z-index: 20;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .topbar h2 { font-size: 20px; font-weight: 700; letter-spacing: .2px; }
+  .topbar p { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+  .topbar .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(16,185,129,.12);
+    color: var(--accent);
+    border: 1px solid rgba(16,185,129,.3);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .topbar .badge .pulse {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+    box-shadow: 0 0 0 0 rgba(16,185,129,.6);
+    animation: pulse 1.8s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(16,185,129,.6); }
+    70% { box-shadow: 0 0 0 8px rgba(16,185,129,0); }
+    100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+  }
+
+  .view { padding: 24px 32px 60px; }
+
+  .grid { display: grid; gap: 16px; }
+  .grid-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .grid-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+  .grid-4 { grid-template-columns: repeat(4, minmax(0,1fr)); }
+  @media (max-width: 1200px) {
+    .grid-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .grid-3 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  }
+  @media (max-width: 820px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+  }
+
+  .card {
+    background: linear-gradient(180deg, var(--panel) 0%, #111a2b 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card h3 {
+    font-size: 13.5px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .card h3 .sub { color: var(--muted); font-size: 11.5px; font-weight: 500; }
+  .card .hint { color: var(--muted); font-size: 11.5px; margin-bottom: 14px; }
+
+  .kpi {
+    padding: 18px;
+    border-radius: var(--radius);
+    background: linear-gradient(160deg, var(--panel-2), var(--panel));
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    opacity:.9;
+  }
+  .kpi .label { color: var(--muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; }
+  .kpi .value { font-size: 24px; font-weight: 800; margin: 8px 0 4px; letter-spacing: -.5px; }
+  .kpi .delta { font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+  .kpi .delta.up { color: var(--accent); }
+  .kpi .delta.down { color: var(--danger); }
+  .kpi .delta.flat { color: var(--warn); }
+  .kpi.blue::before { background: linear-gradient(90deg, var(--accent-2), #60a5fa); }
+  .kpi.purple::before { background: linear-gradient(90deg, var(--purple), #ec4899); }
+  .kpi.warn::before { background: linear-gradient(90deg, var(--warn), #f97316); }
+
+  .chart-box { position: relative; height: 290px; margin-top: 8px; }
+  .chart-box.sm { height: 230px; }
+  .chart-box.lg { height: 340px; }
+
+  .table-wrap { overflow-x: auto; margin-top: 10px; border-radius: 10px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead { background: var(--panel-3); }
+  th {
+    text-align: left;
+    padding: 11px 14px;
+    font-weight: 600;
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  td { padding: 11px 14px; border-top: 1px solid var(--border); }
+  tbody tr:hover { background: rgba(59,130,246,.05); }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  .pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .pill.ok { background: rgba(16,185,129,.15); color: #34d399; }
+  .pill.warn { background: rgba(245,158,11,.15); color: #fbbf24; }
+  .pill.bad { background: rgba(239,68,68,.15); color: #f87171; }
+  .pill.info { background: rgba(59,130,246,.15); color: #60a5fa; }
+  .pill.neutral { background: rgba(148,163,184,.15); color: #cbd5e1; }
+  .pill.purple { background: rgba(168,85,247,.15); color: #c084fc; }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgba(16,185,129,.12);
+    color: #34d399;
+    font-size: 10.5px;
+    font-weight: 600;
+    border: 1px solid rgba(16,185,129,.25);
+    margin-left: 6px;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+    padding: 14px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .form-row input, .form-row select {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 11px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: border .15s;
+    width: 100%;
+  }
+  .form-row input:focus, .form-row select:focus { border-color: var(--accent); }
+  .form-row button {
+    background: linear-gradient(135deg, var(--accent), #059669);
+    color: #fff;
+    border: none;
+    padding: 9px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform .1s;
+  }
+  .form-row button:hover { transform: translateY(-1px); }
+  .form-row button.ghost { background: var(--panel-3); color: var(--text); }
+
+  .btn-del {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 26px; height: 26px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 1;
+  }
+  .btn-del:hover { color: var(--danger); border-color: var(--danger); }
+
+  .progress {
+    height: 8px;
+    border-radius: 999px;
+    background: var(--panel-3);
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .progress > span {
+    display: block; height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    border-radius: 999px;
+    transition: width .5s ease;
+  }
+  .progress.warn > span { background: linear-gradient(90deg, var(--warn), #f97316); }
+  .progress.bad > span { background: linear-gradient(90deg, var(--danger), #dc2626); }
+
+  .empty {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .row-flex { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .spacer { flex: 1; }
+  .muted { color: var(--muted); }
+  .big { font-size: 22px; font-weight: 700; }
+
+  .info-banner {
+    background: linear-gradient(90deg, rgba(59,130,246,.1), rgba(168,85,247,.08));
+    border: 1px solid rgba(59,130,246,.25);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 18px;
+    font-size: 12.5px;
+    color: #cbd5e1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .info-banner b { color: #fff; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">🌿</div>
+      <div>
+        <h1>Elvenium Grup</h1>
+        <small>Integrated ERP · Biomass Energy</small>
+      </div>
+    </div>
+
+    <div class="section-label">Entitas Bisnis</div>
+    <div class="company-switch" id="companySwitch">
+      <button data-co="holding"><span class="ico">🏢</span><span>Elvenium Grup<span class="co-sub">Holding / Konsolidasi</span></span></button>
+      <button data-co="land"><span class="ico">🌱</span><span>PT Minerva Green Agro<span class="co-sub">Lahan & Pemeliharaan</span></span></button>
+      <button data-co="logistics"><span class="ico">🚚</span><span>PT Verdantia Agri Nature<span class="co-sub">Logistik & Jasa</span></span></button>
+      <button data-co="plant"><span class="ico">🏭</span><span>PT Elvenium Agro Inovasi<span class="co-sub">Pabrikasi Pellet</span></span></button>
+    </div>
+
+    <div class="section-label">Modul</div>
+    <nav class="modules" id="modules"></nav>
+
+    <div class="sidebar-footer">
+      <button id="btnExport">⬇ Export Data (JSON)</button>
+      <button id="btnReset">↺ Reset ke Data Contoh</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h2 id="pageTitle">Executive Summary</h2>
+        <p id="pageSub">Elvenium Grup · Holding</p>
+      </div>
+      <div class="badge"><span class="pulse"></span> Sistem Online · FY 2024</div>
+    </header>
+    <div class="view" id="view"></div>
+  </main>
+
+</div>
+
+<script>
+/* ============================================================
+   ERP ELVENIUM GRUP — PROTOTYPE
+   PT Elvenium Agro Inovasi (Plant)
+   PT Verdantia Agri Nature (Logistics)
+   PT Minerva Green Agro (Land)
+   Konsesi 10.000 ha Sukabumi · Gamal · PLN Pelabuhan Ratu + Export
+============================================================ */
+
+const fmt = {
+  num: (n, d=0) => new Intl.NumberFormat('id-ID', {minimumFractionDigits:d, maximumFractionDigits:d}).format(n || 0),
+  rp: (n) => 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(n || 0)),
+  rpShort: (n) => {
+    n = n || 0;
+    if (Math.abs(n) >= 1e12) return 'Rp ' + (n/1e12).toFixed(2) + ' T';
+    if (Math.abs(n) >= 1e9) return 'Rp ' + (n/1e9).toFixed(2) + ' M';
+    if (Math.abs(n) >= 1e6) return 'Rp ' + (n/1e6).toFixed(1) + ' jt';
+    if (Math.abs(n) >= 1e3) return 'Rp ' + (n/1e3).toFixed(0) + ' rb';
+    return 'Rp ' + n;
+  },
+  pct: (n, d=1) => (n || 0).toFixed(d) + '%'
+};
+
+const MONTHS = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+
+// Harga kontrak (IDR/ton)
+const PRICE = {
+  PLN: 1_350_000,
+  EXPORT: 1_850_000
+};
+
+const ENTITIES = {
+  HOLDING: 'Elvenium Grup',
+  LAND: 'PT Minerva Green Agro',
+  LOG: 'PT Verdantia Agri Nature',
+  PLANT: 'PT Elvenium Agro Inovasi'
+};
+
+const DEFAULT_DATA = {
+  // ============ LAHAN (PT MINERVA GREEN AGRO) ============
+  // Konsesi 10.000 ha lahan marginal Perhutani di Sukabumi
+  // Tanaman utama: GAMAL (Gliricidia sepium) — legum cepat tumbuh, cocok hutan energi
+  plots: [
+    {id:1,  nama:'Blok A', luas:1200, komoditas:'Gamal',     umur:24, survival:92, kesehatan:'Baik',             lat:-6.912, lng:106.845, legalitas:'Perhutani KPH Sukabumi', jenisTanah:'Latosol',  zona:'Cikembar'},
+    {id:2,  nama:'Blok B', luas:980,  komoditas:'Gamal',     umur:18, survival:89, kesehatan:'Baik',             lat:-6.928, lng:106.872, legalitas:'Perhutani KPH Sukabumi', jenisTanah:'Podsolik', zona:'Cikembar'},
+    {id:3,  nama:'Blok C', luas:1500, komoditas:'Gamal',     umur:30, survival:94, kesehatan:'Baik',             lat:-6.945, lng:106.895, legalitas:'Perhutani KPH Sukabumi', jenisTanah:'Latosol',  zona:'Warungkiara'},
+    {id:4,  nama:'Blok D', luas:850,  komoditas:'Kaliandra', umur:12, survival:86, kesehatan:'Cukup',            lat:-6.960, lng:106.920, legalitas:'Perhutani KPH Sukabumi', jenisTanah:'Podsolik', zona:'Warungkiara'},
+    {id:5,  nama:'Blok E', luas:1100, komoditas:'Gamal',     umur:36, survival:91, kesehatan:'Baik',             lat:-6.978, lng:106.940, legalitas:'Perhutani KPH Sukabumi', jenisTanah:'Latosol',  zona:'Bantargadung'},
+    {id:6,  nama:'Blok F', luas:750,  komoditas:'Gamal',     umur:15, survival:87, kesehatan:'Cukup',            lat:-6.995, lng:106.955, legalitas:'Perhutani KPH Sukabumi', jenisTanah:'Regosol',  zona:'Bantargadung'},
+    {id:7,  nama:'Blok G', luas:1300, komoditas:'Gamal',     umur:22, survival:90, kesehatan:'Baik',             lat:-7.010, lng:106.970, legalitas:'Perhutani KPH Sukabumi', jenisTanah:'Latosol',  zona:'Simpenan'},
+    {id:8,  nama:'Blok H', luas:620,  komoditas:'Akasia',    umur:9,  survival:83, kesehatan:'Perlu Perhatian',  lat:-7.025, lng:106.990, legalitas:'Perhutani KPH Sukabumi', jenisTanah:'Podsolik', zona:'Simpenan'},
+    {id:9,  nama:'Blok I', luas:900,  komoditas:'Lamtoro',   umur:20, survival:88, kesehatan:'Baik',             lat:-7.040, lng:107.005, legalitas:'Perhutani KPH Sukabumi', jenisTanah:'Regosol',  zona:'Pelabuhan Ratu'},
+    {id:10, nama:'Blok J', luas:800,  komoditas:'Gamal',     umur:28, survival:93, kesehatan:'Baik',             lat:-7.055, lng:107.020, legalitas:'Perhutani KPH Sukabumi', jenisTanah:'Latosol',  zona:'Pelabuhan Ratu'}
+  ],
+  agronomy: [
+    {id:1, blok:'Blok A', tanggal:'2024-11-02', kegiatan:'Pemupukan NPK',        biaya:2400000000, catatan:'2 jt/ha · 1.200 ha'},
+    {id:2, blok:'Blok B', tanggal:'2024-11-08', kegiatan:'Penyiangan Gulma',     biaya:1470000000, catatan:'1,5 jt/ha · 980 ha'},
+    {id:3, blok:'Blok D', tanggal:'2024-11-15', kegiatan:'Pengendalian Hama',   biaya:850000000,  catatan:'Bio-pestisida · 850 ha'},
+    {id:4, blok:'Blok C', tanggal:'2024-11-22', kegiatan:'Pemupukan Kandang',   biaya:3000000000, catatan:'2 jt/ha · 1.500 ha'},
+    {id:5, blok:'Blok H', tanggal:'2024-11-28', kegiatan:'Replanting / Penyulaman', biaya:1240000000, catatan:'2 jt/ha · 620 ha'},
+    {id:6, blok:'Blok E', tanggal:'2024-12-03', kegiatan:'Pemangkasan & Panen', biaya:2750000000, catatan:'2,5 jt/ha · 1.100 ha'},
+    {id:7, blok:'Blok G', tanggal:'2024-12-08', kegiatan:'Pemupukan NPK',        biaya:2600000000, catatan:'2 jt/ha · 1.300 ha'}
+  ],
+  landAssets: [
+    {id:1, nama:'Traktor John Deere 5055E',    jenis:'Traktor',       blok:'Blok A', tahun:2021, kondisi:'Baik'},
+    {id:2, nama:'Excavator Komatsu PC75',      jenis:'Alat Berat',    blok:'Blok C', tahun:2019, kondisi:'Perlu Servis'},
+    {id:3, nama:'Irigasi Sprinkler Blok B',    jenis:'Infrastruktur', blok:'Blok B', tahun:2022, kondisi:'Baik'},
+    {id:4, nama:'Chainsaw Stihl MS381 (x12)',  jenis:'Alat Ringan',   blok:'Blok D', tahun:2023, kondisi:'Baik'},
+    {id:5, nama:'Bulldozer CAT D5',            jenis:'Alat Berat',    blok:'Blok H', tahun:2020, kondisi:'Baik'},
+    {id:6, nama:'Dump Truck Hino 500',         jenis:'Kendaraan',     blok:'Blok C', tahun:2022, kondisi:'Baik'},
+    {id:7, nama:'Pompa Air Grundfos (x8)',     jenis:'Infrastruktur', blok:'Blok G', tahun:2023, kondisi:'Baik'},
+    {id:8, nama:'Genset Cummins 100 kVA',      jenis:'Infrastruktur', blok:'Basecamp', tahun:2022, kondisi:'Baik'}
+  ],
+
+  // ============ LOGISTIK (PT VERDANTIA AGRI NATURE) ============
+  fleet: [
+    {id:'F 9012 XY', tipe:'Hino 500 FM260',     kapasitas:12, utilization:82, fuel:3.2, otd:94, status:'Aktif'},
+    {id:'F 9045 XY', tipe:'Mitsubishi Fuso FN', kapasitas:10, utilization:76, fuel:3.5, otd:91, status:'Aktif'},
+    {id:'F 9078 XY', tipe:'Isuzu Giga FVM',     kapasitas:15, utilization:88, fuel:2.9, otd:96, status:'Aktif'},
+    {id:'F 9101 XY', tipe:'Hino 300 Dutro',     kapasitas:8,  utilization:65, fuel:4.1, otd:88, status:'Servis'},
+    {id:'F 9134 XY', tipe:'Hino 500 FM260',     kapasitas:12, utilization:80, fuel:3.3, otd:93, status:'Aktif'},
+    {id:'F 9167 XY', tipe:'Scania P360',        kapasitas:20, utilization:85, fuel:2.6, otd:97, status:'Aktif'},
+    {id:'F 9190 XY', tipe:'Hino 500 FM260',     kapasitas:12, utilization:78, fuel:3.4, otd:92, status:'Aktif'},
+    {id:'F 9223 XY', tipe:'Fuso Canter',        kapasitas:8,  utilization:70, fuel:4.0, otd:90, status:'Aktif'}
+  ],
+  trips: [
+    {id:'TRP-001', tanggal:'2024-12-01', asal:'Blok A (Cikembar)',          tujuan:'Pabrik Cikembar',        armada:'F 9012 XY', tonase:12, jarak:18, komoditas:'Gamal Log',           status:'Selesai'},
+    {id:'TRP-002', tanggal:'2024-12-02', asal:'Blok C (Warungkiara)',       tujuan:'Pabrik Cikembar',        armada:'F 9078 XY', tonase:15, jarak:25, komoditas:'Gamal Log',           status:'Selesai'},
+    {id:'TRP-003', tanggal:'2024-12-03', asal:'Petani Mitra Cibadak',       tujuan:'Pabrik Cikembar',        armada:'F 9045 XY', tonase:10, jarak:32, komoditas:'Kaliandra',           status:'Dalam Perjalanan'},
+    {id:'TRP-004', tanggal:'2024-12-04', asal:'Pabrik Cikembar',            tujuan:'PLN Pelabuhan Ratu',     armada:'F 9134 XY', tonase:12, jarak:55, komoditas:'Wood Pellet',         status:'Selesai'},
+    {id:'TRP-005', tanggal:'2024-12-05', asal:'Blok E (Bantargadung)',      tujuan:'Pabrik Cikembar',        armada:'F 9012 XY', tonase:12, jarak:28, komoditas:'Gamal Log',           status:'Terjadwal'},
+    {id:'TRP-006', tanggal:'2024-12-06', asal:'Pabrik Cikembar',            tujuan:'Pelabuhan Ratu Port',    armada:'F 9167 XY', tonase:20, jarak:60, komoditas:'Wood Pellet Export',  status:'Terjadwal'},
+    {id:'TRP-007', tanggal:'2024-12-07', asal:'Blok G (Simpenan)',          tujuan:'Pabrik Cikembar',        armada:'F 9190 XY', tonase:12, jarak:35, komoditas:'Gamal Log',           status:'Selesai'},
+    {id:'TRP-008', tanggal:'2024-12-08', asal:'Blok J (Pelabuhan Ratu)',    tujuan:'Pabrik Cikembar',        armada:'F 9223 XY', tonase:8,  jarak:42, komoditas:'Gamal Log',           status:'Selesai'},
+    {id:'TRP-009', tanggal:'2024-12-09', asal:'Pabrik Cikembar',            tujuan:'PLN Pelabuhan Ratu',     armada:'F 9012 XY', tonase:12, jarak:55, komoditas:'Wood Pellet',         status:'Terjadwal'},
+    {id:'TRP-010', tanggal:'2024-12-10', asal:'Blok I (Pelabuhan Ratu)',    tujuan:'Pabrik Cikembar',        armada:'F 9078 XY', tonase:15, jarak:40, komoditas:'Lamtoro',             status:'Selesai'}
+  ],
+  services: [
+    {id:1, klien:'PLN Pelabuhan Ratu',      jenis:'Kontrak Suplai Wood Pellet',   nilai:243000000000, periode:'2024-2025', status:'Aktif'},
+    {id:2, klien:'Marubeni Corporation',    jenis:'Export Wood Pellet (Jepang)',  nilai:46250000000,  periode:'2024-2025', status:'Aktif'},
+    {id:3, klien:'Sumitomo Osaka',          jenis:'Export Wood Pellet (Jepang)',  nilai:17100000000,  periode:'2024-2025', status:'Aktif'},
+    {id:4, klien:'Perhutani KPH Sukabumi',  jenis:'Kerjasama Pengelolaan Lahan',  nilai:15000000000,  periode:'2024',      status:'Aktif'},
+    {id:5, klien:'Koperasi Tani Cibadak',   jenis:'Sewa Alat Berat',              nilai:4800000000,   periode:'Nov 2024',  status:'Aktif'},
+    {id:6, klien:'Petani Mitra C',          jenis:'Jasa Borongan Panen',          nilai:3200000000,   periode:'Des 2024',  status:'Selesai'}
+  ],
+
+  // ============ PABRIKASI (PT ELVENIUM AGRO INOVASI) ============
+  production: MONTHS.map((m,i) => ({
+    bulan: m,
+    target:    [2500,2800,3000,3200,3500,3500,3800,4000,4200,4500,4800,5000][i],
+    realisasi: [2380,2650,3080,3120,3450,3620,3720,4080,4150,4420,4680,5100][i],
+    toPLN:     [2200,2450,2850,2900,3200,3350,3450,3800,3850,4100,4350,4750][i],
+    toExport:  [ 180, 200, 230, 220, 250, 270, 270, 280, 300, 320, 330, 350][i],
+    cogm:      [1450000,1435000,1420000,1405000,1390000,1380000,1370000,1360000,1350000,1340000,1335000,1330000][i],
+    conversion:[0.62,0.63,0.63,0.64,0.64,0.65,0.65,0.66,0.66,0.67,0.67,0.68][i],
+    oee:       [68,71,73,74,76,78,79,81,82,84,85,86][i]
+  })),
+  maintenance: [
+    {id:1, mesin:'Chipper',     tanggal:'2024-11-05', jenis:'Preventif', downtime:4,  biaya:3500000,  teknisi:'Tim A'},
+    {id:2, mesin:'Hammer Mill', tanggal:'2024-11-12', jenis:'Korektif',  downtime:8,  biaya:8500000,  teknisi:'Tim B'},
+    {id:3, mesin:'Dryer',       tanggal:'2024-11-19', jenis:'Preventif', downtime:3,  biaya:2200000,  teknisi:'Tim A'},
+    {id:4, mesin:'Pellet Mill', tanggal:'2024-11-26', jenis:'Korektif',  downtime:12, biaya:12500000, teknisi:'Tim C'},
+    {id:5, mesin:'Chipper',     tanggal:'2024-12-02', jenis:'Preventif', downtime:4,  biaya:3800000,  teknisi:'Tim A'},
+    {id:6, mesin:'Pellet Mill', tanggal:'2024-12-08', jenis:'Preventif', downtime:6,  biaya:5500000,  teknisi:'Tim C'}
+  ],
+  qc: [
+    {id:'B-2401', tanggal:'2024-11-01', moisture:9.2,  kalori:4250, abu:2.1, density:640, status:'Lulus',  tujuan:'PLN Pelabuhan Ratu'},
+    {id:'B-2402', tanggal:'2024-11-05', moisture:8.8,  kalori:4320, abu:1.9, density:655, status:'Lulus',  tujuan:'Export - Marubeni'},
+    {id:'B-2403', tanggal:'2024-11-10', moisture:10.5, kalori:4100, abu:2.8, density:620, status:'Revisi', tujuan:'PLN Pelabuhan Ratu'},
+    {id:'B-2404', tanggal:'2024-11-15', moisture:8.5,  kalori:4400, abu:1.7, density:665, status:'Lulus',  tujuan:'Export - Marubeni'},
+    {id:'B-2405', tanggal:'2024-11-20', moisture:9.8,  kalori:4180, abu:2.3, density:635, status:'Lulus',  tujuan:'PLN Pelabuhan Ratu'},
+    {id:'B-2406', tanggal:'2024-11-25', moisture:11.2, kalori:3980, abu:3.1, density:610, status:'Gagal',  tujuan:'Reject / Daur Ulang'},
+    {id:'B-2407', tanggal:'2024-12-01', moisture:8.2,  kalori:4450, abu:1.6, density:670, status:'Lulus',  tujuan:'Export - Sumitomo'},
+    {id:'B-2408', tanggal:'2024-12-05', moisture:9.0,  kalori:4300, abu:2.0, density:648, status:'Lulus',  tujuan:'PLN Pelabuhan Ratu'},
+    {id:'B-2409', tanggal:'2024-12-08', moisture:8.4,  kalori:4380, abu:1.8, density:662, status:'Lulus',  tujuan:'Export - Marubeni'},
+    {id:'B-2410', tanggal:'2024-12-10', moisture:9.5,  kalori:4220, abu:2.2, density:638, status:'Lulus',  tujuan:'PLN Pelabuhan Ratu'}
+  ],
+  stock: { raw: 1850, rawCap: 3000, fg: 2400, fgCap: 4000 },
+
+  buyers: [
+    {id:1, nama:'PLN Pelabuhan Ratu',          jenis:'PLN',    kontrak:180000, terkirim:41250, harga:1350000, status:'Aktif'},
+    {id:2, nama:'Marubeni Corporation (Jepang)', jenis:'Export', kontrak:25000,  terkirim:1850,  harga:1850000, status:'Aktif'},
+    {id:3, nama:'Sumitomo Osaka (Jepang)',      jenis:'Export', kontrak:15000,  terkirim:950,   harga:1800000, status:'Aktif'},
+    {id:4, nama:'KEPCO Korea',                  jenis:'Export', kontrak:10000,  terkirim:400,   harga:1750000, status:'Negosiasi'}
+  ],
+
+  interco: [
+    {id:'IC-001', dari:ENTITIES.LOG,   ke:ENTITIES.PLANT, jenis:'Jasa Angkut Biomassa',   nilai:2400000000,  tanggal:'2024-11-30', status:'Lunas'},
+    {id:'IC-002', dari:ENTITIES.LAND,  ke:ENTITIES.PLANT, jenis:'Suplai Bahan Baku Gamal',nilai:12500000000, tanggal:'2024-11-30', status:'Lunas'},
+    {id:'IC-003', dari:ENTITIES.LOG,   ke:ENTITIES.LAND,  jenis:'Sewa Alat Angkut',      nilai:850000000,   tanggal:'2024-12-05', status:'Belum Bayar'},
+    {id:'IC-004', dari:ENTITIES.LAND,  ke:ENTITIES.LOG,   jenis:'Sewa Lahan Basecamp',   nilai:320000000,   tanggal:'2024-12-06', status:'Belum Bayar'},
+    {id:'IC-005', dari:ENTITIES.PLANT, ke:ENTITIES.LAND,  jenis:'Bagi Hasil Produksi',   nilai:3800000000,  tanggal:'2024-12-10', status:'Belum Bayar'}
+  ]
+};
+
+/* ============================================================
+   STATE
+============================================================ */
+const DATA_KEY = 'erp_elvenium_v2';
+
+const state = {
+  company: 'holding',
+  module: 'exec',
+  data: loadData()
+};
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(DATA_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return JSON.parse(JSON.stringify(DEFAULT_DATA));
+}
+function saveData() {
+  try { localStorage.setItem(DATA_KEY, JSON.stringify(state.data)); } catch(e) {}
+}
+function resetData() {
+  if (!confirm('Reset semua data ke contoh awal?')) return;
+  state.data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  saveData();
+  render();
+}
+function exportData() {
+  const blob = new Blob([JSON.stringify(state.data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'erp-elvenium-data.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ============================================================
+   MODULE MAP
+============================================================ */
+const MODULES = {
+  holding: [
+    {id:'exec',        label:'Executive Summary'},
+    {id:'buyers',      label:'Buyer & Kontrak Oftake'},
+    {id:'finance',     label:'Konsolidasi Keuangan'},
+    {id:'interco',     label:'Faktur Inter-Company'},
+    {id:'kpi',         label:'KPI Grup'}
+  ],
+  land: [
+    {id:'dashboard',   label:'Dashboard Lahan'},
+    {id:'plots',       label:'Pemetaan & Inventaris Lahan'},
+    {id:'agronomy',    label:'Perawatan & Agronomi'},
+    {id:'assets',      label:'Manajemen Aset Lahan'}
+  ],
+  logistics: [
+    {id:'dashboard',   label:'Dashboard Logistik'},
+    {id:'fleet',       label:'Manajemen Armada'},
+    {id:'supply',      label:'Rantai Pasok & Pengadaan'},
+    {id:'services',    label:'Layanan Agribisnis'}
+  ],
+  plant: [
+    {id:'dashboard',   label:'Dashboard Pabrikasi'},
+    {id:'ppic',        label:'PPIC & Produksi'},
+    {id:'maintenance', label:'Perawatan Mesin'},
+    {id:'qc',          label:'Quality Control'}
+  ]
+};
+
+const COMPANY_META = {
+  holding:   {name:'Elvenium Grup',            desc:'Holding / Konsolidasi 3 entitas bisnis'},
+  land:      {name:'PT Minerva Green Agro',    desc:'Konsesi 10.000 ha Sukabumi · Tanaman Gamal'},
+  logistics: {name:'PT Verdantia Agri Nature', desc:'Armada & rantai pasok biomassa'},
+  plant:     {name:'PT Elvenium Agro Inovasi', desc:'Pabrikasi wood pellet untuk PLN & Export'}
+};
+
+/* ============================================================
+   CHART HELPERS
+============================================================ */
+const charts = {};
+Chart.defaults.color = '#8ba0bf';
+Chart.defaults.borderColor = 'rgba(42,58,88,.6)';
+Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+Chart.defaults.font.size = 11.5;
+
+function makeChart(id, config) {
+  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  charts[id] = new Chart(ctx, config);
+}
+function destroyAllCharts() {
+  Object.keys(charts).forEach(k => { try { charts[k].destroy(); } catch(e){} delete charts[k]; });
+}
+const PALETTE = ['#10b981','#3b82f6','#a855f7','#f59e0b','#ef4444','#06b6d4','#84cc16','#ec4899'];
+
+/* ============================================================
+   RENDER PIPELINE
+============================================================ */
+function setCompany(co) {
+  state.company = co;
+  if (!MODULES[co].find(m => m.id === state.module)) {
+    state.module = MODULES[co][0].id;
+  }
+  render();
+}
+function setModule(m) {
+  state.module = m;
+  render();
+}
+
+function render() {
+  destroyAllCharts();
+  renderSidebar();
+  renderTopbar();
+  renderContent();
+}
+
+function renderSidebar() {
+  document.querySelectorAll('#companySwitch button').forEach(b => {
+    b.classList.toggle('active', b.dataset.co === state.company);
+  });
+  const nav = document.getElementById('modules');
+  nav.innerHTML = MODULES[state.company].map(m => `
+    <a data-mod="${m.id}" class="${m.id === state.module ? 'active' : ''}">
+      <span class="dot"></span>${m.label}
+    </a>
+  `).join('');
+}
+
+function renderTopbar() {
+  const meta = COMPANY_META[state.company];
+  const mod = MODULES[state.company].find(m => m.id === state.module);
+  document.getElementById('pageTitle').textContent = mod ? mod.label : 'Dashboard';
+  document.getElementById('pageSub').textContent = meta.name + ' · ' + meta.desc;
+}
+
+function renderContent() {
+  const view = document.getElementById('view');
+  const key = state.company + ':' + state.module;
+  const fn = VIEWS[key];
+  if (!fn) { view.innerHTML = '<div class="empty">Modul tidak ditemukan.</div>'; return; }
+  view.innerHTML = fn();
+  const hook = HOOKS[key];
+  if (hook) hook();
+}
+
+/* ============================================================
+   HELPERS
+============================================================ */
+function kpiCard(label, value, delta, deltaClass, extraClass='') {
+  return `
+    <div class="kpi ${extraClass}">
+      <div class="label">${label}</div>
+      <div class="value">${value}</div>
+      ${delta ? `<div class="delta ${deltaClass}">${delta}</div>` : ''}
+    </div>`;
+}
+function healthPill(h) {
+  const map = {'Baik':'ok','Cukup':'warn','Perlu Perhatian':'bad'};
+  return `<span class="pill ${map[h] || 'neutral'}">${h}</span>`;
+}
+function statusPill(s) {
+  const m = {
+    'Selesai':'ok','Aktif':'ok','Lulus':'ok','Lunas':'ok',
+    'Dalam Perjalanan':'info','Terjadwal':'info','Negosiasi':'info',
+    'Revisi':'warn','Belum Bayar':'warn','Servis':'warn',
+    'Gagal':'bad'
+  };
+  return `<span class="pill ${m[s] || 'neutral'}">${s}</span>`;
+}
+function komoditasPill(k) {
+  const m = {'Gamal':'ok','Kaliandra':'info','Akasia':'warn','Lamtoro':'neutral'};
+  return `<span class="pill ${m[k] || 'neutral'}">${k}</span>`;
+}
+
+function computeTotals() {
+  const d = state.data;
+  const totalReal = d.production.reduce((a,b)=>a+b.realisasi,0);
+  const totalTarget = d.production.reduce((a,b)=>a+b.target,0);
+  const totalPLN = d.production.reduce((a,b)=>a+b.toPLN,0);
+  const totalExport = d.production.reduce((a,b)=>a+b.toExport,0);
+  const revPLN = totalPLN * PRICE.PLN;
+  const revExport = totalExport * PRICE.EXPORT;
+  const totalRev = revPLN + revExport;
+  const totalCost = d.production.reduce((a,b)=>a+b.realisasi*b.cogm,0);
+  return {totalReal, totalTarget, totalPLN, totalExport, revPLN, revExport, totalRev, totalCost};
+}
+
+/* ============================================================
+   VIEWS
+============================================================ */
+const VIEWS = {};
+const HOOKS = {};
+
+/* ============================================================
+   HOLDING — EXECUTIVE SUMMARY
+============================================================ */
+VIEWS['holding:exec'] = () => {
+  const d = state.data;
+  const t = computeTotals();
+  const luas = d.plots.reduce((a,b)=>a+b.luas,0);
+  const armada = d.fleet.filter(f=>f.status==='Aktif').length;
+  const avgCogm = d.production.reduce((a,b)=>a+b.cogm,0) / d.production.length;
+  const capaian = t.totalReal / t.totalTarget * 100;
+  const exportShare = t.totalExport / t.totalReal * 100;
+
+  return `
+    <div class="info-banner">
+      <span>🌿</span>
+      <div>
+        <b>Elvenium Grup</b> · Konsesi <b>10.000 ha</b> lahan marginal Perhutani Sukabumi ·
+        Tanaman utama <b>Gamal (Gliricidia sepium)</b> ·
+        Pasar: <b>PLN Pelabuhan Ratu</b> + <b>Export</b>
+      </div>
+    </div>
+
+    <div class="grid grid-4" style="margin-bottom:18px">
+      ${kpiCard('Produksi Pellet YTD', fmt.num(t.totalReal)+' ton', `▲ ${fmt.pct(capaian)} dari target`, 'up')}
+      ${kpiCard('Total Luas Lahan', fmt.num(luas)+' ha', `${d.plots.length} blok · Perhutani`, 'flat', 'blue')}
+      ${kpiCard('Armada Aktif', armada+' unit', `${d.fleet.length} total armada`, 'flat', 'purple')}
+      ${kpiCard('Rata-rata COGM', fmt.rpShort(avgCogm)+'/ton', '▼ tren menurun', 'up', 'warn')}
+    </div>
+
+    <div class="grid grid-3" style="margin-bottom:18px">
+      ${kpiCard('Total Revenue YTD', fmt.rpShort(t.totalRev), `PLN + Export`, 'up')}
+      ${kpiCard('Pendapatan PLN', fmt.rpShort(t.revPLN), `${fmt.num(t.totalPLN)} ton`, 'up', 'blue')}
+      ${kpiCard('Pendapatan Export', fmt.rpShort(t.revExport), `${fmt.num(t.totalExport)} ton (${fmt.pct(exportShare)})`, 'up', 'purple')}
+    </div>
+
+    <div class="grid grid-2" style="margin-bottom:18px">
+      <div class="card">
+        <h3>Target vs Realisasi Produksi Pellet <span class="sub">Bulanan · ton</span></h3>
+        <div class="hint">Capaian produksi bulanan PT Elvenium Agro Inovasi.</div>
+        <div class="chart-box"><canvas id="chTargetReal"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Alokasi Produk: PLN vs Export <span class="sub">Bulanan · ton</span></h3>
+        <div class="hint">Distribusi pellet ke PLN Pelabuhan Ratu dan buyer ekspor.</div>
+        <div class="chart-box"><canvas id="chAlloc"></canvas></div>
+      </div>
+    </div>
+
+    <div class="grid grid-2" style="margin-bottom:18px">
+      <div class="card">
+        <h3>Tren COGM <span class="sub">Biaya Produksi per Ton</span></h3>
+        <div class="hint">Efisiensi biaya pokok produksi bulan ke bulan.</div>
+        <div class="chart-box sm"><canvas id="chCogm"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Kontribusi Nilai Inter-Company</h3>
+        <div class="hint">Total nilai faktur antar entitas dalam grup.</div>
+        <div class="chart-box sm"><canvas id="chInterco"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Ringkasan Kinerja Perusahaan Grup</h3>
+      <div class="hint">Snapshot performa 3 entitas bisnis Elvenium Grup.</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Entitas</th><th>Fokus</th><th class="num">Indikator Kunci</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td><b>🌱 PT Minerva Green Agro</b></td><td>Luas kelola</td><td class="num">${fmt.num(luas)} ha</td><td>${statusPill('Aktif')}</td></tr>
+            <tr><td><b>🚚 PT Verdantia Agri Nature</b></td><td>Armada aktif</td><td class="num">${armada} unit</td><td>${statusPill('Aktif')}</td></tr>
+            <tr><td><b>🏭 PT Elvenium Agro Inovasi</b></td><td>Produksi YTD</td><td class="num">${fmt.num(t.totalReal)} ton</td><td>${statusPill('Aktif')}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+};
+HOOKS['holding:exec'] = () => {
+  const d = state.data;
+  const labels = d.production.map(p => p.bulan);
+
+  makeChart('chTargetReal', {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {label:'Target', data: d.production.map(p=>p.target), backgroundColor:'rgba(59,130,246,.45)', borderColor:'#3b82f6', borderWidth:1, borderRadius:5},
+        {label:'Realisasi', data: d.production.map(p=>p.realisasi), backgroundColor:'rgba(16,185,129,.75)', borderColor:'#10b981', borderWidth:1, borderRadius:5}
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'top', labels:{boxWidth:10, boxHeight:10, padding:14}}},
+      scales:{
+        y:{beginAtZero:true, ticks:{callback:v=>fmt.num(v)}, grid:{color:'rgba(42,58,88,.4)'}},
+        x:{grid:{display:false}}
+      }
+    }
+  });
+
+  makeChart('chAlloc', {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {label:'PLN Pelabuhan Ratu', data: d.production.map(p=>p.toPLN), backgroundColor:'rgba(16,185,129,.8)', borderRadius:5, stack:'s'},
+        {label:'Export', data: d.production.map(p=>p.toExport), backgroundColor:'rgba(168,85,247,.8)', borderRadius:5, stack:'s'}
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'top', labels:{boxWidth:10, boxHeight:10, padding:14}}},
+      scales:{
+        y:{beginAtZero:true, stacked:true, ticks:{callback:v=>fmt.num(v)}, grid:{color:'rgba(42,58,88,.4)'}},
+        x:{stacked:true, grid:{display:false}}
+      }
+    }
+  });
+
+  makeChart('chCogm', {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label:'COGM (Rp/ton)',
+        data: d.production.map(p=>p.cogm),
+        borderColor:'#f59e0b',
+        backgroundColor:'rgba(245,158,11,.12)',
+        borderWidth:2.5,
+        tension:.35,
+        fill:true,
+        pointBackgroundColor:'#f59e0b',
+        pointRadius:3.5,
+        pointHoverRadius:6
+      }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>fmt.rp(c.parsed.y)+'/ton'}}},
+      scales:{
+        y:{ticks:{callback:v=>fmt.rpShort(v)}, grid:{color:'rgba(42,58,88,.4)'}},
+        x:{grid:{display:false}}
+      }
+    }
+  });
+
+  const byJenis = {};
+  state.data.interco.forEach(i => { byJenis[i.jenis] = (byJenis[i.jenis]||0) + i.nilai; });
+  makeChart('chInterco', {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(byJenis),
+      datasets: [{
+        data: Object.values(byJenis),
+        backgroundColor: PALETTE,
+        borderColor:'#131c2e',
+        borderWidth:3
+      }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      cutout:'62%',
+      plugins:{
+        legend:{position:'right', labels:{boxWidth:10, boxHeight:10, padding:12}},
+        tooltip:{callbacks:{label:c=>c.label+': '+fmt.rpShort(c.parsed)}}
+      }
+    }
+  });
+};
+
+/* ============================================================
+   HOLDING — BUYERS
+============================================================ */
+VIEWS['holding:buyers'] = () => {
+  const d = state.data;
+  const totalKontrak = d.buyers.reduce((a,b)=>a+b.kontrak,0);
+  const totalTerkirim = d.buyers.reduce((a,b)=>a+b.terkirim,0);
+  const plnRows = d.buyers.filter(b=>b.jenis==='PLN');
+  const expRows = d.buyers.filter(b=>b.jenis==='Export');
+  const plnTerkirim = plnRows.reduce((a,b)=>a+b.terkirim,0);
+  const expTerkirim = expRows.reduce((a,b)=>a+b.terkirim,0);
+
+  return `
+    <div class="grid grid-4" style="margin-bottom:18px">
+      ${kpiCard('Total Kontrak Oftake', fmt.num(totalKontrak)+' ton', `${d.buyers.length} buyer`, 'flat')}
+      ${kpiCard('Total Terkirim', fmt.num(totalTerkirim)+' ton', `${fmt.pct(totalTerkirim/totalKontrak*100)} dari kontrak`, 'up', 'blue')}
+      ${kpiCard('PLN Pelabuhan Ratu', fmt.num(plnTerkirim)+' ton', 'Co-firing PLTU', 'up', 'purple')}
+      ${kpiCard('Export', fmt.num(expTerkirim)+' ton', 'Jepang & Korea', 'up', 'warn')}
+    </div>
+
+    <div class="grid grid-2" style="margin-bottom:18px">
+      <div class="card">
+        <h3>Status Pemenuhan Kontrak per Buyer</h3>
+        <div class="hint">Realisasi pengiriman vs total kontrak oftake.</div>
+        <div class="chart-box"><canvas id="chBuyers"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Nilai Kontrak Aktif</h3>
+        <div class="hint">Estimasi nilai berdasarkan harga kontrak per ton.</div>
+        <div class="chart-box"><canvas id="chBuyerVal"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Kontrak Oftake & Buyer</h3>
+      <div class="hint">PLN Pelabuhan Ratu sebagai offtaker utama + buyer ekspor Jepang & Korea.</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Buyer</th><th>Jenis</th><th class="num">Kontrak (ton)</th><th class="num">Terkirim (ton)</th><th class="num">Harga (Rp/ton)</th><th class="num">Nilai Kontrak</th><th class="num">Progress</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody>
+            ${d.buyers.map(b => {
+              const prog = b.kontrak ? b.terkirim/b.kontrak*100 : 0;
+              return `
+              <tr>
+                <td><b>${b.nama}</b></td>
+                <td>${b.jenis==='PLN' ? '<span class="pill ok">PLN</span>' : '<span class="pill purple">Export</span>'}</td>
+                <td class="num">${fmt.num(b.kontrak)}</td>
+                <td class="num">${fmt.num(b.terkirim)}</td>
+                <td class="num">${fmt.rpShort(b.harga)}</td>
+                <td class="num">${fmt.rpShort(b.kontrak*b.harga)}</td>
+                <td class="num">${fmt.pct(prog)}</td>
+                <td>${statusPill(b.status)}</td>
+                <td><button class="btn-del" onclick="delRow('buyers',${b.id})">✕</button></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="form-row">
+        <input id="bNama" placeholder="Nama buyer">
+        <select id="bJenis"><option>PLN</option><option>Export</option></select>
+        <input id="bKontrak" type="number" placeholder="Kontrak (ton)">
+        <input id="bTerkirim" type="number" placeholder="Terkirim (ton)" value="0">
+        <input id="bHarga" type="number" placeholder="Harga (Rp/ton)">
+        <select id="bStatus"><option>Aktif</option><option>Negosiasi</option><option>Selesai</option></select>
+        <button onclick="addBuyer()">+ Tambah Buyer</button>
+      </div>
+    </div>
+  `;
+};
+HOOKS['holding:buyers'] = () => {
+  const d = state.data;
+  makeChart('chBuyers', {
+    type:'bar',
+    data:{
+      labels: d.buyers.map(b=>b.nama.length > 18 ? b.nama.slice(0,16)+'…' : b.nama),
+      datasets:[
+        {label:'Kontrak', data:d.buyers.map(b=>b.kontrak), backgroundColor:'rgba(59,130,246,.4)', borderRadius:5},
+        {label:'Terkirim', data:d.buyers.map(b=>b.terkirim), backgroundColor:'rgba(16,185,129,.8)', borderRadius:5}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'top', labels:{boxWidth:10, boxHeight:10, padding:14}}},
+      scales:{y:{beginAtZero:true, grid:{color:'rgba(42,58,88,.4)'}}, x:{grid:{display:false}}}
+    }
+  });
+
+  makeChart('chBuyerVal', {
+    type:'doughnut',
+    data:{
+      labels: d.buyers.map(b=>b.nama),
+      datasets:[{
+        data: d.buyers.map(b=> b.kontrak * b.harga),
+        backgroundColor: PALETTE,
+        borderColor:'#131c2e',
+        borderWidth:3
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      cutout:'62%',
+      plugins:{
+        legend:{position:'right', labels:{boxWidth:10, boxHeight:10, padding:10}},
+        tooltip:{callbacks:{label:c=> c.label+': '+fmt.rpShort(c.parsed)}}
+      }
+    }
+  });
+};
+window.addBuyer = function() {
+  const nama = document.getElementById('bNama').value.trim();
+  const jenis = document.getElementById('bJenis').value;
+  const kontrak = parseFloat(document.getElementById('bKontrak').value) || 0;
+  const terkirim = parseFloat(document.getElementById('bTerkirim').value) || 0;
+  const harga = parseFloat(document.getElementById('bHarga').value) || 0;
+  const status = document.getElementById('bStatus').value;
+  if (!nama || !kontrak) { alert('Nama dan kontrak wajib diisi.'); return; }
+  const id = Math.max(0, ...state.data.buyers.map(b=>b.id)) + 1;
+  state.data.buyers.push({id, nama, jenis, kontrak, terkirim, harga, status});
+  saveData(); render();
+};
+
+/* ============================================================
+   HOLDING — FINANCE
+============================================================ */
+VIEWS['holding:finance'] = () => {
+  const d = state.data;
+  const t = computeTotals();
+
+  const landCost = d.agronomy.reduce((a,b)=>a+b.biaya,0);
+  const logRev = d.services.filter(s=>s.klien.toLowerCase().includes('perhutani') || s.klien.toLowerCase().includes('koperasi') || s.klien.toLowerCase().includes('petani')).reduce((a,b)=>a+b.nilai,0)
+                 + d.interco.filter(i=>i.dari===ENTITIES.LOG).reduce((a,b)=>a+b.nilai,0);
+  const prodRev = t.totalRev;
+  const prodCost = t.totalCost;
+
+  const rows = [
+    {nama:'🌱 '+ENTITIES.LAND,  pendapatan: landCost*0.1,   biaya: landCost,     laba: -landCost*0.9},
+    {nama:'🚚 '+ENTITIES.LOG,   pendapatan: logRev,         biaya: logRev*0.72,  laba: logRev*0.28},
+    {nama:'🏭 '+ENTITIES.PLANT, pendapatan: prodRev,        biaya: prodCost,     laba: prodRev - prodCost}
+  ];
+  const totalRev = rows.reduce((a,b)=>a+b.pendapatan,0);
+  const totalCost = rows.reduce((a,b)=>a+b.biaya,0);
+  const totalProfit = totalRev - totalCost;
+
+  return `
+    <div class="grid grid-3" style="margin-bottom:18px">
+      ${kpiCard('Total Pendapatan Grup', fmt.rpShort(totalRev), 'Konsolidasi 3 entitas', 'up')}
+      ${kpiCard('Total Beban', fmt.rpShort(totalCost), 'Termasuk inter-company', 'flat', 'warn')}
+      ${kpiCard('Laba Konsolidasi', fmt.rpShort(totalProfit), `Margin ${fmt.pct(totalProfit/totalRev*100)}`, totalProfit>0?'up':'down', 'purple')}
+    </div>
+
+    <div class="card" style="margin-bottom:18px">
+      <h3>Konsolidasi Laba-Rugi per Entitas</h3>
+      <div class="hint">Perbandingan pendapatan, biaya, dan laba tiap perusahaan dalam grup.</div>
+      <div class="chart-box lg"><canvas id="chFinance"></canvas></div>
+    </div>
+
+    <div class="card">
+      <h3>Laporan Laba-Rugi Konsolidasi <span class="sub">FY 2024</span></h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Entitas</th><th class="num">Pendapatan</th><th class="num">Biaya</th><th class="num">Laba</th><th class="num">Margin</th></tr>
+          </thead>
+          <tbody>
+            ${rows.map(r => `
+              <tr>
+                <td>${r.nama}</td>
+                <td class="num">${fmt.rpShort(r.pendapatan)}</td>
+                <td class="num">${fmt.rpShort(r.biaya)}</td>
+                <td class="num" style="color:${r.laba>=0?'#34d399':'#f87171'}">${fmt.rpShort(r.laba)}</td>
+                <td class="num">${fmt.pct(r.pendapatan? r.laba/r.pendapatan*100 : 0)}</td>
+              </tr>`).join('')}
+            <tr style="font-weight:700; background:rgba(59,130,246,.08)">
+              <td>TOTAL KONSOLIDASI</td>
+              <td class="num">${fmt.rpShort(totalRev)}</td>
+              <td class="num">${fmt.rpShort(totalCost)}</td>
+              <td class="num" style="color:#34d399">${fmt.rpShort(totalProfit)}</td>
+              <td class="num">${fmt.pct(totalProfit/totalRev*100)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+};
+HOOKS['holding:finance'] = () => {
+  const d = state.data;
+  const t = computeTotals();
+  const landCost = d.agronomy.reduce((a,b)=>a+b.biaya,0);
+  const logRev = d.services.filter(s=>!s.klien.toLowerCase().includes('pln') && !s.klien.toLowerCase().includes('marubeni') && !s.klien.toLowerCase().includes('sumitomo')).reduce((a,b)=>a+b.nilai,0)
+                 + d.interco.filter(i=>i.dari===ENTITIES.LOG).reduce((a,b)=>a+b.nilai,0);
+
+  makeChart('chFinance', {
+    type: 'bar',
+    data: {
+      labels: ['🌱 Minerva Green Agro', '🚚 Verdantia Agri Nature', '🏭 Elvenium Agro Inovasi'],
+      datasets: [
+        {label:'Pendapatan', data:[landCost*0.1, logRev, t.totalRev], backgroundColor:'rgba(16,185,129,.75)', borderRadius:6},
+        {label:'Biaya',      data:[landCost, logRev*0.72, t.totalCost], backgroundColor:'rgba(239,68,68,.7)', borderRadius:6},
+        {label:'Laba',       data:[-landCost*0.9, logRev*0.28, t.totalRev - t.totalCost], backgroundColor:'rgba(59,130,246,.8)', borderRadius:6}
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'top', labels:{boxWidth:10, boxHeight:10, padding:14}},
+        tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt.rpShort(c.parsed.y)}}
+      },
+      scales:{
+        y:{ticks:{callback:v=>fmt.rpShort(v)}, grid:{color:'rgba(42,58,88,.4)'}},
+        x:{grid:{display:false}}
+      }
+    }
+  });
+};
+
+/* ============================================================
+   HOLDING — INTER-COMPANY
+============================================================ */
+VIEWS['holding:interco'] = () => {
+  const rows = state.data.interco;
+  const total = rows.reduce((a,b)=>a+b.nilai,0);
+  const companyOpts = [ENTITIES.LAND, ENTITIES.LOG, ENTITIES.PLANT];
+  return `
+    <div class="grid grid-3" style="margin-bottom:18px">
+      ${kpiCard('Total Faktur Inter-Company', fmt.rpShort(total), `${rows.length} transaksi`, 'up')}
+      ${kpiCard('Lunas', fmt.rpShort(rows.filter(r=>r.status==='Lunas').reduce((a,b)=>a+b.nilai,0)), '', 'flat')}
+      ${kpiCard('Outstanding', fmt.rpShort(rows.filter(r=>r.status!=='Lunas').reduce((a,b)=>a+b.nilai,0)), 'Perlu penagihan', 'flat', 'warn')}
+    </div>
+
+    <div class="card" style="margin-bottom:18px">
+      <h3>Faktur Inter-Company</h3>
+      <div class="hint">Transaksi lintas entitas: suplai bahan baku gamal, jasa angkut, sewa alat, bagi hasil.</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Dari</th><th>Ke</th><th>Jenis</th><th class="num">Nilai</th><th>Tanggal</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody>
+            ${rows.map(r => `
+              <tr>
+                <td><b>${r.id}</b></td>
+                <td>${r.dari}</td>
+                <td>${r.ke}</td>
+                <td>${r.jenis}</td>
+                <td class="num">${fmt.rpShort(r.nilai)}</td>
+                <td>${r.tanggal}</td>
+                <td>${statusPill(r.status)}</td>
+                <td><button class="btn-del" onclick="delRow('interco',${JSON.stringify(r.id).replace(/"/g,'&quot;')})">✕</button></td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="form-row">
+        <select id="icDari">${companyOpts.map(c=>`<option>${c}</option>`).join('')}</select>
+        <select id="icKe">${companyOpts.map(c=>`<option>${c}</option>`).join('')}</select>
+        <input id="icJenis" placeholder="Jenis transaksi">
+        <input id="icNilai" type="number" placeholder="Nilai (Rp)">
+        <button onclick="addInterco()">+ Tambah Faktur</button>
+      </div>
+    </div>
+  `;
+};
+window.addInterco = function() {
+  const dari = document.getElementById('icDari').value;
+  const ke = document.getElementById('icKe').value;
+  const jenis = document.getElementById('icJenis').value.trim();
+  const nilai = parseFloat(document.getElementById('icNilai').value);
+  if (!jenis || !nilai) { alert('Lengkapi semua field.'); return; }
+  if (dari === ke) { alert('Dari dan Ke tidak boleh sama.'); return; }
+  const id = 'IC-' + String(state.data.interco.length + 1).padStart(3,'0');
+  state.data.interco.push({id, dari, ke, jenis, nilai, tanggal: new Date().toISOString().slice(0,10), status:'Belum Bayar'});
+  saveData(); render();
+};
+window.delRow = function(key, id) {
+  state.data[key] = state.data[key].filter(r => r.id !== id);
+  saveData(); render();
+};
+
+/* ============================================================
+   HOLDING — KPI GRUP
+============================================================ */
+VIEWS['holding:kpi'] = () => {
+  const d = state.data;
+  const t = computeTotals();
+  const avgOee = d.production.reduce((a,b)=>a+b.oee,0)/d.production.length;
+  const avgConv = d.production.reduce((a,b)=>a+b.conversion,0)/d.production.length;
+  const avgFuel = d.fleet.reduce((a,b)=>a+b.fuel,0)/d.fleet.length;
+  const avgOtd = d.fleet.reduce((a,b)=>a+b.otd,0)/d.fleet.length;
+  const avgUtil = d.fleet.reduce((a,b)=>a+b.utilization,0)/d.fleet.length;
+  const avgSurv = d.plots.reduce((a,b)=>a+b.survival,0)/d.plots.length;
+  const avgMoist = d.qc.reduce((a,b)=>a+b.moisture,0)/d.qc.length;
+
+  const kpis = [
+    {label:'Capaian Produksi',  value: t.totalReal/t.totalTarget*100, target:'≥ 100%'},
+    {label:'OEE Pabrik',        value: avgOee,                        target:'≥ 85%'},
+    {label:'Conversion Rate',   value: avgConv*100,                   target:'≥ 65%'},
+    {label:'Fleet Utilization', value: avgUtil,                       target:'≥ 85%'},
+    {label:'On-Time Delivery',  value: avgOtd,                        target:'≥ 95%'},
+    {label:'Efisiensi BBM (inv.)', value: avgFuel*25,                 target:'≥ 70'},
+    {label:'Survival Rate',     value: avgSurv,                       target:'≥ 90%'},
+    {label:'Moisture (inv.)',   value: 100 - avgMoist*8,              target:'< 10%'}
+  ];
+
+  return `
+    <div class="grid grid-2" style="margin-bottom:18px">
+      ${kpis.slice(0,4).map(k => {
+        const pct = Math.min(100, k.value);
+        const cls = pct >= 90 ? '' : pct >= 75 ? 'warn' : 'bad';
+        return `
+          <div class="card">
+            <h3>${k.label} <span class="sub">Target: ${k.target}</span></h3>
+            <div class="big" style="margin:8px 0">${fmt.pct(k.value)}</div>
+            <div class="progress ${cls}"><span style="width:${pct}%"></span></div>
+          </div>`;
+      }).join('')}
+    </div>
+    <div class="grid grid-2" style="margin-bottom:18px">
+      ${kpis.slice(4).map(k => {
+        const pct = Math.min(100, k.value);
+        const cls = pct >= 90 ? '' : pct >= 75 ? 'warn' : 'bad';
+        return `
+          <div class="card">
+            <h3>${k.label} <span class="sub">Target: ${k.target}</span></h3>
+            <div class="big" style="margin:8px 0">${fmt.pct(k.value)}</div>
+            <div class="progress ${cls}"><span style="width:${pct}%"></span></div>
+          </div>`;
+      }).join('')}
+    </div>
+
+    <div class="card">
+      <h3>Radar Kinerja Grup</h3>
+      <div class="hint">Perbandingan indikator kunci terhadap benchmark target internal Elvenium Grup.</div>
+      <div class="chart-box lg"><canvas id="chRadar"></canvas></div>
+    </div>
+  `;
+};
+HOOKS['holding:kpi'] = () => {
+  const d = state.data;
+  const t = computeTotals();
+  const avgOee = d.production.reduce((a,b)=>a+b.oee,0)/d.production.length;
+  const avgConv = d.production.reduce((a,b)=>a+b.conversion,0)/d.production.length;
+  const avgOtd = d.fleet.reduce((a,b)=>a+b.otd,0)/d.fleet.length;
+  const avgUtil = d.fleet.reduce((a,b)=>a+b.utilization,0)/d.fleet.length;
+  const avgSurv = d.plots.reduce((a,b)=>a+b.survival,0)/d.plots.length;
+
+  makeChart('chRadar', {
+    type: 'radar',
+    data: {
+      labels:['Capaian Produksi','OEE','Conversion Rate','Fleet Utilization','OTD','Survival Rate'],
+      datasets:[
+        {label:'Aktual', data:[t.totalReal/t.totalTarget*100, avgOee, avgConv*100, avgUtil, avgOtd, avgSurv],
+          backgroundColor:'rgba(16,185,129,.22)', borderColor:'#10b981', borderWidth:2, pointBackgroundColor:'#10b981'},
+        {label:'Target', data:[100,85,65,85,95,90],
+          backgroundColor:'rgba(59,130,246,.12)', borderColor:'#3b82f6', borderWidth:2, pointBackgroundColor:'#3b82f6', borderDash:[5,4]}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'top', labels:{boxWidth:10, boxHeight:10, padding:14}}},
+      scales:{r:{beginAtZero:true, max:100, ticks:{stepSize:20, backdropColor:'transparent', color:'#8ba0bf'}, grid:{color:'rgba(42,58,88,.6)'}, angleLines:{color:'rgba(42,58,88,.6)'}, pointLabels:{color:'#cbd5e1', font:{size:12}}}}}
+  });
+};
+
+/* ============================================================
+   LAND — DASHBOARD (PT MINERVA GREEN AGRO)
+============================================================ */
+VIEWS['land:dashboard'] = () => {
+  const d = state.data;
+  const totalLuas = d.plots.reduce((a,b)=>a+b.luas,0);
+  const avgSurv = d.plots.reduce((a,b)=>a+b.survival,0)/d.plots.length;
+  const gamalLuas = d.plots.filter(p=>p.komoditas==='Gamal').reduce((a,b)=>a+b.luas,0);
+  const potensi = d.plots.reduce((a,b)=> a + b.luas * (b.umur>=18 ? 22 : b.umur>=12 ? 12 : 5), 0);
+  const biayaTotal = d.agronomy.reduce((a,b)=>a+b.biaya,0);
+
+  return `
+    <div class="info-banner">
+      <span>🌱</span>
+      <div>
+        <b>PT Minerva Green Agro</b> · Konsesi <b>10.000 ha</b> lahan marginal Perhutani KPH Sukabumi ·
+        Tanaman utama <b>Gamal (Gliricidia sepium)</b> · Komoditas pendamping: Kaliandra, Akasia, Lamtoro
+      </div>
+    </div>
+
+    <div class="grid grid-4" style="margin-bottom:18px">
+      ${kpiCard('Total Luas Lahan', fmt.num(totalLuas)+' ha', `${d.plots.length} blok · Perhutani`, 'flat')}
+      ${kpiCard('Rata-rata Survival', fmt.pct(avgSurv), 'Target ≥ 90%', avgSurv>=90?'up':'down', 'blue')}
+      ${kpiCard('Potensi Biomassa', fmt.num(potensi)+' ton', 'Estimasi siap panen', 'up', 'purple')}
+      ${kpiCard('Biaya Pemeliharaan', fmt.rpShort(biayaTotal), `${fmt.rpShort(biayaTotal/totalLuas)}/ha`, 'flat', 'warn')}
+    </div>
+
+    <div class="grid grid-2" style="margin-bottom:18px">
+      <div class="card">
+        <h3>Status Kesehatan Lahan</h3>
+        <div class="hint">Distribusi luas blok berdasarkan kondisi agronomi.</div>
+        <div class="chart-box sm"><canvas id="chHealth"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Komposisi Tanaman Energi</h3>
+        <div class="hint">Gamal dominan + tanaman pendamping untuk hutan tanaman energi.</div>
+        <div class="chart-box sm"><canvas id="chCommodity"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px">
+      <h3>Survival Rate & Potensi per Blok</h3>
+      <div class="hint">Perbandingan tingkat kelangsungan hidup dan estimasi tonase siap panen.</div>
+      <div class="chart-box lg"><canvas id="chSurvPotensi"></canvas></div>
+    </div>
+
+    <div class="card">
+      <h3>Sebaran Geografis Blok (Sukabumi)</h3>
+      <div class="hint">Koordinat GPS blok lahan — dari Cikembar hingga Pelabuhan Ratu.</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Blok</th><th>Zona</th><th class="num">Luas</th><th>Komoditas</th><th>Koordinat</th></tr></thead>
+          <tbody>
+            ${d.plots.map(p => `
+              <tr>
+                <td><b>${p.nama}</b></td>
+                <td>${p.zona}</td>
+                <td class="num">${fmt.num(p.luas)} ha</td>
+                <td>${komoditasPill(p.komoditas)}</td>
+                <td class="muted" style="font-size:12px">${p.lat.toFixed(4)}, ${p.lng.toFixed(4)}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+};
+HOOKS['land:dashboard'] = () => {
+  const d = state.data;
+  const healthCount = {};
+  d.plots.forEach(p => healthCount[p.kesehatan] = (healthCount[p.kesehatan]||0) + p.luas);
+  const colorMap = {'Baik':'#10b981','Cukup':'#f59e0b','Perlu Perhatian':'#ef4444'};
+
+  makeChart('chHealth', {
+    type:'doughnut',
+    data:{labels:Object.keys(healthCount), datasets:[{data:Object.values(healthCount), backgroundColor:Object.keys(healthCount).map(k=>colorMap[k]||'#64748b'), borderColor:'#131c2e', borderWidth:3}]},
+    options:{responsive:true, maintainAspectRatio:false, cutout:'62%', plugins:{legend:{position:'bottom', labels:{boxWidth:10, boxHeight:10, padding:12}}}}
+  });
+
+  const komCount = {};
+  d.plots.forEach(p => komCount[p.komoditas] = (komCount[p.komoditas]||0) + p.luas);
+  const komColors = {'Gamal':'#10b981','Kaliandra':'#3b82f6','Akasia':'#f59e0b','Lamtoro':'#06b6d4'};
+  makeChart('chCommodity', {
+    type:'pie',
+    data:{labels:Object.keys(komCount), datasets:[{data:Object.values(komCount), backgroundColor:Object.keys(komCount).map(k=>komColors[k]||'#64748b'), borderColor:'#131c2e', borderWidth:3}]},
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom', labels:{boxWidth:10, boxHeight:10, padding:12}}}}
+  });
+
+  makeChart('chSurvPotensi', {
+    type:'bar',
+    data:{
+      labels: d.plots.map(p=>p.nama),
+      datasets:[
+        {label:'Survival Rate (%)', data:d.plots.map(p=>p.survival), backgroundColor:'rgba(16,185,129,.75)', borderRadius:6, yAxisID:'y'},
+        {label:'Potensi (ton)', data:d.plots.map(p=> p.luas * (p.umur>=18 ? 22 : p.umur>=12 ? 12 : 5)), backgroundColor:'rgba(168,85,247,.75)', borderRadius:6, yAxisID:'y1'}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'top', labels:{boxWidth:10, boxHeight:10, padding:14}}},
+      scales:{
+        y:{position:'left', beginAtZero:true, max:100, title:{display:true, text:'Survival (%)'}, grid:{color:'rgba(42,58,88,.4)'}},
+        y1:{position:'right', beginAtZero:true, title:{display:true, text:'Potensi (ton)'}, grid:{display:false}},
+        x:{grid:{display:false}}
+      }
+    }
+  });
+};
+
+/* ============================================================
+   LAND — PLOTS
+============================================================ */
+VIEWS['land:plots'] = () => {
+  const d = state.data;
+  const totalLuas = d.plots.reduce((a,b)=>a+b.luas,0);
+  const gamalLuas = d.plots.filter(p=>p.komoditas==='Gamal').reduce((a,b)=>a+b.luas,0);
+  return `
+    <div class="grid grid-3" style="margin-bottom:18px">
+      ${kpiCard('Jumlah Blok', d.plots.length+' blok', '', 'flat')}
+      ${kpiCard('Total Luas', fmt.num(totalLuas)+' ha', `Konsesi: 10.000 ha`, 'flat', 'blue')}
+      ${kpiCard('Luas Gamal', fmt.num(gamalLuas)+' ha', `${fmt.pct(gamalLuas/totalLuas*100)} dari total`, 'flat', 'purple')}
+    </div>
+
+    <div class="card">
+      <h3>Pemetaan & Inventaris Lahan</h3>
+      <div class="hint">Data legalitas Perhutani, luas, koordinat GPS, jenis tanah, dan komoditas tanaman energi.</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Blok</th><th class="num">Luas (ha)</th><th>Komoditas</th><th class="num">Umur (bln)</th><th class="num">Survival</th><th>Kesehatan</th><th>Zona</th><th>Jenis Tanah</th><th>Koordinat</th><th></th></tr>
+          </thead>
+          <tbody>
+            ${d.plots.map(p => `
+              <tr>
+                <td><b>${p.nama}</b><span class="tag">Perhutani</span></td>
+                <td class="num">${fmt.num(p.luas)}</td>
+                <td>${komoditasPill(p.komoditas)}</td>
+                <td class="num">${p.umur}</td>
+                <td class="num">${fmt.pct(p.survival)}</td>
+                <td>${healthPill(p.kesehatan)}</td>
+                <td>${p.zona}</td>
+                <td>${p.jenisTanah}</td>
+                <td class="muted" style="font-size:12px">${p.lat.toFixed(3)}, ${p.lng.toFixed(3)}</td>
+                <td><button class="btn-del" onclick="delRow('plots',${p.id})">✕</button></td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="form-row">
+        <input id="pNama" placeholder="Nama blok (mis. Blok K)">
+        <input id="pLuas" type="number" placeholder="Luas (ha)">
+        <select id="pKom">
+          <option>Gamal</option><option>Kaliandra</option><option>Akasia</option><option>Lamtoro</option>
+        </select>
+        <input id="pUmur" type="number" placeholder="Umur (bulan)">
+        <input id="pSurv" type="number" placeholder="Survival (%)" value="90">
+        <select id="pSehat">
+          <option>Baik</option><option>Cukup</option><option>Perlu Perhatian</option>
+        </select>
+        <input id="pZona" placeholder="Zona" value="Cikembar">
+        <select id="pTanah"><option>Latosol</option><option>Podsolik</option><option>Regosol</option></select>
+        <button onclick="addPlot()">+ Tambah Blok</button>
+      </div>
+    </div>
+  `;
+};
+window.addPlot = function() {
+  const nama = document.getElementById('pNama').value.trim();
+  const luas = parseFloat(document.getElementById('pLuas').value);
+  const komoditas = document.getElementById('pKom').value;
+  const umur = parseFloat(document.getElementById('pUmur').value) || 0;
+  const survival = parseFloat(document.getElementById('pSurv').value) || 90;
+  const kesehatan = document.getElementById('pSehat').value;
+  const zona = document.getElementById('pZona').value.trim() || 'Cikembar';
+  const jenisTanah = document.getElementById('pTanah').value;
+  if (!nama || !luas) { alert('Nama dan luas wajib diisi.'); return; }
+  const id = Math.max(0, ...state.data.plots.map(p=>p.id)) + 1;
+  state.data.plots.push({
+    id, nama, luas, komoditas, umur, survival, kesehatan, zona, jenisTanah,
+    legalitas:'Perhutani KPH Sukabumi',
+    lat:-6.87+Math.random()*.15, lng:106.80+Math.random()*.20
+  });
+  saveData(); render();
+};
+
+/* ============================================================
+   LAND — AGRONOMY
+============================================================ */
+VIEWS['land:agronomy'] = () => {
+  const d = state.data;
+  const total = d.agronomy.reduce((a,b)=>a+b.biaya,0);
+  const totalLuas = d.plots.reduce((a,b)=>a+b.luas,0);
+  return `
+    <div class="grid grid-3" style="margin-bottom:18px">
+      ${kpiCard('Total Aktivitas', d.agronomy.length, 'Catatan agronomi', 'flat')}
+      ${kpiCard('Total Biaya', fmt.rpShort(total), 'Pemeliharaan lahan', 'flat', 'warn')}
+      ${kpiCard('Biaya per Ha', fmt.rpShort(total / (totalLuas||1)), 'Rata-rata tertimbang', 'flat', 'blue')}
+    </div>
+
+    <div class="card" style="margin-bottom:18px">
+      <h3>Perawatan & Agronomi</h3>
+      <div class="hint">Penjadwalan pemupukan, penyiangan, pengendalian hama & pemantauan pertumbuhan Gamal.</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tanggal</th><th>Blok</th><th>Kegiatan</th><th class="num">Biaya</th><th>Catatan</th><th></th></tr></thead>
+          <tbody>
+            ${d.agronomy.map(a => `
+              <tr>
+                <td>${a.tanggal}</td>
+                <td><b>${a.blok}</b></td>
+                <td>${a.kegiatan}</td>
+                <td class="num">${fmt.rp(a.biaya)}</td>
+                <td class="muted">${a.catatan}</td>
+                <td><button class="btn-del" onclick="delRow('agronomy',${a.id})">✕</button></td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="form-row">
+        <select id="aBlok">${d.plots.map(p=>`<option>${p.nama}</option>`).join('')}</select>
+        <input id="aTgl" type="date" value="${new Date().toISOString().slice(0,10)}">
+        <input id="aKeg" placeholder="Kegiatan">
+        <input id="aBiaya" type="number" placeholder="Biaya (Rp)">
+        <input id="aCat" placeholder="Catatan">
+        <button onclick="addAgro()">+ Tambah</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Distribusi Biaya Agronomi per Blok</h3>
+      <div class="chart-box"><canvas id="chAgroCost"></canvas></div>
+    </div>
+  `;
+};
+HOOKS['land:agronomy'] = () => {
+  const d = state.data;
+  const byBlok = {};
+  d.agronomy.forEach(a => byBlok[a.blok] = (byBlok[a.blok]||0) + a.biaya);
+  makeChart('chAgroCost', {
+    type:'bar',
+    data:{
+      labels: Object.keys(byBlok),
+      datasets:[{label:'Biaya (Rp)', data:Object.values(byBlok), backgroundColor:'rgba(245,158,11,.75)', borderRadius:6}]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>fmt.rp(c.parsed.y)}}},
+      scales:{y:{beginAtZero:true, ticks:{callback:v=>fmt.rpShort(v)}, grid:{color:'rgba(42,58,88,.4)'}}, x:{grid:{display:false}}}
+    }
+  });
+};
+window.addAgro = function() {
+  const blok = document.getElementById('aBlok').value;
+  const tanggal = document.getElementById('aTgl').value;
+  const kegiatan = document.getElementById('aKeg').value.trim();
+  const biaya = parseFloat(document.getElementById('aBiaya').value) || 0;
+  const catatan = document.getElementById('aCat').value.trim();
+  if (!kegiatan) { alert('Kegiatan wajib diisi.'); return; }
+  const id = Math.max(0, ...state.data.agronomy.map(p=>p.id)) + 1;
+  state.data.agronomy.push({id, blok, tanggal, kegiatan, biaya, catatan});
+  saveData(); render();
+};
+
+/* ============================================================
+   LAND — ASSETS
+============================================================ */
+VIEWS['land:assets'] = () => {
+  const d = state.data;
+  return `
+    <div class="card">
+      <h3>Manajemen Aset Lahan</h3>
+      <div class="hint">Pencatatan alat berat, traktor, dan infrastruktur irigasi di seluruh blok konsesi.</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Nama Aset</th><th>Jenis</th><th>Lokasi</th><th class="num">Tahun</th><th>Kondisi</th><th></th></tr></thead>
+          <tbody>
+            ${d.landAssets.map(a => `
+              <tr>
+                <td><b>${a.nama}</b></td>
+                <td>${a.jenis}</td>
+                <td>${a.blok}</td>
+                <td class="num">${a.tahun}</td>
+                <td>${a.kondisi==='Baik' ? '<span class="pill ok">Baik</span>' : '<span class="pill warn">'+a.kondisi+'</span>'}</td>
+                <td><button class="btn-del" onclick="delRow('landAssets',${a.id})">✕</button></td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="form-row">
+        <input id="asNama" placeholder="Nama aset">
+        <input id="asJenis" placeholder="Jenis">
+        <input id="asBlok" placeholder="Lokasi/Blok">
+        <input id="asTahun" type="number" placeholder="Tahun">
+        <select id="asKondisi"><option>Baik</option><option>Perlu Servis</option><option>Rusak</option></select>
+        <button onclick="addAsset()">+ Tambah Aset</button>
+      </div>
+    </div>
+  `;
+};
+window.addAsset = function() {
+  const nama = document.getElementById('asNama').value.trim();
+  const jenis = document.getElementById('asJenis').value.trim();
+  const blok = document.getElementById('asBlok').value.trim();
+  const tahun = parseInt(document.getElementById('asTahun').value) || new Date().getFullYear();
+  const kondisi = document.getElementById('asKondisi').value;
+  if (!nama) { alert('Nama aset wajib diisi.'); return; }
+  const id = Math.max(0, ...state.data.landAssets.map(p=>p.id)) + 1;
+  state.data.landAssets.push({id, nama, jenis, blok, tahun, kondisi});
+  saveData(); render();
+};
+
+/* ============================================================
+   LOGISTICS — DASHBOARD (PT VERDANTIA AGRI NATURE)
+============================================================ */
+VIEWS['logistics:dashboard'] = () => {
+  const d = state.data;
+  const avgUtil = d.fleet.reduce((a,b)=>a+b.utilization,0)/d.fleet.length;
+  const avgFuel = d.fleet.reduce((a,b)=>a+b.fuel,0)/d.fleet.length;
+  const avgOtd = d.fleet.reduce((a,b)=>a+b.otd,0)/d.fleet.length;
+  const totalTon = d.trips.reduce((a,b)=>a+b.tonase,0);
+  const totalKm = d.trips.reduce((a,b)=>a+b.jarak,0);
+
+  return `
+    <div class="info-banner">
+      <span>🚚</span>
+      <div>
+        <b>PT Verdantia Agri Nature</b> · Armada pengangkut biomassa dari blok Sukabumi ke Pabrik Cikembar,
+        <b>PLN Pelabuhan Ratu</b>, dan <b>Pelabuhan Ratu Port (Export)</b>
+      </div>
+    </div>
+
+    <div class="grid grid-4" style="margin-bottom:18px">
+      ${kpiCard('Fleet Utilization', fmt.pct(avgUtil), 'Target ≥ 85%', avgUtil>=85?'up':'down')}
+      ${kpiCard('Efisiensi BBM', avgFuel.toFixed(2)+' km/L', 'Rata-rata armada', 'flat', 'blue')}
+      ${kpiCard('On-Time Delivery', fmt.pct(avgOtd), 'Target ≥ 95%', avgOtd>=95?'up':'down', 'purple')}
+      ${kpiCard('Tonase Terkirim', fmt.num(totalTon)+' ton', `${d.trips.length} trip · ${fmt.num(totalKm)} km`, 'flat', 'warn')}
+    </div>
+
+    <div class="grid grid-2" style="margin-bottom:18px">
+      <div class="card">
+        <h3>Efisiensi Bahan Bakar per Armada</h3>
+        <div class="hint">Km per liter — semakin tinggi semakin efisien.</div>
+        <div class="chart-box sm"><canvas id="chFuel"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Distribusi Trip Berdasarkan Tujuan</h3>
+        <div class="hint">Proporsi pengiriman ke Pabrik, PLN, dan Pelabuhan Ratu (Export).</div>
+        <div class="chart-box sm"><canvas id="chTripDest"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>On-Time Delivery Rate per Armada</h3>
+      <div class="hint">Persentase pengiriman tepat waktu.</div>
+      <div class="chart-box"><canvas id="chOtd"></canvas></div>
+    </div>
+  `;
+};
+HOOKS['logistics:dashboard'] = () => {
+  const d = state.data;
+  makeChart('chFuel', {
+    type:'bar',
+    data:{
+      labels: d.fleet.map(f=>f.id),
+      datasets:[{label:'km/L', data:d.fleet.map(f=>f.fuel), backgroundColor:'rgba(59,130,246,.75)', borderRadius:6}]
+    },
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, grid:{color:'rgba(42,58,88,.4)'}}, x:{grid:{display:false}, ticks:{font:{size:10}}}}}
+  });
+
+  const destCount = {Pabrik:0, 'PLN Pelabuhan Ratu':0, Export:0};
+  d.trips.forEach(t => {
+    if (t.tujuan.includes('PLN')) destCount['PLN Pelabuhan Ratu'] += t.tonase;
+    else if (t.tujuan.includes('Pelabuhan') || t.tujuan.includes('Export')) destCount.Export += t.tonase;
+    else destCount.Pabrik += t.tonase;
+  });
+  makeChart('chTripDest', {
+    type:'doughnut',
+    data:{
+      labels: Object.keys(destCount),
+      datasets:[{data:Object.values(destCount), backgroundColor:['#3b82f6','#10b981','#a855f7'], borderColor:'#131c2e', borderWidth:3}]
+    },
+    options:{responsive:true, maintainAspectRatio:false, cutout:'62%', plugins:{legend:{position:'bottom', labels:{boxWidth:10, boxHeight:10, padding:12}}}}
+  });
+
+  makeChart('chOtd', {
+    type:'bar',
+    data:{
+      labels: d.fleet.map(f=>f.id),
+      datasets:[{label:'OTD (%)', data:d.fleet.map(f=>f.otd), backgroundColor: d.fleet.map(f=> f.otd>=95 ? 'rgba(16,185,129,.75)' : f.otd>=90 ? 'rgba(245,158,11,.75)' : 'rgba(239,68,68,.75)'), borderRadius:6}]
+    },
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, max:100, grid:{color:'rgba(42,58,88,.4)'}}, x:{grid:{display:false}, ticks:{font:{size:10}}}}}
+  });
+};
+
+/* ============================================================
+   LOGISTICS — FLEET
+============================================================ */
+VIEWS['logistics:fleet'] = () => {
+  const d = state.data;
+  return `
+    <div class="grid grid-3" style="margin-bottom:18px">
+      ${kpiCard('Total Armada', d.fleet.length+' unit', '', 'flat')}
+      ${kpiCard('Armada Aktif', d.fleet.filter(f=>f.status==='Aktif').length+' unit', '', 'flat', 'blue')}
+      ${kpiCard('Total Kapasitas', fmt.num(d.fleet.reduce((a,b)=>a+b.kapasitas,0))+' ton', 'Per trip', 'flat', 'purple')}
+    </div>
+
+    <div class="card">
+      <h3>Manajemen Armada (Fleet Management)</h3>
+      <div class="hint">Monitoring truk pengangkut, status rute, konsumsi bahan bakar, dan jadwal servis berkala.</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>No. Polisi</th><th>Tipe</th><th class="num">Kapasitas (ton)</th><th class="num">Utilisasi</th><th class="num">BBM (km/L)</th><th class="num">OTD</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody>
+            ${d.fleet.map(f => `
+              <tr>
+                <td><b>${f.id}</b></td>
+                <td>${f.tipe}</td>
+                <td class="num">${fmt.num(f.kapasitas)}</td>
+                <td class="num">${fmt.pct(f.utilization)}</td>
+                <td class="num">${f.fuel.toFixed(2)}</td>
+                <td class="num">${fmt.pct(f.otd)}</td>
+                <td>${statusPill(f.status)}</td>
+                <td><button class="btn-del" onclick="delFleet('${f.id}')">✕</button></td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="form-row">
+        <input id="fId" placeholder="No. Polisi (F xxxx XY)">
+        <input id="fTipe" placeholder="Tipe">
+        <input id="fKap" type="number" placeholder="Kapasitas (ton)">
+        <input id="fUtil" type="number" placeholder="Utilisasi (%)" value="80">
+        <input id="fFuel" type="number" step="0.1" placeholder="BBM (km/L)" value="3.2">
+        <input id="fOtd" type="number" placeholder="OTD (%)" value="93">
+        <select id="fStatus"><option>Aktif</option><option>Servis</option><option>Nonaktif</option></select>
+        <button onclick="addFleet()">+ Tambah Armada</button>
+      </div>
+    </div>
+  `;
+};
+window.delFleet = function(id) {
+  state.data.fleet = state.data.fleet.filter(f => f.id !== id);
+  saveData(); render();
+};
+window.addFleet = function() {
+  const id = document.getElementById('fId').value.trim();
+  const tipe = document.getElementById('fTipe').value.trim();
+  const kapasitas = parseFloat(document.getElementById('fKap').value) || 0;
+  const utilization = parseFloat(document.getElementById('fUtil').value) || 0;
+  const fuel = parseFloat(document.getElementById('fFuel').value) || 0;
+  const otd = parseFloat(document.getElementById('fOtd').value) || 0;
+  const status = document.getElementById('fStatus').value;
+  if (!id) { alert('No. polisi wajib diisi.'); return; }
+  state.data.fleet.push({id, tipe, kapasitas, utilization, fuel, otd, status});
+  saveData(); render();
+};
+
+/* ============================================================
+   LOGISTICS — SUPPLY CHAIN
+============================================================ */
+VIEWS['logistics:supply'] = () => {
+  const d = state.data;
+  const totalTon = d.trips.reduce((a,b)=>a+b.tonase,0);
+  const totalKm = d.trips.reduce((a,b)=>a+b.jarak,0);
+  const totalTonKm = d.trips.reduce((a,b)=>a+b.tonase*b.jarak,0);
+  const costPerTonKm = 1850;
+  return `
+    <div class="grid grid-4" style="margin-bottom:18px">
+      ${kpiCard('Total Trip', d.trips.length, '', 'flat')}
+      ${kpiCard('Total Tonase', fmt.num(totalTon)+' ton', '', 'flat', 'blue')}
+      ${kpiCard('Total Ton-Km', fmt.num(totalTonKm), '', 'flat', 'purple')}
+      ${kpiCard('Biaya per Ton-Km', fmt.rp(costPerTonKm), 'Estimasi', 'flat', 'warn')}
+    </div>
+
+    <div class="card">
+      <h3>Rantai Pasok & Pengadaan</h3>
+      <div class="hint">Penjadwalan pickup bahan baku dari blok konsesi ke Pabrik Cikembar, atau distribusi pellet ke PLN / Pelabuhan Ratu.</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>ID Trip</th><th>Tanggal</th><th>Asal</th><th>Tujuan</th><th>Armada</th><th>Komoditas</th><th class="num">Tonase</th><th class="num">Jarak (km)</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            ${d.trips.map(t => `
+              <tr>
+                <td><b>${t.id}</b></td>
+                <td>${t.tanggal}</td>
+                <td>${t.asal}</td>
+                <td>${t.tujuan}</td>
+                <td>${t.armada}</td>
+                <td>${t.komoditas}</td>
+                <td class="num">${fmt.num(t.tonase)}</td>
+                <td class="num">${fmt.num(t.jarak)}</td>
+                <td>${statusPill(t.status)}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="form-row">
+        <input id="tAsal" placeholder="Asal (mis. Blok A (Cikembar))">
+        <input id="tTujuan" placeholder="Tujuan" value="Pabrik Cikembar">
+        <input id="tArmada" placeholder="Armada (No. Polisi)">
+        <select id="tKom">
+          <option>Gamal Log</option><option>Kaliandra</option><option>Akasia</option><option>Lamtoro</option><option>Wood Pellet</option><option>Wood Pellet Export</option>
+        </select>
+        <input id="tTon" type="number" placeholder="Tonase">
+        <input id="tJarak" type="number" placeholder="Jarak (km)">
+        <button onclick="addTrip()">+ Tambah Trip</button>
+      </div>
+    </div>
+  `;
+};
+window.addTrip = function() {
+  const asal = document.getElementById('tAsal').value.trim();
+  const tujuan = document.getElementById('tTujuan').value.trim();
+  const armada = document.getElementById('tArmada').value.trim();
+  const komoditas = document.getElementById('tKom').value;
+  const tonase = parseFloat(document.getElementById('tTon').value) || 0;
+  const jarak = parseFloat(document.getElementById('tJarak').value) || 0;
+  if (!asal || !armada) { alert('Asal dan armada wajib diisi.'); return; }
+  const id = 'TRP-' + String(state.data.trips.length + 1).padStart(3,'0');
+  state.data.trips.push({id, tanggal: new Date().toISOString().slice(0,10), asal, tujuan, armada, komoditas, tonase, jarak, status:'Terjadwal'});
+  saveData(); render();
+};
+
+/* ============================================================
+   LOGISTICS — SERVICES
+============================================================ */
+VIEWS['logistics:services'] = () => {
+  const d = state.data;
+  const total = d.services.reduce((a,b)=>a+b.nilai,0);
+  const plnSvc = d.services.filter(s=>s.jenis.includes('PLN') || s.klien.includes('PLN')).reduce((a,b)=>a+b.nilai,0);
+  const expSvc = d.services.filter(s=>s.jenis.toLowerCase().includes('export')).reduce((a,b)=>a+b.nilai,0);
+  return `
+    <div class="grid grid-4" style="margin-bottom:18px">
+      ${kpiCard('Total Kontrak', d.services.length, '', 'flat')}
+      ${kpiCard('Nilai Kontrak', fmt.rpShort(total), '', 'flat', 'blue')}
+      ${kpiCard('Nilai PLN', fmt.rpShort(plnSvc), 'Kontrak offtake utama', 'flat', 'purple')}
+      ${kpiCard('Nilai Export', fmt.rpShort(expSvc), 'Jepang & Korea', 'flat', 'warn')}
+    </div>
+
+    <div class="card">
+      <h3>Layanan Agribisnis & Kontrak</h3>
+      <div class="hint">Kontrak suplai pellet, export, kerjasama Perhutani, layanan pendampingan tani, sewa alat, dan jasa borongan.</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Klien</th><th>Jenis Layanan</th><th class="num">Nilai</th><th>Periode</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            ${d.services.map(s => `
+              <tr>
+                <td><b>${s.klien}</b></td>
+                <td>${s.jenis}</td>
+                <td class="num">${fmt.rpShort(s.nilai)}</td>
+                <td>${s.periode}</td>
+                <td>${statusPill(s.status)}</td>
+                <td><button class="btn-del" onclick="delRow('services',${s.id})">✕</button></td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="form-row">
+        <input id="sKlien" placeholder="Klien">
+        <input id="sJenis" placeholder="Jenis layanan">
+        <input id="sNilai" type="number" placeholder="Nilai (Rp)">
+        <input id="sPeriode" placeholder="Periode (mis. Des 2024)">
+        <select id="sStatus"><option>Aktif</option><option>Selesai</option></select>
+        <button onclick="addService()">+ Tambah</button>
+      </div>
+    </div>
+  `;
+};
+window.addService = function() {
+  const klien = document.getElementById('sKlien').value.trim();
+  const jenis = document.getElementById('sJenis').value.trim();
+  const nilai = parseFloat(document.getElementById('sNilai').value) || 0;
+  const periode = document.getElementById('sPeriode').value.trim();
+  const status = document.getElementById('sStatus').value;
+  if (!klien) { alert('Klien wajib diisi.'); return; }
+  const id = Math.max(0, ...state.data.services.map(p=>p.id)) + 1;
+  state.data.services.push({id, klien, jenis, nilai, periode, status});
+  saveData(); render();
+};
+
+/* ============================================================
+   PLANT — DASHBOARD (PT ELVENIUM AGRO INOVASI)
+============================================================ */
+VIEWS['plant:dashboard'] = () => {
+  const d = state.data;
+  const t = computeTotals();
+  const avgOee = d.production.reduce((a,b)=>a+b.oee,0)/d.production.length;
+  const avgConv = d.production.reduce((a,b)=>a+b.conversion,0)/d.production.length;
+  const avgMoist = d.qc.reduce((a,b)=>a+b.moisture,0)/d.qc.length;
+  const avgKal = d.qc.reduce((a,b)=>a+b.kalori,0)/d.qc.length;
+
+  return `
+    <div class="info-banner">
+      <span>🏭</span>
+      <div>
+        <b>PT Elvenium Agro Inovasi</b> · Pabrik wood pellet Cikembar, Sukabumi ·
+        Bahan baku utama <b>Gamal (Gliricidia sepium)</b> · Pasar: <b>PLN Pelabuhan Ratu</b> (co-firing) + <b>Export</b>
+      </div>
+    </div>
+
+    <div class="grid grid-4" style="margin-bottom:18px">
+      ${kpiCard('Produksi YTD', fmt.num(t.totalReal)+' ton', `Target ${fmt.num(t.totalTarget)} ton`, 'up')}
+      ${kpiCard('OEE Rata-rata', fmt.pct(avgOee), 'Target ≥ 85%', avgOee>=85?'up':'down', 'blue')}
+      ${kpiCard('Conversion Rate', fmt.pct(avgConv*100), 'Gamal → pellet', 'up', 'purple')}
+      ${kpiCard('Moisture Rata-rata', fmt.pct(avgMoist), 'Target < 10%', avgMoist<10?'up':'down', 'warn')}
+    </div>
+
+    <div class="grid grid-2" style="margin-bottom:18px">
+      <div class="card">
+        <h3>Fluktuasi Kadar Air & Nilai Kalori <span class="sub">per Batch</span></h3>
+        <div class="hint">Monitoring kualitas batch untuk standar PLN co-firing & ekspor.</div>
+        <div class="chart-box"><canvas id="chQcMix"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>OEE & Conversion Rate Bulanan</h3>
+        <div class="hint">Efektivitas mesin dan rasio konversi bahan baku gamal.</div>
+        <div class="chart-box"><canvas id="chOeeConv"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Stok Bahan Baku & Finished Goods</h3>
+      <div class="hint">Posisi stok saat ini vs kapasitas gudang pabrik.</div>
+      <div class="grid grid-2" style="margin-top:12px">
+        <div>
+          <div class="row-flex"><span>Bahan Baku Mentah (Gamal Log)</span><span class="spacer"></span><b>${fmt.num(d.stock.raw)} / ${fmt.num(d.stock.rawCap)} ton</b></div>
+          <div class="progress"><span style="width:${(d.stock.raw/d.stock.rawCap*100).toFixed(0)}%"></span></div>
+        </div>
+        <div>
+          <div class="row-flex"><span>Finished Goods (Wood Pellet)</span><span class="spacer"></span><b>${fmt.num(d.stock.fg)} / ${fmt.num(d.stock.fgCap)} ton</b></div>
+          <div class="progress"><span style="width:${(d.stock.fg/d.stock.fgCap*100).toFixed(0)}%"></span></div>
+        </div>
+      </div>
+    </div>
+  `;
+};
+HOOKS['plant:dashboard'] = () => {
+  const d = state.data;
+  const labels = d.qc.map(q=>q.id);
+
+  makeChart('chQcMix', {
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {label:'Moisture (%)', data:d.qc.map(q=>q.moisture), borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,.12)', borderWidth:2.5, tension:.35, fill:true, yAxisID:'y', pointBackgroundColor:'#3b82f6', pointRadius:3.5},
+        {label:'Kalori (kCal/kg)', data:d.qc.map(q=>q.kalori), borderColor:'#f59e0b', backgroundColor:'rgba(245,158,11,.12)', borderWidth:2.5, tension:.35, fill:true, yAxisID:'y1', pointBackgroundColor:'#f59e0b', pointRadius:3.5}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'top', labels:{boxWidth:10, boxHeight:10, padding:14}}},
+      scales:{
+        y:{position:'left', beginAtZero:true, max:15, title:{display:true, text:'Moisture (%)', color:'#3b82f6'}, grid:{color:'rgba(42,58,88,.4)'}},
+        y1:{position:'right', beginAtZero:true, min:3500, max:4800, title:{display:true, text:'Kalori (kCal/kg)', color:'#f59e0b'}, grid:{display:false}},
+        x:{grid:{display:false}}
+      }
+    }
+  });
+
+  makeChart('chOeeConv', {
+    type:'bar',
+    data:{
+      labels: d.production.map(p=>p.bulan),
+      datasets:[
+        {label:'OEE (%)', data:d.production.map(p=>p.oee), backgroundColor:'rgba(59,130,246,.75)', borderRadius:5},
+        {label:'Conversion Rate (%)', data:d.production.map(p=>p.conversion*100), backgroundColor:'rgba(16,185,129,.75)', borderRadius:5}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'top', labels:{boxWidth:10, boxHeight:10, padding:14}}},
+      scales:{
+        y:{beginAtZero:true, max:100, grid:{color:'rgba(42,58,88,.4)'}},
+        x:{grid:{display:false}}
+      }
+    }
+  });
+};
+
+/* ============================================================
+   PLANT — PPIC
+============================================================ */
+VIEWS['plant:ppic'] = () => {
+  const d = state.data;
+  const t = computeTotals();
+  const avgCogm = d.production.reduce((a,b)=>a+b.cogm,0)/d.production.length;
+  return `
+    <div class="grid grid-4" style="margin-bottom:18px">
+      ${kpiCard('Target Tahunan', fmt.num(t.totalTarget)+' ton', '', 'flat')}
+      ${kpiCard('Realisasi', fmt.num(t.totalReal)+' ton', `${fmt.pct(t.totalReal/t.totalTarget*100)} capaian`, 'up', 'blue')}
+      ${kpiCard('Rata-rata COGM', fmt.rpShort(avgCogm)+'/ton', 'Biaya pokok produksi', 'flat', 'purple')}
+      ${kpiCard('Stok FG', fmt.num(d.stock.fg)+' ton', 'Siap kirim', 'flat', 'warn')}
+    </div>
+
+    <div class="card" style="margin-bottom:18px">
+      <h3>PPIC — Production Planning & Inventory Control</h3>
+      <div class="hint">Penjadwalan produksi harian/bulanan, stok gamal log, dan stok wood pellet siap kirim.</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Bulan</th><th class="num">Target (ton)</th><th class="num">Realisasi (ton)</th><th class="num">Capaian</th><th class="num">ke PLN</th><th class="num">Export</th><th class="num">COGM/ton</th><th class="num">Conversion</th><th class="num">OEE</th></tr>
+          </thead>
+          <tbody>
+            ${d.production.map(p => `
+              <tr>
+                <td><b>${p.bulan}</b></td>
+                <td class="num">${fmt.num(p.target)}</td>
+                <td class="num">${fmt.num(p.realisasi)}</td>
+                <td class="num" style="color:${p.realisasi>=p.target?'#34d399':'#fbbf24'}">${fmt.pct(p.realisasi/p.target*100)}</td>
+                <td class="num">${fmt.num(p.toPLN)}</td>
+                <td class="num">${fmt.num(p.toExport)}</td>
+                <td class="num">${fmt.rpShort(p.cogm)}</td>
+                <td class="num">${fmt.pct(p.conversion*100)}</td>
+                <td class="num">${fmt.pct(p.oee)}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="form-row">
+        <input id="prBulan" placeholder="Bulan (mis. Jan)">
+        <input id="prTarget" type="number" placeholder="Target (ton)" value="3000">
+        <input id="prReal" type="number" placeholder="Realisasi (ton)">
+        <input id="prPLN" type="number" placeholder="ke PLN (ton)">
+        <input id="prExp" type="number" placeholder="Export (ton)">
+        <input id="prCogm" type="number" placeholder="COGM (Rp/ton)">
+        <button onclick="addProd()">+ Tambah Baris</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Visualisasi Target vs Realisasi & Alokasi Pasar</h3>
+      <div class="chart-box lg"><canvas id="chPpic"></canvas></div>
+    </div>
+  `;
+};
+HOOKS['plant:ppic'] = () => {
+  const d = state.data;
+  makeChart('chPpic', {
+    type:'bar',
+    data:{
+      labels: d.production.map(p=>p.bulan),
+      datasets:[
+        {label:'Target', data:d.production.map(p=>p.target), backgroundColor:'rgba(59,130,246,.4)', borderRadius:5},
+        {label:'Realisasi', data:d.production.map(p=>p.realisasi), backgroundColor:'rgba(16,185,129,.8)', borderRadius:5},
+        {label:'ke PLN', data:d.production.map(p=>p.toPLN), backgroundColor:'rgba(168,85,247,.7)', borderRadius:5},
+        {label:'Export', data:d.production.map(p=>p.toExport), backgroundColor:'rgba(245,158,11,.85)', borderRadius:5}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'top', labels:{boxWidth:10, boxHeight:10, padding:14}}},
+      scales:{
+        y:{beginAtZero:true, title:{display:true, text:'Ton'}, grid:{color:'rgba(42,58,88,.4)'}},
+        x:{grid:{display:false}}
+      }
+    }
+  });
+};
+window.addProd = function() {
+  const bulan = document.getElementById('prBulan').value.trim();
+  const target = parseFloat(document.getElementById('prTarget').value) || 0;
+  const realisasi = parseFloat(document.getElementById('prReal').value) || 0;
+  const toPLN = parseFloat(document.getElementById('prPLN').value) || 0;
+  const toExport = parseFloat(document.getElementById('prExp').value) || 0;
+  const cogm = parseFloat(document.getElementById('prCogm').value) || 0;
+  if (!bulan) { alert('Bulan wajib diisi.'); return; }
+  state.data.production.push({bulan, target, realisasi, toPLN, toExport, cogm, conversion:0.65, oee:80});
+  saveData(); render();
+};
+
+/* ============================================================
+   PLANT — MAINTENANCE
+============================================================ */
+VIEWS['plant:maintenance'] = () => {
+  const d = state.data;
+  const totalDown = d.maintenance.reduce((a,b)=>a+b.downtime,0);
+  const totalBiaya = d.maintenance.reduce((a,b)=>a+b.biaya,0);
+  return `
+    <div class="grid grid-3" style="margin-bottom:18px">
+      ${kpiCard('Total Maintenance', d.maintenance.length, 'Catatan', 'flat')}
+      ${kpiCard('Total Downtime', totalDown+' jam', 'Akumulasi', 'flat', 'warn')}
+      ${kpiCard('Total Biaya', fmt.rpShort(totalBiaya), '', 'flat', 'blue')}
+    </div>
+
+    <div class="card" style="margin-bottom:18px">
+      <h3>Perawatan Mesin (Maintenance)</h3>
+      <div class="hint">Pemeliharaan chipper, hammer mill, dryer, dan pellet mill untuk meminimalisir downtime.</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mesin</th><th>Tanggal</th><th>Jenis</th><th class="num">Downtime (jam)</th><th class="num">Biaya</th><th>Teknisi</th><th></th></tr></thead>
+          <tbody>
+            ${d.maintenance.map(m => `
+              <tr>
+                <td><b>${m.mesin}</b></td>
+                <td>${m.tanggal}</td>
+                <td>${m.jenis==='Preventif' ? '<span class="pill info">Preventif</span>' : '<span class="pill warn">Korektif</span>'}</td>
+                <td class="num">${m.downtime}</td>
+                <td class="num">${fmt.rp(m.biaya)}</td>
+                <td>${m.teknisi}</td>
+                <td><button class="btn-del" onclick="delRow('maintenance',${m.id})">✕</button></td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="form-row">
+        <select id="mMesin"><option>Chipper</option><option>Hammer Mill</option><option>Dryer</option><option>Pellet Mill</option></select>
+        <input id="mTgl" type="date" value="${new Date().toISOString().slice(0,10)}">
+        <select id="mJenis"><option>Preventif</option><option>Korektif</option></select>
+        <input id="mDown" type="number" placeholder="Downtime (jam)">
+        <input id="mBiaya" type="number" placeholder="Biaya (Rp)">
+        <input id="mTeknisi" placeholder="Teknisi">
+        <button onclick="addMaint()">+ Tambah</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Downtime per Mesin</h3>
+      <div class="chart-box"><canvas id="chMaint"></canvas></div>
+    </div>
+  `;
+};
+HOOKS['plant:maintenance'] = () => {
+  const d = state.data;
+  const byMesin = {};
+  d.maintenance.forEach(m => byMesin[m.mesin] = (byMesin[m.mesin]||0) + m.downtime);
+  makeChart('chMaint', {
+    type:'bar',
+    data:{
+      labels: Object.keys(byMesin),
+      datasets:[{label:'Downtime (jam)', data:Object.values(byMesin), backgroundColor:'rgba(239,68,68,.75)', borderRadius:6}]
+    },
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, grid:{color:'rgba(42,58,88,.4)'}}, x:{grid:{display:false}}}}
+  });
+};
+window.addMaint = function() {
+  const mesin = document.getElementById('mMesin').value;
+  const tanggal = document.getElementById('mTgl').value;
+  const jenis = document.getElementById('mJenis').value;
+  const downtime = parseFloat(document.getElementById('mDown').value) || 0;
+  const biaya = parseFloat(document.getElementById('mBiaya').value) || 0;
+  const teknisi = document.getElementById('mTeknisi').value.trim();
+  const id = Math.max(0, ...state.data.maintenance.map(p=>p.id)) + 1;
+  state.data.maintenance.push({id, mesin, tanggal, jenis, downtime, biaya, teknisi});
+  saveData(); render();
+};
+
+/* ============================================================
+   PLANT — QC
+============================================================ */
+VIEWS['plant:qc'] = () => {
+  const d = state.data;
+  const avgMoist = d.qc.reduce((a,b)=>a+b.moisture,0)/d.qc.length;
+  const avgKal = d.qc.reduce((a,b)=>a+b.kalori,0)/d.qc.length;
+  const lulus = d.qc.filter(q=>q.status==='Lulus').length;
+  return `
+    <div class="grid grid-4" style="margin-bottom:18px">
+      ${kpiCard('Total Batch', d.qc.length, '', 'flat')}
+      ${kpiCard('Lulus QC', lulus+' batch', `${fmt.pct(lulus/d.qc.length*100)}`, 'up', 'blue')}
+      ${kpiCard('Rata-rata Moisture', fmt.pct(avgMoist), 'Target < 10%', avgMoist<10?'up':'down', 'warn')}
+      ${kpiCard('Rata-rata Kalori', fmt.num(avgKal)+' kCal/kg', 'Standar ≥ 4.000', avgKal>=4000?'up':'down', 'purple')}
+    </div>
+
+    <div class="card" style="margin-bottom:18px">
+      <h3>Quality Control — Uji Laboratorium</h3>
+      <div class="hint">Kadar air (moisture), kadar abu, density, dan nilai kalori per batch — plus tujuan pengiriman (PLN/Export).</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Batch</th><th>Tanggal</th><th class="num">Moisture (%)</th><th class="num">Kalori (kCal/kg)</th><th class="num">Abu (%)</th><th class="num">Density</th><th>Tujuan</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            ${d.qc.map(q => `
+              <tr>
+                <td><b>${q.id}</b></td>
+                <td>${q.tanggal}</td>
+                <td class="num" style="color:${q.moisture<10?'#34d399':'#f87171'}">${q.moisture.toFixed(1)}</td>
+                <td class="num">${fmt.num(q.kalori)}</td>
+                <td class="num">${q.abu.toFixed(1)}</td>
+                <td class="num">${fmt.num(q.density)}</td>
+                <td>${q.tujuan.includes('Export') ? '<span class="pill purple">'+q.tujuan+'</span>' : q.tujuan.includes('PLN') ? '<span class="pill ok">'+q.tujuan+'</span>' : '<span class="pill neutral">'+q.tujuan+'</span>'}</td>
+                <td>${statusPill(q.status)}</td>
+                <td><button class="btn-del" onclick="delRow('qc',${JSON.stringify(q.id).replace(/"/g,'&quot;')})">✕</button></td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="form-row">
+        <input id="qId" placeholder="Batch ID">
+        <input id="qTgl" type="date" value="${new Date().toISOString().slice(0,10)}">
+        <input id="qMoist" type="number" step="0.1" placeholder="Moisture (%)">
+        <input id="qKal" type="number" placeholder="Kalori (kCal/kg)">
+        <input id="qAbu" type="number" step="0.1" placeholder="Abu (%)">
+        <input id="qDen" type="number" placeholder="Density">
+        <select id="qTujuan"><option>PLN Pelabuhan Ratu</option><option>Export - Marubeni</option><option>Export - Sumitomo</option><option>Reject / Daur Ulang</option></select>
+        <select id="qStatus"><option>Lulus</option><option>Revisi</option><option>Gagal</option></select>
+        <button onclick="addQc()">+ Tambah Batch</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Sebaran Kadar Air vs Nilai Kalori</h3>
+      <div class="hint">Semakin rendah moisture, semakin tinggi nilai kalori — scatter plot per batch (warna = status QC).</div>
+      <div class="chart-box"><canvas id="chQcScatter"></canvas></div>
+    </div>
+  `;
+};
+HOOKS['plant:qc'] = () => {
+  const d = state.data;
+  makeChart('chQcScatter', {
+    type:'scatter',
+    data:{
+      datasets:[{
+        label:'Batch',
+        data: d.qc.map(q=>({x:q.moisture, y:q.kalori, id:q.id, tujuan:q.tujuan})),
+        backgroundColor: d.qc.map(q=> q.status==='Lulus' ? 'rgba(16,185,129,.85)' : q.status==='Revisi' ? 'rgba(245,158,11,.85)' : 'rgba(239,68,68,.85)'),
+        pointRadius:7, pointHoverRadius:10, borderColor:'#0b1220', borderWidth:2
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:c=>`${c.raw.id} (${c.raw.tujuan}): Moisture ${c.raw.x}% · Kalori ${fmt.num(c.raw.y)}`}}
+      },
+      scales:{
+        x:{title:{display:true, text:'Moisture (%)'}, grid:{color:'rgba(42,58,88,.4)'}, min:6, max:13},
+        y:{title:{display:true, text:'Kalori (kCal/kg)'}, grid:{color:'rgba(42,58,88,.4)'}, min:3800, max:4600}
+      }
+    }
+  });
+};
+window.addQc = function() {
+  const id = document.getElementById('qId').value.trim();
+  const tanggal = document.getElementById('qTgl').value;
+  const moisture = parseFloat(document.getElementById('qMoist').value) || 0;
+  const kalori = parseFloat(document.getElementById('qKal').value) || 0;
+  const abu = parseFloat(document.getElementById('qAbu').value) || 0;
+  const density = parseFloat(document.getElementById('qDen').value) || 0;
+  const tujuan = document.getElementById('qTujuan').value;
+  const status = document.getElementById('qStatus').value;
+  if (!id) { alert('Batch ID wajib diisi.'); return; }
+  state.data.qc.push({id, tanggal, moisture, kalori, abu, density, tujuan, status});
+  saveData(); render();
+};
+
+/* ============================================================
+   INIT
+============================================================ */
+document.getElementById('companySwitch').addEventListener('click', e => {
+  const b = e.target.closest('button[data-co]');
+  if (b) setCompany(b.dataset.co);
+});
+document.getElementById('modules').addEventListener('click', e => {
+  const a = e.target.closest('a[data-mod]');
+  if (a) { e.preventDefault(); setModule(a.dataset.mod); }
+});
+document.getElementById('btnReset').addEventListener('click', resetData);
+document.getElementById('btnExport').addEventListener('click', exportData);
+
+render();
+</script>
+</body>
+</html>
