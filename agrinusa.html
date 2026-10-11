@@ -1,0 +1,3456 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AgriNusa ERP — Sistem Terintegrasi Pupuk (Enterprise)</title>
+<style>
+  :root{
+    --bg:#f4f6fb; --panel:#ffffff; --ink:#0f172a; --ink2:#475569; --muted:#94a3b8;
+    --line:#e6ebf2; --brand:#16a34a; --brand-d:#15803d; --brand-l:#dcfce7;
+    --blue:#0ea5e9; --amber:#f59e0b; --red:#ef4444; --violet:#8b5cf6; --cyan:#06b6d4;
+    --sidebar:#0b1220; --sidebar-2:#111b2e;
+    --r:14px; --shadow:0 1px 2px rgba(15,23,42,.06),0 8px 24px -12px rgba(15,23,42,.18);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  button,input,select{font:inherit}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:20px;border:3px solid transparent;background-clip:content-box}
+  ::-webkit-scrollbar-thumb:hover{background:#94a3b8;background-clip:content-box}
+
+  .app{display:grid;grid-template-columns:262px 1fr;min-height:100vh}
+
+  /* Sidebar */
+  .sidebar{
+    background:linear-gradient(180deg,var(--sidebar) 0%,var(--sidebar-2) 100%);
+    color:#cbd5e1;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow:auto;
+  }
+  .brand{display:flex;gap:11px;align-items:center;padding:20px 18px 14px}
+  .brand-logo{
+    width:38px;height:38px;border-radius:11px;flex:0 0 auto;
+    background:linear-gradient(140deg,#22c55e,#0ea5e9);display:grid;place-items:center;
+    font-size:19px;box-shadow:0 6px 18px -6px rgba(34,197,94,.8)
+  }
+  .brand b{display:block;color:#fff;font-size:15px;letter-spacing:.2px}
+  .brand small{display:block;color:#7d8ba3;font-size:11px;letter-spacing:.5px;text-transform:uppercase}
+  .nav{padding:6px 10px 18px;flex:1}
+  .nav-group{margin-top:14px}
+  .nav-group>span{
+    display:block;padding:0 12px 7px;font-size:10.5px;letter-spacing:.9px;
+    text-transform:uppercase;color:#5b6b85;font-weight:700
+  }
+  .nav-item{
+    display:flex;align-items:center;gap:11px;width:100%;border:0;background:transparent;
+    color:#b9c6d9;padding:9px 12px;border-radius:10px;cursor:pointer;text-align:left;
+    font-size:13px;transition:.16s;position:relative;margin-bottom:1px
+  }
+  .nav-item:hover{background:rgba(255,255,255,.06);color:#fff}
+  .nav-item.active{background:rgba(34,197,94,.14);color:#fff}
+  .nav-item.active::before{
+    content:"";position:absolute;left:-10px;top:8px;bottom:8px;width:3px;
+    background:var(--brand);border-radius:0 3px 3px 0
+  }
+  .nav-item i{font-style:normal;font-size:15px;width:20px;text-align:center;filter:saturate(.9)}
+  .nav-item .tag{
+    margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;
+    padding:1px 6px;border-radius:20px
+  }
+  .side-foot{padding:12px 16px;border-top:1px solid rgba(255,255,255,.07);font-size:11px;color:#64748b}
+  .side-foot b{color:#cbd5e1;display:block;font-size:12px}
+
+  /* Main */
+  .main{display:flex;flex-direction:column;min-width:0}
+  .topbar{
+    position:sticky;top:0;z-index:30;background:rgba(255,255,255,.88);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+    padding:12px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap
+  }
+  .hamb{display:none;border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 10px;cursor:pointer}
+  .page-title h1{margin:0;font-size:18px;letter-spacing:-.3px}
+  .page-title p{margin:1px 0 0;color:var(--muted);font-size:12px}
+  .topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .search{
+    display:flex;align-items:center;gap:8px;background:#f1f5f9;border:1px solid transparent;
+    border-radius:10px;padding:8px 12px;min-width:220px;transition:.16s
+  }
+  .search:focus-within{background:#fff;border-color:#bbf7d0;box-shadow:0 0 0 3px rgba(34,197,94,.12)}
+  .search input{border:0;background:transparent;outline:0;width:100%;font-size:13px}
+  .icon-btn{
+    border:1px solid var(--line);background:#fff;border-radius:10px;width:38px;height:38px;
+    display:grid;place-items:center;cursor:pointer;position:relative;transition:.16s
+  }
+  .icon-btn:hover{border-color:#cbd5e1;background:#f8fafc}
+  .icon-btn .dot{
+    position:absolute;top:7px;right:8px;width:8px;height:8px;background:var(--red);
+    border-radius:50%;border:2px solid #fff
+  }
+  .user{display:flex;align-items:center;gap:9px;padding:5px 10px 5px 5px;border:1px solid var(--line);border-radius:30px;background:#fff}
+  .avatar{
+    width:30px;height:30px;border-radius:50%;background:linear-gradient(140deg,#22c55e,#0ea5e9);
+    color:#fff;display:grid;place-items:center;font-weight:700;font-size:12px
+  }
+  .user small{display:block;color:var(--muted);font-size:11px;line-height:1.1}
+  .user b{font-size:12.5px;line-height:1.2}
+
+  .content{padding:20px 24px 44px;flex:1}
+
+  /* Sub-nav */
+  .subnav{
+    display:flex;gap:6px;flex-wrap:wrap;padding:10px 12px;background:#fff;
+    border:1px solid var(--line);border-radius:12px;margin-bottom:16px;
+    box-shadow:var(--shadow)
+  }
+  .subnav-item{
+    border:1px solid transparent;background:#f8fafc;color:#475569;padding:7px 13px;
+    border-radius:9px;cursor:pointer;font-size:12.5px;font-weight:650;transition:.16s;
+    display:flex;align-items:center;gap:6px;white-space:nowrap
+  }
+  .subnav-item:hover{background:#eef2f7;color:#0f172a}
+  .subnav-item.active{background:var(--brand);color:#fff;box-shadow:0 4px 12px -4px rgba(22,163,74,.7)}
+  .subnav-item .sn-ic{font-size:13px;opacity:.9}
+
+  /* Grid & Cards */
+  .grid{display:grid;gap:16px}
+  .kpis{grid-template-columns:repeat(auto-fit,minmax(206px,1fr))}
+  .kpis-sm{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+  .cols-2{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+  .cols-3{grid-template-columns:repeat(auto-fit,minmax(270px,1fr))}
+  .cols-4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+  .span-2{grid-column:span 2}
+  @media(max-width:1100px){.span-2{grid-column:span 1}}
+
+  .kpi{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+    padding:15px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden
+  }
+  .kpi::after{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--brand);opacity:.9}
+  .kpi.blue::after{background:var(--blue)} .kpi.amber::after{background:var(--amber)}
+  .kpi.red::after{background:var(--red)} .kpi.violet::after{background:var(--violet)}
+  .kpi.cyan::after{background:var(--cyan)}
+  .kpi-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .kpi-label{font-size:11.5px;color:var(--ink2);font-weight:650;letter-spacing:.2px}
+  .kpi-ic{font-size:16px;opacity:.85}
+  .kpi-val{font-size:23px;font-weight:750;letter-spacing:-.8px;margin:6px 0 4px}
+  .kpi-foot{display:flex;align-items:center;gap:8px;font-size:11px;flex-wrap:wrap}
+  .delta{font-weight:700;padding:2px 7px;border-radius:20px;font-size:10.5px}
+  .delta.up{color:#15803d;background:var(--brand-l)}
+  .delta.down{color:#b91c1c;background:#fee2e2}
+  .muted{color:var(--muted)}
+
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+    box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column
+  }
+  .card-hd{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--line)}
+  .card-hd h3{margin:0;font-size:13.5px;letter-spacing:-.2px}
+  .card-hd .actions{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .card-bd{padding:15px 16px;flex:1}
+  .card-bd.tight{padding:8px 12px}
+  .card-bd.flush{padding:0}
+
+  .chip{
+    font-size:11px;padding:4px 10px;border-radius:20px;background:#f1f5f9;color:var(--ink2);
+    border:1px solid var(--line);cursor:pointer;font-weight:600
+  }
+  .chip.active{background:var(--brand-l);color:var(--brand-d);border-color:#bbf7d0}
+
+  .chart-wrap{position:relative;width:100%;height:238px}
+  .chart-wrap.sm{height:190px}
+  .chart-wrap.lg{height:290px}
+  canvas{display:block;width:100%;height:100%}
+
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11.5px;color:var(--ink2)}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .legend i{width:9px;height:9px;border-radius:3px;display:inline-block}
+
+  .tbl-wrap{overflow:auto;max-height:440px}
+  table.tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+  table.tbl thead th{
+    position:sticky;top:0;background:#f8fafc;text-align:left;padding:10px 13px;
+    font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:#64748b;
+    border-bottom:1px solid var(--line);white-space:nowrap;font-weight:700;z-index:1
+  }
+  table.tbl td{padding:10px 13px;border-bottom:1px solid #f1f5f9;vertical-align:middle;white-space:nowrap}
+  table.tbl tbody tr:hover{background:#f8fafc}
+  table.tbl tbody tr:last-child td{border-bottom:0}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  .neg{color:#dc2626} .pos{color:#15803d}
+
+  .badge{
+    display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;
+    padding:3px 9px;border-radius:20px;white-space:nowrap
+  }
+  .badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+  .badge.ok{background:#dcfce7;color:#15803d}
+  .badge.warn{background:#fef3c7;color:#b45309}
+  .badge.bad{background:#fee2e2;color:#b91c1c}
+  .badge.info{background:#e0f2fe;color:#0369a1}
+  .badge.idle{background:#f1f5f9;color:#64748b}
+
+  .gauge{
+    width:132px;height:132px;border-radius:50%;display:grid;place-items:center;margin:0 auto;
+    background:conic-gradient(var(--c,#16a34a) calc(var(--p)*1%),#eef2f7 0)
+  }
+  .gauge-in{width:98px;height:98px;border-radius:50%;background:#fff;display:grid;place-items:center;text-align:center}
+  .gauge-in b{font-size:21px;letter-spacing:-.6px;display:block}
+  .gauge-in span{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+
+  .progress{height:7px;background:#eef2f7;border-radius:20px;overflow:hidden;min-width:80px}
+  .progress>i{display:block;height:100%;border-radius:20px;background:linear-gradient(90deg,#22c55e,#16a34a)}
+  .progress.blue>i{background:linear-gradient(90deg,#38bdf8,#0ea5e9)}
+  .progress.amber>i{background:linear-gradient(90deg,#fbbf24,#f59e0b)}
+  .progress.red>i{background:linear-gradient(90deg,#f87171,#ef4444)}
+
+  .list{display:flex;flex-direction:column;gap:2px}
+  .list-row{display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid #f1f5f9}
+  .list-row:last-child{border-bottom:0}
+  .list-row .ic{
+    width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
+    background:#f1f5f9;font-size:15px;flex:0 0 auto
+  }
+  .list-row .tx{flex:1;min-width:0}
+  .list-row .tx b{display:block;font-size:12.5px;font-weight:600}
+  .list-row .tx small{color:var(--muted);font-size:11px}
+  .list-row .rt{text-align:right;font-size:11.5px}
+
+  .stat-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px dashed #eef2f7;font-size:12.5px;gap:10px}
+  .stat-row:last-child{border-bottom:0}
+  .stat-row b{font-variant-numeric:tabular-nums}
+
+  .form-grid{display:grid;gap:13px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .field label{display:block;font-size:11.5px;font-weight:600;color:var(--ink2);margin-bottom:6px}
+  .field input,.field select,.field textarea{
+    width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:10px;
+    background:#fff;outline:0;transition:.16s;font-size:12.5px
+  }
+  .field input:focus,.field select:focus,.field textarea:focus{
+    border-color:#86efac;box-shadow:0 0 0 3px rgba(34,197,94,.13)
+  }
+  .btn{
+    border:0;border-radius:10px;padding:9px 15px;font-weight:650;font-size:12.5px;cursor:pointer;transition:.16s
+  }
+  .btn.primary{background:var(--brand);color:#fff;box-shadow:0 6px 16px -6px rgba(22,163,74,.7)}
+  .btn.primary:hover{background:var(--brand-d)}
+  .btn.ghost{background:#fff;border:1px solid var(--line);color:var(--ink2)}
+  .btn.ghost:hover{background:#f8fafc}
+
+  .callout{
+    display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:12px;
+    background:#fffbeb;border:1px solid #fde68a;font-size:12px;color:#92400e
+  }
+  .callout.ok{background:#f0fdf4;border-color:#bbf7d0;color:#166534}
+  .callout.bad{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+  .callout.info{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
+
+  .fade{animation:fade .28s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .mini-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+
+  @media(max-width:900px){
+    .app{grid-template-columns:1fr}
+    .sidebar{position:fixed;z-index:60;width:262px;transform:translateX(-100%);transition:.25s}
+    .sidebar.open{transform:none;box-shadow:0 0 0 100vmax rgba(15,23,42,.45)}
+    .hamb{display:block}
+    .content{padding:14px 12px 40px}
+    .topbar{padding:11px 14px}
+    .search{min-width:0;width:100%;order:5}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-logo">🌱</div>
+      <div><b>AgriNusa</b><small>Fertilizer ERP</small></div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot">
+      <b>Periode: Okt 2026</b>
+      Sinkron terakhir 5 menit lalu
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="hamb" id="hamb">☰</button>
+      <div class="page-title">
+        <h1 id="pTitle">Dashboard</h1>
+        <p id="pSub">Ringkasan operasional perusahaan</p>
+      </div>
+      <div class="topbar-right">
+        <div class="search">🔎 <input placeholder="Cari batch, PO, karyawan..." /></div>
+        <button class="icon-btn" title="Notifikasi">🔔<span class="dot"></span></button>
+        <button class="icon-btn" title="Bantuan">❔</button>
+        <div class="user">
+          <div class="avatar">BS</div>
+          <div><b>Budi Santoso</b><small>Plant Manager</small></div>
+        </div>
+      </div>
+    </header>
+    <div class="content" id="content"></div>
+  </main>
+</div>
+
+<script>
+/* =========================================================
+   UTILITAS
+   ========================================================= */
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const num = n => (n ?? 0).toLocaleString('id-ID');
+const rp  = n => 'Rp ' + num(Math.round(n));
+const pct = n => n.toFixed(1) + '%';
+
+function fmtShort(v){
+  const a = Math.abs(v);
+  if(a >= 1e12) return (v/1e12).toFixed(1).replace('.',',') + ' T';
+  if(a >= 1e9)  return (v/1e9).toFixed(1).replace('.',',')  + ' M';
+  if(a >= 1e6)  return (v/1e6).toFixed(1).replace('.',',')  + ' jt';
+  if(a >= 1e3)  return Math.round(v/1e3) + ' rb';
+  return String(Math.round(v));
+}
+const hexA = (hex,a) => {
+  const n = parseInt(hex.slice(1),16);
+  return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;
+};
+
+function kpi({label, value, delta, sub, icon='', tone=''}){
+  const d = (delta === undefined || delta === null) ? '' :
+    `<span class="delta ${delta>=0?'up':'down'}">${delta>=0?'▲':'▼'} ${Math.abs(delta).toFixed(1).replace('.',',')}%</span>`;
+  return `<div class="kpi ${tone}">
+    <div class="kpi-top"><span class="kpi-label">${label}</span><span class="kpi-ic">${icon}</span></div>
+    <div class="kpi-val">${value}</div>
+    <div class="kpi-foot">${d}<span class="muted">${sub||''}</span></div>
+  </div>`;
+}
+function kpiRow(items){ return `<div class="grid kpis">${items.map(kpi).join('')}</div>`; }
+
+function card(title, body, opts={}){
+  return `<section class="card ${opts.cls||''}">
+    <header class="card-hd"><h3>${title}</h3>${opts.actions?`<div class="actions">${opts.actions}</div>`:''}</header>
+    <div class="card-bd ${opts.pad||''}">${body}</div>
+  </section>`;
+}
+function table(headers, rows){
+  return `<div class="tbl-wrap"><table class="tbl">
+    <thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>
+  </table></div>`;
+}
+function legend(items){
+  return `<div class="legend">${items.map(i=>`<span><i style="background:${i.color}"></i>${i.label}</span>`).join('')}</div>`;
+}
+function badge(text, type='ok'){ return `<span class="badge ${type}">${text}</span>`; }
+function progress(v, cls=''){ return `<div class="progress ${cls}"><i style="width:${Math.min(100,v)}%"></i></div>`; }
+function statRow(label, val){ return `<div class="stat-row"><span>${label}</span><b>${val}</b></div>`; }
+function callout(type, title, text){
+  const ic = type==='ok'?'✅':type==='bad'?'⛔':type==='info'?'ℹ️':'⚠️';
+  return `<div class="callout ${type}"><span>${ic}</span><div><b>${title}</b><br>${text}</div></div>`;
+}
+
+/* =========================================================
+   CHART ENGINE (Canvas, tanpa library)
+   ========================================================= */
+function setupCanvas(cv){
+  const dpr = window.devicePixelRatio || 1;
+  const r = cv.getBoundingClientRect();
+  cv.width  = Math.max(1, r.width  * dpr);
+  cv.height = Math.max(1, r.height * dpr);
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,r.width,r.height);
+  return { ctx, w:r.width, h:r.height };
+}
+function roundRect(ctx,x,y,w,h,r){
+  r = Math.min(r, Math.abs(w)/2, Math.abs(h)/2);
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+function axes(ctx,w,h,pad,max,min=0){
+  const cw = w-pad.l-pad.r, ch = h-pad.t-pad.b;
+  ctx.font = '10.5px ui-sans-serif,system-ui';
+  ctx.textAlign='right'; ctx.textBaseline='middle';
+  for(let i=0;i<=4;i++){
+    const y = pad.t + ch*i/4;
+    ctx.strokeStyle = i===4 ? '#cbd5e1' : '#eef2f7';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.l, y+.5); ctx.lineTo(pad.l+cw, y+.5); ctx.stroke();
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText(fmtShort(max - (max-min)*i/4), pad.l-9, y);
+  }
+  return { cw, ch };
+}
+function xLabels(ctx,labels,pad,cw,ch){
+  ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillStyle='#94a3b8';
+  ctx.font='10.5px ui-sans-serif,system-ui';
+  const step = labels.length > 10 ? Math.ceil(labels.length/8) : 1;
+  labels.forEach((lb,i)=>{
+    if(i % step) return;
+    const x = pad.l + (labels.length>1 ? cw*i/(labels.length-1) : cw/2);
+    ctx.fillText(lb, x, pad.t+ch+8);
+  });
+}
+function lineChart(cv, labels, series, opts={}){
+  const {ctx,w,h} = setupCanvas(cv);
+  const pad = {l:52,r:16,t:14,b:28};
+  const all = series.flatMap(s=>s.data);
+  const min = opts.min0 === false ? Math.min(...all)*0.92 : 0;
+  let max = Math.max(...all);
+  max = max + (max-min)*0.16 || 1;
+  const {cw,ch} = axes(ctx,w,h,pad,max,min);
+  xLabels(ctx,labels,pad,cw,ch);
+  series.forEach(s=>{
+    const pts = s.data.map((v,i)=>({
+      x: pad.l + (s.data.length>1 ? cw*i/(s.data.length-1) : cw/2),
+      y: pad.t + ch*(1-(v-min)/(max-min))
+    }));
+    if(s.fill !== false){
+      const g = ctx.createLinearGradient(0,pad.t,0,pad.t+ch);
+      g.addColorStop(0, hexA(s.color,.26));
+      g.addColorStop(1, hexA(s.color,0));
+      ctx.beginPath(); ctx.moveTo(pts[0].x, pad.t+ch);
+      pts.forEach(p=>ctx.lineTo(p.x,p.y));
+      ctx.lineTo(pts[pts.length-1].x, pad.t+ch);
+      ctx.closePath(); ctx.fillStyle = g; ctx.fill();
+    }
+    ctx.beginPath();
+    pts.forEach((p,i)=> i ? ctx.lineTo(p.x,p.y) : ctx.moveTo(p.x,p.y));
+    ctx.strokeStyle = s.color; ctx.lineWidth = 2.3;
+    ctx.lineJoin='round'; ctx.lineCap='round';
+    if(s.dash) ctx.setLineDash([6,5]); else ctx.setLineDash([]);
+    ctx.stroke(); ctx.setLineDash([]);
+    pts.forEach(p=>{
+      ctx.beginPath(); ctx.arc(p.x,p.y,3,0,Math.PI*2);
+      ctx.fillStyle='#fff'; ctx.fill();
+      ctx.strokeStyle=s.color; ctx.lineWidth=1.8; ctx.stroke();
+    });
+  });
+}
+function barChart(cv, labels, series, opts={}){
+  const {ctx,w,h} = setupCanvas(cv);
+  const pad = {l:52,r:16,t:14,b:28};
+  const max = Math.max(...series.flatMap(s=>s.data))*1.18 || 1;
+  const {cw,ch} = axes(ctx,w,h,pad,max,0);
+  const groupW = cw/labels.length;
+  const barW = Math.min(30, (groupW*0.62)/series.length);
+  labels.forEach((lb,i)=>{
+    const gx = pad.l + groupW*i + groupW/2;
+    series.forEach((s,j)=>{
+      const v = s.data[i] || 0;
+      const bh = ch*(v/max);
+      const x = gx - (barW*series.length)/2 + j*barW;
+      const y = pad.t + ch - bh;
+      const g = ctx.createLinearGradient(0,y,0,pad.t+ch);
+      g.addColorStop(0, s.color);
+      g.addColorStop(1, hexA(s.color,.5));
+      ctx.fillStyle = g;
+      roundRect(ctx, x, y, Math.max(2,barW-4), bh, 4);
+      ctx.fill();
+    });
+    ctx.fillStyle='#94a3b8'; ctx.textAlign='center'; ctx.textBaseline='top';
+    ctx.font='10.5px ui-sans-serif,system-ui';
+    ctx.fillText(lb, gx, pad.t+ch+8);
+  });
+}
+function donutChart(cv, data, opts={}){
+  const {ctx,w,h} = setupCanvas(cv);
+  const cx = w/2, cy = h/2;
+  const R = Math.min(w,h)/2 - 6;
+  const r = R * 0.63;
+  const total = data.reduce((a,b)=>a+b.value,0) || 1;
+  let ang = -Math.PI/2;
+  data.forEach(d=>{
+    const a = d.value/total * Math.PI*2;
+    ctx.beginPath();
+    ctx.arc(cx,cy,R,ang,ang+a);
+    ctx.arc(cx,cy,r,ang+a,ang,true);
+    ctx.closePath();
+    ctx.fillStyle = d.color; ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5; ctx.stroke();
+    ang += a;
+  });
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle = '#0f172a';
+  ctx.font = '700 19px ui-sans-serif,system-ui';
+  ctx.fillText(opts.center ?? fmtShort(total), cx, cy - 7);
+  ctx.font = '10.5px ui-sans-serif,system-ui';
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillText(opts.sub ?? 'Total', cx, cy + 12);
+}
+function stackedBar(cv, labels, series){
+  const {ctx,w,h} = setupCanvas(cv);
+  const pad = {l:52,r:16,t:14,b:28};
+  const totals = labels.map((_,i)=> series.reduce((a,s)=>a+(s.data[i]||0),0));
+  const max = Math.max(...totals)*1.15 || 1;
+  const {cw,ch} = axes(ctx,w,h,pad,max,0);
+  const groupW = cw/labels.length;
+  const barW = Math.min(38, groupW*0.6);
+  labels.forEach((lb,i)=>{
+    const gx = pad.l + groupW*i + groupW/2 - barW/2;
+    let acc = 0;
+    series.forEach(s=>{
+      const v = s.data[i]||0;
+      const bh = ch*(v/max);
+      const y = pad.t + ch - acc - bh;
+      ctx.fillStyle = s.color;
+      roundRect(ctx, gx, y, barW, Math.max(0,bh), 3);
+      ctx.fill();
+      acc += bh;
+    });
+    ctx.fillStyle='#94a3b8'; ctx.textAlign='center'; ctx.textBaseline='top';
+    ctx.font='10.5px ui-sans-serif,system-ui';
+    ctx.fillText(lb, gx+barW/2, pad.t+ch+8);
+  });
+}
+
+/* =========================================================
+   DATA GLOBAL
+   ========================================================= */
+const M6  = ['Mei','Jun','Jul','Agu','Sep','Okt'];
+const M12 = ['Nov','Des','Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt'];
+const QTR = ['Q1','Q2','Q3','Q4'];
+
+/* =========================================================
+   PAGE REGISTRY
+   ========================================================= */
+const PAGES = {};
+const SUB_STATE = {};
+
+function page(id, cfg){ PAGES[id] = cfg; }
+
+/* =========================================================
+   1. DASHBOARD
+   ========================================================= */
+page('dashboard', {
+  title:'Dashboard', sub:'Ringkasan operasional perusahaan', icon:'📊', group:'Utama',
+  subs: {
+    overview: {
+      title:'Overview', icon:'🏠',
+      render: () => `
+        ${kpiRow([
+          {label:'Pendapatan Okt', value:'Rp 248,7 M', delta:5.0, sub:'vs Sep 2026', icon:'💰'},
+          {label:'Produksi', value:'128.450 ton', delta:6.2, sub:'target 138.000', icon:'🏭', tone:'blue'},
+          {label:'Insiden K3', value:'1 kejadian', delta:-66.7, sub:'0 LTI', icon:'🦺', tone:'amber'},
+          {label:'OTIF', value:'96,3%', delta:1.4, sub:'logistik', icon:'🚚', tone:'violet'}
+        ])}
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Tren Pendapatan vs Biaya (Rp miliar)', `
+            <div class="chart-wrap"><canvas id="d-rev"></canvas></div>
+            ${legend([{label:'Pendapatan',color:'#16a34a'},{label:'HPP',color:'#f59e0b'},{label:'Laba Bersih',color:'#0ea5e9'}])}
+          `)}
+          ${card('Komposisi Penjualan per Produk', `
+            <div class="chart-wrap"><canvas id="d-mix"></canvas></div>
+            ${legend([
+              {label:'NPK Phonska',color:'#16a34a'},{label:'Urea',color:'#0ea5e9'},
+              {label:'SP-36',color:'#f59e0b'},{label:'ZA',color:'#8b5cf6'},{label:'Organik',color:'#06b6d4'}
+            ])}
+          `)}
+        </div>
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Peringatan & Tindakan', `
+            <div class="list">
+              <div class="list-row"><div class="ic" style="background:#fee2e2">⚠️</div>
+                <div class="tx"><b>Stok Urea Gudang Cikampek kritis</b><small>Sisa 412 ton — buffer 600 ton</small></div>
+                <div class="rt">${badge('Kritis','bad')}</div></div>
+              <div class="list-row"><div class="ic" style="background:#fef3c7">🔧</div>
+                <div class="tx"><b>Maintenance terjadwal Lini-2</b><small>Rotary dryer bearing — 28 Okt</small></div>
+                <div class="rt">${badge('Menunggu','warn')}</div></div>
+              <div class="list-row"><div class="ic" style="background:#e0f2fe">📄</div>
+                <div class="tx"><b>12 faktur jatuh tempo &lt; 7 hari</b><small>Total Rp 4,8 M — distributor Jatim</small></div>
+                <div class="rt">${badge('Perlu Aksi','info')}</div></div>
+              <div class="list-row"><div class="ic" style="background:#dcfce7">✅</div>
+                <div class="tx"><b>Audit ISO 9001:2015 lulus</b><small>Skor 94/100 — tanpa temuan mayor</small></div>
+                <div class="rt">${badge('Selesai','ok')}</div></div>
+            </div>
+          `, {pad:'tight'})}
+          ${card('Status Lini Produksi', `
+            ${statRow('Lini-1 · NPK Granulasi', badge('Berjalan','ok'))}
+            ${statRow('Lini-2 · Urea Prill', badge('Maintenance','warn'))}
+            ${statRow('Lini-3 · SP-36', badge('Berjalan','ok'))}
+            ${statRow('Lini-4 · Pupuk Organik', badge('Berjalan','ok'))}
+            ${statRow('Lini-5 · Blending ZA', badge('Idle','idle'))}
+            <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line)">
+              ${statRow('<b>OEE Rata-rata Pabrik</b>', '<b style="color:#15803d">78,4%</b>')}
+            </div>
+          `)}
+        </div>
+      `,
+      after: () => {
+        lineChart($('#d-rev'), M6, [
+          {data:[186.4,198.2,205.7,221.3,236.9,248.7], color:'#16a34a'},
+          {data:[132.1,139.5,143.2,152.8,161.4,168.3], color:'#f59e0b'},
+          {data:[24.8,27.3,29.6,32.4,35.1,38.2], color:'#0ea5e9'}
+        ]);
+        donutChart($('#d-mix'), [
+          {label:'NPK',value:42,color:'#16a34a'},{label:'Urea',value:26,color:'#0ea5e9'},
+          {label:'SP-36',value:14,color:'#f59e0b'},{label:'ZA',value:11,color:'#8b5cf6'},
+          {label:'Organik',value:7,color:'#06b6d4'}
+        ], {center:'248,7 M', sub:'Rp Penjualan'});
+      }
+    },
+    executive: {
+      title:'Executive Summary', icon:'🎯',
+      render: () => `
+        <div class="grid cols-2">
+          ${card('Cockpit Kinerja Utama', `
+            <div class="grid cols-2" style="gap:12px">
+              <div class="gauge" style="--p:82;--c:#16a34a"><div class="gauge-in"><b>82%</b><span>Skor</span></div></div>
+              <div class="gauge" style="--p:91;--c:#0ea5e9"><div class="gauge-in"><b>91%</b><span>Keuangan</span></div></div>
+              <div class="gauge" style="--p:78;--c:#f59e0b"><div class="gauge-in"><b>78%</b><span>Operasi</span></div></div>
+              <div class="gauge" style="--p:88;--c:#8b5cf6"><div class="gauge-in"><b>88%</b><span>K3</span></div></div>
+            </div>
+          `)}
+          ${card('KPI Scorecard — Okt 2026', table(
+            ['Indikator','Aktual','Target','Status','Trend'],
+            [
+              ['Pendapatan','Rp 248,7 M','Rp 245 M', badge('Lampaui','ok'),'▲ 5,0%'],
+              ['EBITDA Margin','24,2%','≥ 22%', badge('Lampaui','ok'),'▲ 0,8%'],
+              ['Produksi','128.450 ton','138.000 ton', badge('Kurang','warn'),'▲ 6,2%'],
+              ['OEE','78,4%','≥ 85%', badge('Kurang','warn'),'▲ 1,9%'],
+              ['TRIR','0,42','≤ 1,20', badge('Lampaui','ok'),'▼ 28,6%'],
+              ['OTIF','96,3%','≥ 95%', badge('Lampaui','ok'),'▲ 1,4%'],
+              ['Turnover','4,2%','≤ 6%', badge('Lampaui','ok'),'▼ 0,8%'],
+              ['Reject Rate','0,82%','≤ 1,5%', badge('Lampaui','ok'),'▼ 0,3%']
+            ]
+          ), {pad:'flush'})}
+        </div>
+        <div style="margin-top:16px">
+          ${card('Performa YTD vs Target (Rp miliar)', `
+            <div class="chart-wrap lg"><canvas id="ex-ytd"></canvas></div>
+            ${legend([{label:'Target',color:'#94a3b8'},{label:'Aktual',color:'#16a34a'},{label:'Forecast Q4',color:'#0ea5e9'}])}
+          `)}
+        </div>
+      `,
+      after: () => {
+        lineChart($('#ex-ytd'), M12, [
+          {data:[180,195,205,210,218,225,232,240,245,250,255,262], color:'#94a3b8', fill:false, dash:true},
+          {data:[182,198,207,212,220,228,236,241,248,255,262,268], color:'#16a34a'},
+          {data:[null,null,null,null,null,null,null,null,248,262,278,295].map(v=>v||0), color:'#0ea5e9', fill:false, dash:true}
+        ]);
+      }
+    },
+    alerts: {
+      title:'Alert Center', icon:'🔔',
+      render: () => `
+        ${kpiRow([
+          {label:'Alert Aktif', value:'14', delta:16.7, sub:'total pending', icon:'⚠️', tone:'amber'},
+          {label:'Kritis', value:'3', delta:-25.0, sub:'perlu aksi segera', icon:'🚨', tone:'red'},
+          {label:'Diselesaikan', value:'42', delta:20.0, sub:'bulan ini', icon:'✅'},
+          {label:'Rata-rata Respon', value:'2,4 jam', delta:-18.0, sub:'SLA 4 jam', icon:'⏱️', tone:'blue'}
+        ])}
+        <div style="margin-top:16px">
+          ${card('Daftar Alert', table(
+            ['Waktu','Level','Kategori','Deskripsi','Owner','Status'],
+            [
+              ['25 Okt 09:42', badge('Kritis','bad'),'Stok','Urea gudang Cikampek < buffer','Logistik', badge('Open','bad')],
+              ['25 Okt 08:18', badge('Kritis','bad'),'K3','Sertifikat operator boiler expired','K3', badge('Open','bad')],
+              ['25 Okt 07:55', badge('Kritis','bad'),'Keuangan','Piutang > 60 hari Rp 2,1 M','Keuangan', badge('Open','bad')],
+              ['24 Okt 18:30', badge('Tinggi','warn'),'Produksi','OEE Lini-2 di bawah 70%','Produksi', badge('In Progress','warn')],
+              ['24 Okt 15:20', badge('Tinggi','warn'),'Kualitas','Reject rate SP-36 naik 1,2%','Produksi', badge('In Progress','warn')],
+              ['24 Okt 11:08', badge('Sedang','info'),'Logistik','Vendor UD Cepat Kirim skor C','Logistik', badge('Monitoring','info')],
+              ['23 Okt 16:45', badge('Sedang','info'),'R&D','Uji boron di bawah standar','R&D', badge('Resolved','ok')],
+              ['23 Okt 10:12', badge('Rendah','idle'),'SDM','Absensi departemen > 3%','SDM', badge('Resolved','ok')]
+            ]
+          ), {pad:'flush', actions:'<span class="chip active">Semua</span><span class="chip">Kritis</span><span class="chip">Open</span>'})}
+        </div>
+      `,
+      after: () => {}
+    },
+    analytics: {
+      title:'Analitik', icon:'📈',
+      render: () => `
+        <div class="grid cols-2">
+          ${card('Korelasi Produksi vs Penjualan', `
+            <div class="chart-wrap"><canvas id="an-1"></canvas></div>
+            ${legend([{label:'Produksi (ribu ton)',color:'#16a34a'},{label:'Penjualan (ribu ton)',color:'#0ea5e9'}])}
+          `)}
+          ${card('Kontribusi Laba per Divisi', `
+            <div class="chart-wrap"><canvas id="an-2"></canvas></div>
+            ${legend([
+              {label:'Pupuk NPK',color:'#16a34a'},{label:'Urea',color:'#0ea5e9'},
+              {label:'SP-36',color:'#f59e0b'},{label:'Jasa',color:'#8b5cf6'}
+            ])}
+          `)}
+        </div>
+        <div class="grid cols-3" style="margin-top:16px">
+          ${card('Kesehatan Bisnis', `
+            <div class="stat-row"><span>Likutiditas (current ratio)</span><b>1,84</b></div>
+            <div class="stat-row"><span>Solvabilitas (DER)</span><b>0,62</b></div>
+            <div class="stat-row"><span>ROA</span><b>9,4%</b></div>
+            <div class="stat-row"><span>ROE</span><b>14,8%</b></div>
+            <div class="stat-row"><span>Inventory Turnover</span><b>7,2x / tahun</b></div>
+            <div class="stat-row"><span>DSO</span><b>41 hari</b></div>
+          `)}
+          ${card('Peringkat Nasional', `
+            <div class="list">
+              <div class="list-row"><div class="ic">🥇</div><div class="tx"><b>Market Share Nasional</b><small>Peringkat 3</small></div><div class="rt"><b>23,8%</b></div></div>
+              <div class="list-row"><div class="ic">🥈</div><div class="tx"><b>Brand Awareness</b><small>Survei Q3 2026</small></div><div class="rt"><b>41,2%</b></div></div>
+              <div class="list-row"><div class="ic">🥉</div><div class="tx"><b>Efisiensi Energi</b><small>Benchmark asosiasi</small></div><div class="rt"><b>Top 5</b></div></div>
+              <div class="list-row"><div class="ic">🏅</div><div class="tx"><b>Kepatuhan ESG</b><small>Rating Sustainalytics</small></div><div class="rt"><b>B+</b></div></div>
+            </div>
+          `, {pad:'tight'})}
+          ${card('Proyeksi Q4 2026', `
+            <div class="stat-row"><span>Pendapatan</span><b>Rp 765 M</b></div>
+            <div class="stat-row"><span>Laba Bersih</span><b>Rp 118 M</b></div>
+            <div class="stat-row"><span>Produksi</span><b>402.000 ton</b></div>
+            <div class="stat-row"><span>CAPEX</span><b>Rp 82 M</b></div>
+            <div style="margin-top:10px">
+              ${callout('info','Asumsi utama','Kapasitas Lini-2 pulih penuh pada Nov, harga gas stabil, kurs Rp 15.600/USD.')}
+            </div>
+          `)}
+        </div>
+      `,
+      after: () => {
+        lineChart($('#an-1'), M12, [
+          {data:[112,118,121,125,124,128,130,132,134,133,129,128], color:'#16a34a'},
+          {data:[108,115,119,124,126,130,132,134,136,135,124,129], color:'#0ea5e9'}
+        ]);
+        donutChart($('#an-2'), [
+          {label:'NPK',value:52,color:'#16a34a'},{label:'Urea',value:24,color:'#0ea5e9'},
+          {label:'SP-36',value:16,color:'#f59e0b'},{label:'Jasa',value:8,color:'#8b5cf6'}
+        ], {center:'38,2 M', sub:'Rp Laba Okt'});
+      }
+    }
+  }
+});
+
+/* =========================================================
+   2. KEUANGAN
+   ========================================================= */
+page('keuangan', {
+  title:'Keuangan', sub:'Laporan finansial dan akuntansi', icon:'💰', group:'Divisi',
+  subs: {
+    overview: {
+      title:'Overview', icon:'📊',
+      render: () => `
+        ${kpiRow([
+          {label:'Pendapatan (YTD)', value:'Rp 1,29 T', delta:11.8, sub:'vs periode sama', icon:'📈'},
+          {label:'EBITDA', value:'Rp 312,4 M', delta:8.4, sub:'margin 24,2%', icon:'💵', tone:'blue'},
+          {label:'Laba Bersih', value:'Rp 187,4 M', delta:9.1, sub:'margin 14,5%', icon:'🏦', tone:'violet'},
+          {label:'Piutang Usaha', value:'Rp 96,2 M', delta:3.6, sub:'DSO 41 hari', icon:'📄', tone:'amber'},
+          {label:'Utang Bank', value:'Rp 420 M', delta:-4.2, sub:'covenant aman', icon:'🏛️', tone:'red'},
+          {label:'Kas & Setara', value:'Rp 78,9 M', delta:6.7, sub:'runway 5,2 bln', icon:'💳'}
+        ])}
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Arus Kas Operasional (Rp miliar)', `
+            <div class="chart-wrap"><canvas id="k-cash"></canvas></div>
+            ${legend([{label:'Kas Masuk',color:'#16a34a'},{label:'Kas Keluar',color:'#ef4444'},{label:'Net',color:'#0ea5e9'}])}
+          `)}
+          ${card('Komposisi Beban Operasional', `
+            <div class="chart-wrap"><canvas id="k-exp"></canvas></div>
+            ${legend([
+              {label:'Bahan Baku',color:'#16a34a'},{label:'Energi & Gas',color:'#f59e0b'},
+              {label:'Tenaga Kerja',color:'#0ea5e9'},{label:'Logistik',color:'#8b5cf6'},{label:'Lainnya',color:'#94a3b8'}
+            ])}
+          `)}
+        </div>
+        <div class="grid cols-3" style="margin-top:16px">
+          ${card('Rasio Keuangan', `
+            ${statRow('Current Ratio','1,84')}
+            ${statRow('Quick Ratio','1,32')}
+            ${statRow('Debt to Equity','0,62')}
+            ${statRow('Gross Margin','32,3%')}
+            ${statRow('Net Margin','14,5%')}
+            ${statRow('ROA','9,4%')}
+            ${statRow('ROE','14,8%')}
+          `)}
+          ${card('Ringkasan Neraca (Rp M)', `
+            ${statRow('Total Aset','2.840')}
+            ${statRow('Aset Lancar','1.240')}
+            ${statRow('Aset Tetap','1.480')}
+            ${statRow('Total Liabilitas','1.086')}
+            ${statRow('Liabilitas Jangka Pendek','674')}
+            ${statRow('Ekuitas','1.754')}
+          `)}
+          ${card('Status Anggaran', `
+            ${statRow('Budget YTD','Rp 1,12 T')}
+            ${statRow('Realisasi YTD','Rp 1,06 T')}
+            ${statRow('Utilisasi', progress(94.6)+' 94,6%')}
+            ${statRow('Sisa Anggaran','Rp 60 M')}
+            <div style="margin-top:10px">
+              ${callout('ok','Dalam kendali','Realisasi di bawah anggaran 5,4% — efisiensi dari harga bahan baku.')}
+            </div>
+          `)}
+        </div>
+      `,
+      after: () => {
+        lineChart($('#k-cash'), M6, [
+          {data:[210,228,241,255,268,289], color:'#16a34a'},
+          {data:[196,205,214,226,238,251], color:'#ef4444'},
+          {data:[14,23,27,29,30,38], color:'#0ea5e9', fill:false, dash:true}
+        ]);
+        donutChart($('#k-exp'), [
+          {label:'Bahan Baku',value:58,color:'#16a34a'},{label:'Energi',value:17,color:'#f59e0b'},
+          {label:'Tenaga Kerja',value:13,color:'#0ea5e9'},{label:'Logistik',value:8,color:'#8b5cf6'},
+          {label:'Lainnya',value:4,color:'#94a3b8'}
+        ], {center:'168,3 M', sub:'Rp Beban'});
+      }
+    },
+    pl: {
+      title:'Laba Rugi', icon:'📑',
+      render: () => `
+        ${card('Laporan Laba Rugi — Oktober 2026 (Rp juta)', table(
+          ['Pos','Okt 2026','Sep 2026','Δ','%'],
+          [
+            ['Pendapatan','<b class="num">248.700</b>','<span class="num">236.900</span>','<span class="pos">+11.800</span>','<span class="pos">+5,0%</span>'],
+            ['Harga Pokok Penjualan','<span class="num neg">(168.300)</span>','<span class="num">(161.400)</span>','<span class="neg">-6.900</span>','<span class="neg">-4,3%</span>'],
+            ['<b>Laba Bruto</b>','<b class="num">80.400</b>','<b class="num">75.500</b>','<span class="pos">+4.900</span>','<span class="pos">+6,5%</span>'],
+            ['Beban Penjualan','<span class="num neg">(18.200)</span>','<span class="num">(17.100)</span>','<span class="neg">-1.100</span>','<span class="neg">-6,4%</span>'],
+            ['Beban Umum & Adm','<span class="num neg">(12.400)</span>','<span class="num">(12.000)</span>','<span class="neg">-400</span>','<span class="neg">-3,3%</span>'],
+            ['Beban Bunga','<span class="num neg">(6.100)</span>','<span class="num">(6.400)</span>','<span class="pos">+300</span>','<span class="pos">+4,7%</span>'],
+            ['<b>Laba Sebelum Pajak</b>','<b class="num">43.700</b>','<b class="num">40.000</b>','<span class="pos">+3.700</span>','<span class="pos">+9,3%</span>'],
+            ['Pajak (22%)','<span class="num neg">(9.614)</span>','<span class="num">(8.800)</span>','<span class="neg">-814</span>','<span class="neg">-9,3%</span>'],
+            ['<b>Laba Bersih</b>','<b class="num pos">34.086</b>','<b class="num">31.200</b>','<span class="pos">+2.886</span>','<span class="pos">+9,3%</span>']
+          ]
+        ), {pad:'flush', actions:'<span class="chip active">Okt 2026</span><span class="chip">YTD</span><span class="chip">Export PDF</span>'})}
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Trend Laba 6 Bulan (Rp miliar)', `
+            <div class="chart-wrap"><canvas id="pl-1"></canvas></div>
+            ${legend([{label:'Laba Bruto',color:'#16a34a'},{label:'Laba Bersih',color:'#0ea5e9'}])}
+          `)}
+          ${card('Margin per Segmen', table(
+            ['Segmen','Pendapatan','Laba Bruto','Margin'],
+            [
+              ['Pupuk NPK','Rp 104,4 M','Rp 38,2 M','36,6%'],
+              ['Urea','Rp 64,6 M','Rp 18,4 M','28,5%'],
+              ['SP-36','Rp 34,8 M','Rp 11,2 M','32,2%'],
+              ['ZA','Rp 27,4 M','Rp 8,1 M','29,6%'],
+              ['Organik','Rp 17,5 M','Rp 4,5 M','25,7%']
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {
+        lineChart($('#pl-1'), M6, [
+          {data:[62.4,67.2,70.8,73.5,75.5,80.4], color:'#16a34a'},
+          {data:[24.8,27.3,29.6,32.4,31.2,34.1], color:'#0ea5e9'}
+        ]);
+      }
+    },
+    balance: {
+      title:'Neraca', icon:'⚖️',
+      render: () => `
+        <div class="grid cols-2">
+          ${card('Aset — Oktober 2026 (Rp juta)', table(
+            ['Akun','Jumlah','%'],
+            [
+              ['Kas & Setara','78.900','2,8%'],
+              ['Piutang Usaha','96.200','3,4%'],
+              ['Persediaan','284.600','10,0%'],
+              ['Aset Lancar Lainnya','780.300','27,5%'],
+              ['<b>Total Aset Lancar</b>','<b>1.240.000</b>','<b>43,7%</b>'],
+              ['Aset Tetap — Tanah','420.000','14,8%'],
+              ['Aset Tetap — Bangunan','386.000','13,6%'],
+              ['Aset Tetap — Mesin','542.000','19,1%'],
+              ['Aset Tak Berwujud','132.000','4,6%'],
+              ['<b>Total Aset</b>','<b>2.840.000</b>','<b>100%</b>']
+            ]
+          ), {pad:'flush'})}
+          ${card('Liabilitas & Ekuitas (Rp juta)', table(
+            ['Akun','Jumlah','%'],
+            [
+              ['Utang Usaha','312.400','11,0%'],
+              ['Utang Bank Jangka Pendek','186.000','6,5%'],
+              ['Utang Pajak','124.600','4,4%'],
+              ['Biaya Akrual','51.000','1,8%'],
+              ['<b>Total Liabilitas Jangka Pendek</b>','<b>674.000</b>','<b>23,7%</b>'],
+              ['Utang Bank Jangka Panjang','234.000','8,2%'],
+              ['Liabilitas Imbalan Kerja','128.000','4,5%'],
+              ['Liabilitas Jangka Panjang Lainnya','50.000','1,8%'],
+              ['<b>Total Liabilitas</b>','<b>1.086.000</b>','<b>38,2%</b>'],
+              ['<b>Total Ekuitas</b>','<b>1.754.000</b>','<b>61,8%</b>']
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {}
+    },
+    cashflow: {
+      title:'Arus Kas', icon:'💧',
+      render: () => `
+        ${kpiRow([
+          {label:'Kas Operasional', value:'+Rp 289 M', delta:7.8, sub:'6 bulan terakhir', icon:'🟢'},
+          {label:'Kas Investasi', value:'-Rp 182 M', delta:-4.2, sub:'capex & akuisisi', icon:'🔵', tone:'blue'},
+          {label:'Kas Pendanaan', value:'-Rp 96 M', delta:2.1, sub:'dividen & cicilan', icon:'🟣', tone:'violet'},
+          {label:'Net Cash Flow', value:'+Rp 11 M', delta:null, sub:'posisi Okt', icon:'💳', tone:'amber'}
+        ])}
+        <div style="margin-top:16px">
+          ${card('Proyeksi Arus Kas 12 Bulan (Rp miliar)', `
+            <div class="chart-wrap lg"><canvas id="cf-1"></canvas></div>
+            ${legend([
+              {label:'Operasional',color:'#16a34a'},
+              {label:'Investasi',color:'#0ea5e9'},
+              {label:'Pendanaan',color:'#8b5cf6'}
+            ])}
+          `)}
+        </div>
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Rincian Arus Kas Operasional', table(
+            ['Item','Okt','YTD'],
+            [
+              ['Penerimaan dari pelanggan','234.100','1.184.300'],
+              ['Pembayaran ke supplier','(148.200)','(756.400)'],
+              ['Pembayaran gaji','(28.400)','(168.200)'],
+              ['Pembayaran bunga','(6.100)','(38.600)'],
+              ['Pajak dibayar','(8.200)','(46.100)'],
+              ['<b>Net Operasional</b>','<b>43.200</b>','<b>175.000</b>']
+            ]
+          ), {pad:'flush'})}
+          ${card('Proyeksi 3 Bulan', `
+            ${statRow('Nov 2026','+Rp 32 M')}
+            ${statRow('Des 2026','+Rp 48 M')}
+            ${statRow('Jan 2027','+Rp 18 M')}
+            <div style="margin-top:12px">
+              ${callout('ok','Likuiditas aman','Proyeksi kas di atas Rp 60 M sepanjang Q4 2026.')}
+            </div>
+          `)}
+        </div>
+      `,
+      after: () => {
+        lineChart($('#cf-1'), M12, [
+          {data:[210,228,241,255,268,289,305,320,338,352,368,385], color:'#16a34a'},
+          {data:[28,24,30,26,22,18,20,24,18,22,16,14].map(v=>-v), color:'#0ea5e9'},
+          {data:[15,18,16,14,12,10,8,12,10,8,6,6].map(v=>-v), color:'#8b5cf6'}
+        ]);
+      }
+    },
+    ar: {
+      title:'Piutang', icon:'📄',
+      render: () => `
+        ${kpiRow([
+          {label:'Total Piutang', value:'Rp 96,2 M', delta:3.6, sub:'142 invoice', icon:'📄'},
+          {label:'DSO', value:'41 hari', delta:-4.2, sub:'target 38 hari', icon:'⏱️', tone:'blue'},
+          {label:'Overdue', value:'Rp 8,4 M', delta:-12.1, sub:'8,7% dari total', icon:'⚠️', tone:'amber'},
+          {label:'Write-off', value:'Rp 0,4 M', delta:null, sub:'YTD', icon:'🗑️', tone:'red'}
+        ])}
+        <div style="margin-top:16px">
+          ${card('Daftar Piutang Jatuh Tempo', table(
+            ['Invoice','Distributor','Jumlah','Jatuh Tempo','Umur','Status'],
+            [
+              ['INV-2610-118','PT Tani Makmur Jatim','Rp 2,14 M','28 Okt 2026','7 hari', badge('≤7 hari','bad')],
+              ['INV-2610-119','CV Sumber Rejeki','Rp 1,86 M','30 Okt 2026','9 hari', badge('≤7 hari','bad')],
+              ['INV-2609-084','Koperasi Tani Sejahtera','Rp 1,20 M','04 Nov 2026','14 hari', badge('14 hari','warn')],
+              ['INV-2609-076','PT Agro Lestari','Rp 3,45 M','12 Nov 2026','22 hari', badge('Aman','ok')],
+              ['INV-2608-042','UD Bumi Subur','Rp 0,98 M','18 Nov 2026','28 hari', badge('Aman','ok')],
+              ['INV-2608-031','PT Sarana Tani','Rp 2,62 M','25 Nov 2026','35 hari', badge('Aman','ok')],
+              ['INV-2607-018','CV Mitra Tani','Rp 1,44 M','20 Okt 2026','-5 hari', badge('Overdue','bad')],
+              ['INV-2606-009','UD Tani Jaya','Rp 0,68 M','15 Okt 2026','-10 hari', badge('Overdue','bad')]
+            ]
+          ), {pad:'flush', actions:'<span class="chip active">Semua</span><span class="chip">Overdue</span><span class="chip">≤7 hari</span>'})}
+        </div>
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Aging Piutang', `
+            <div class="chart-wrap sm"><canvas id="ar-age"></canvas></div>
+            ${legend([
+              {label:'0-30 hari',color:'#16a34a'},{label:'31-60 hari',color:'#f59e0b'},
+              {label:'61-90 hari',color:'#f97316'},{label:'>90 hari',color:'#ef4444'}
+            ])}
+          `)}
+          ${card('Kebijakan Kredit', `
+            ${statRow('Limit kredit maks','Rp 3 M / distributor')}
+            ${statRow('Term of payment','30 hari')}
+            ${statRow('Denda keterlambatan','0,5% / bulan')}
+            ${statRow('Jaminan','BG / deposito')}
+            ${statRow('Auto-block pengiriman','Jika overdue > 30 hari')}
+          `)}
+        </div>
+      `,
+      after: () => {
+        donutChart($('#ar-age'), [
+          {label:'0-30',value:62,color:'#16a34a'},{label:'31-60',value:21,color:'#f59e0b'},
+          {label:'61-90',value:11,color:'#f97316'},{label:'>90',value:6,color:'#ef4444'}
+        ], {center:'96,2 M', sub:'Rp Piutang'});
+      }
+    },
+    ap: {
+      title:'Hutang', icon:'🧾',
+      render: () => `
+        ${kpiRow([
+          {label:'Total Hutang', value:'Rp 312,4 M', delta:-2.4, sub:'usaha & bank', icon:'🧾', tone:'red'},
+          {label:'DPO', value:'34 hari', delta:2.1, sub:'target 32 hari', icon:'⏱️'},
+          {label:'Jatuh Tempo < 7 hari', value:'Rp 42,8 M', delta:8.4, sub:'18 invoice', icon:'📅', tone:'amber'},
+          {label:'Vendor Aktif', value:'186', delta:3.2, sub:'dengan hutang berjalan', icon:'🏢', tone:'blue'}
+        ])}
+        <div style="margin-top:16px">
+          ${card('Daftar Hutang Usaha', table(
+            ['Invoice','Vendor','Jumlah','Jatuh Tempo','Kategori','Status'],
+            [
+              ['AP-2610-091','PT Gas Nusantara','Rp 18,4 M','28 Okt 2026','Energi', badge('≤7 hari','bad')],
+              ['AP-2610-088','PT Petrokimia Supply','Rp 12,6 M','30 Okt 2026','Bahan Baku', badge('≤7 hari','bad')],
+              ['AP-2610-084','CV Kimia Sejahtera','Rp 11,8 M','02 Nov 2026','Bahan Baku', badge('Segera','warn')],
+              ['AP-2609-072','PT Listrik Negara','Rp 8,2 M','05 Nov 2026','Energi', badge('Aman','ok')],
+              ['AP-2609-065','PT Kemasan Prima','Rp 4,4 M','08 Nov 2026','Kemasan', badge('Aman','ok')],
+              ['AP-2609-051','PT Trans Nusantara','Rp 3,6 M','12 Nov 2026','Logistik', badge('Aman','ok')]
+            ]
+          ), {pad:'flush'})}
+        </div>
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Hutang Bank', table(
+            ['Bank','Fasilitas','Outstanding','Bunga','Jatuh Tempo'],
+            [
+              ['Bank Mandiri','Term Loan','Rp 180 M','8,4%','Des 2028'],
+              ['Bank BNI','Kredit Modal Kerja','Rp 96 M','9,2%','Jun 2027'],
+              ['Bank BRI','Investasi','Rp 84 M','8,8%','Mar 2029'],
+              ['Bank Jatim','KMK','Rp 60 M','9,6%','Sep 2027']
+            ]
+          ), {pad:'flush'})}
+          ${card('Covenant Monitoring', `
+            ${statRow('Debt to Equity ≤ 1,5', '<b style="color:#15803d">0,62 ✓</b>')}
+            ${statRow('Current Ratio ≥ 1,2', '<b style="color:#15803d">1,84 ✓</b>')}
+            ${statRow('Interest Coverage ≥ 3,0', '<b style="color:#15803d">7,16 ✓</b>')}
+            ${statRow('Debt Service ≥ 1,25', '<b style="color:#15803d">2,42 ✓</b>')}
+            <div style="margin-top:10px">
+              ${callout('ok','Semua covenant terpenuhi','Tidak ada pelanggaran kontrak sepanjang 2026.')}
+            </div>
+          `)}
+        </div>
+      `,
+      after: () => {}
+    },
+    budget: {
+      title:'Anggaran', icon:'🎯',
+      render: () => `
+        ${kpiRow([
+          {label:'Budget YTD', value:'Rp 1,12 T', delta:null, sub:'disetujui', icon:'🎯'},
+          {label:'Realisasi', value:'Rp 1,06 T', delta:null, sub:'94,6% utilisasi', icon:'✅'},
+          {label:'Sisa', value:'Rp 60 M', delta:null, sub:'5,4%', icon:'💼', tone:'blue'},
+          {label:'Forecast Q4', value:'Rp 402 M', delta:2.4, sub:'vs budget Rp 420 M', icon:'🔮', tone:'amber'}
+        ])}
+        <div style="margin-top:16px">
+          ${card('Realisasi vs Budget per Departemen (Rp miliar)', `
+            <div class="chart-wrap lg"><canvas id="bg-1"></canvas></div>
+            ${legend([{label:'Budget',color:'#94a3b8'},{label:'Realisasi',color:'#16a34a'}])}
+          `)}
+        </div>
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Status Anggaran Dept', table(
+            ['Departemen','Budget','Realisasi','Utilisasi','Status'],
+            [
+              ['Produksi','420 M','408 M','97,1%', badge('Aman','ok')],
+              ['Logistik','168 M','158 M','94,0%', badge('Aman','ok')],
+              ['Marketing','140 M','138 M','98,6%', badge('Perhatian','warn')],
+              ['R&D','86 M','72 M','83,7%', badge('Aman','ok')],
+              ['SDM','112 M','108 M','96,4%', badge('Aman','ok')],
+              ['Keuangan','48 M','42 M','87,5%', badge('Aman','ok')],
+              ['IT','36 M','34 M','94,4%', badge('Aman','ok')],
+              ['Umum','110 M','100 M','90,9%', badge('Aman','ok')]
+            ]
+          ), {pad:'flush'})}
+          ${card('Proyeksi Over/Under Budget', `
+            ${statRow('Produksi','<b class="pos">Under 12 M</b>')}
+            ${statRow('Logistik','<b class="pos">Under 10 M</b>')}
+            ${statRow('Marketing','<b class="neg">Over 2 M</b>')}
+            ${statRow('R&D','<b class="pos">Under 14 M</b>')}
+            ${statRow('SDM','<b class="pos">Under 4 M</b>')}
+            <div style="margin-top:10px">
+              ${callout('info','Rekomendasi','Revisi anggaran marketing Q4 +Rp 4 M untuk dorong penjualan akhir tahun.')}
+            </div>
+          `)}
+        </div>
+      `,
+      after: () => {
+        barChart($('#bg-1'), ['Produksi','Logistik','Marketing','R&D','SDM','Keuangan','IT','Umum'], [
+          {data:[420,168,140,86,112,48,36,110], color:'#94a3b8'},
+          {data:[408,158,138,72,108,42,34,100], color:'#16a34a'}
+        ]);
+      }
+    },
+    tax: {
+      title:'Pajak', icon:'📋',
+      render: () => `
+        ${kpiRow([
+          {label:'PPh Badan YTD', value:'Rp 41,2 M', delta:9.3, sub:'tarif 22%', icon:'📋'},
+          {label:'PPN Masukan', value:'Rp 38,4 M', delta:6.8, sub:'YTD', icon:'🧾', tone:'blue'},
+          {label:'PPN Keluaran', value:'Rp 52,6 M', delta:5.4, sub:'YTD', icon:'📤', tone:'violet'},
+          {label:'PPh 21', value:'Rp 8,6 M', delta:3.2, sub:'YTD', icon:'👥', tone:'amber'}
+        ])}
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Ringkasan Kewajiban Pajak', table(
+            ['Jenis','Periode','Jumlah','Jatuh Tempo','Status'],
+            [
+              ['PPh Pasal 21','Okt 2026','Rp 1,42 M','10 Nov 2026', badge('Belum Bayar','warn')],
+              ['PPh Pasal 22','Okt 2026','Rp 0,86 M','10 Nov 2026', badge('Belum Bayar','warn')],
+              ['PPh Pasal 23','Okt 2026','Rp 0,32 M','10 Nov 2026', badge('Belum Bayar','warn')],
+              ['PPh Pasal 25','Okt 2026','Rp 3,68 M','15 Nov 2026', badge('Belum Bayar','warn')],
+              ['PPN','Okt 2026','Rp 3,42 M','Akhir Nov 2026', badge('Belum Bayar','warn')],
+              ['PPh Pasal 21','Sep 2026','Rp 1,38 M','10 Okt 2026', badge('Dibayar','ok')]
+            ]
+          ), {pad:'flush'})}
+          ${card('Tax Planning Status', `
+            ${statRow('Rekonsiliasi fiskal','Selesai')}
+            ${statRow('Audit pajak terakhir','2024 — Clean')}
+            ${statRow('SPT Tahunan 2025','Dilaporkan')}
+            ${statRow('e-Bupot aktif', badge('Ya','ok'))}
+            ${statRow('e-Faktur aktif', badge('Ya','ok'))}
+            ${statRow('Tax compliance score','98,4%')}
+            <div style="margin-top:10px">
+              ${callout('ok','Kepatuhan baik','Tidak ada sanksi administrasi 2 tahun terakhir.')}
+            </div>
+          `)}
+        </div>
+      `,
+      after: () => {}
+    },
+    assets: {
+      title:'Aset Tetap', icon:'🏭',
+      render: () => `
+        <div class="grid cols-3">
+          ${kpi({label:'Total Aset Tetap', value:'Rp 1,48 T', delta:3.2, sub:'nilai buku', icon:'🏭'})}
+          ${kpi({label:'CAPEX YTD', value:'Rp 182 M', delta:8.6, sub:'vs budget Rp 200 M', icon:'🔧', tone:'blue'})}
+          ${kpi({label:'Depresiasi YTD', value:'Rp 128 M', delta:null, sub:'garis lurus', icon:'📉', tone:'amber'})}
+        </div>
+        <div style="margin-top:16px">
+          ${card('Daftar Aset Utama', table(
+            ['Kode','Aset','Kategori','Perolehan','Nilai Buku','Umur','Kondisi'],
+            [
+              ['AST-P01','Pabrik NPK Lini-1','Bangunan & Mesin','2018','Rp 284 M','8/20 th', badge('Baik','ok')],
+              ['AST-P02','Pabrik Urea Lini-2','Bangunan & Mesin','2016','Rp 312 M','10/25 th', badge('Perlu Servis','warn')],
+              ['AST-P03','Pabrik SP-36 Lini-3','Bangunan & Mesin','2019','Rp 186 M','7/20 th', badge('Baik','ok')],
+              ['AST-G01','Gudang Cikampek','Bangunan','2014','Rp 96 M','12/30 th', badge('Baik','ok')],
+              ['AST-T01','Armada Truk 128 unit','Kendaraan','2021-2024','Rp 168 M','2-5/8 th', badge('Baik','ok')],
+              ['AST-L01','Laboratorium R&D','Peralatan','2020','Rp 42 M','6/10 th', badge('Baik','ok')],
+              ['AST-I01','Sistem IT & Server','IT','2023','Rp 18 M','3/5 th', badge('Baik','ok')],
+              ['AST-T02','Tanah Pabrik (18 ha)','Tanah','2010','Rp 420 M','—', badge('Appreciating','ok')]
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {}
+    }
+  }
+});
+
+/* =========================================================
+   3. PRODUKSI
+   ========================================================= */
+page('produksi', {
+  title:'Produksi', sub:'Operasi pabrik dan manufaktur', icon:'🏭', group:'Divisi',
+  subs: {
+    overview: {
+      title:'Overview', icon:'📊',
+      render: () => `
+        ${kpiRow([
+          {label:'Output Hari Ini', value:'4.682 ton', delta:2.1, sub:'target 4.600 ton', icon:'⚙️'},
+          {label:'OEE Pabrik', value:'78,4%', delta:1.9, sub:'world-class ≥85%', icon:'📐', tone:'blue'},
+          {label:'Downtime', value:'6,2 jam', delta:-12.4, sub:'minggu ini', icon:'⏱️', tone:'amber'},
+          {label:'Yield Efisiensi', value:'94,7%', delta:0.8, sub:'bahan → produk', icon:'🎯', tone:'violet'},
+          {label:'Reject Rate', value:'0,82%', delta:-0.3, sub:'maks 1,5%', icon:'🧱'},
+          {label:'Pemakaian Gas', value:'28,4 MMBTU/ton', delta:-2.6, sub:'efisiensi energi', icon:'🔥', tone:'red'}
+        ])}
+        <div class="grid cols-3" style="margin-top:16px">
+          ${card('OEE Keseluruhan', `
+            <div class="gauge" style="--p:78;--c:#16a34a"><div class="gauge-in"><b>78%</b><span>OEE</span></div></div>
+            <div style="margin-top:14px">
+              ${statRow('Availability','91,2%')}
+              ${statRow('Performance','89,6%')}
+              ${statRow('Quality','95,8%')}
+            </div>
+          `)}
+          ${card('Output per Lini (ton/hari)', `<div class="chart-wrap sm"><canvas id="pr-line"></canvas></div>`)}
+          ${card('Bahan Baku Kritis', `
+            ${statRow('Ammonia (NH₃)','1.240 ton')}${statRow(progress(78),'78%')}
+            ${statRow('Fosfat Rock','860 ton')}${statRow(progress(52,'amber'),'52%')}
+            ${statRow('Kalium Klorida','1.930 ton')}${statRow(progress(88),'88%')}
+            ${statRow('Dolomit','310 ton')}${statRow(progress(24,'red'),'24%')}
+          `)}
+        </div>
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Status Lini Produksi', table(
+            ['Lini','Produk','Kapasitas','Output','OEE','Downtime','Status'],
+            [
+              ['Lini-1','NPK Phonska','1.500 t/h','1.412 t/h','82,1%','1,2 jam', badge('Berjalan','ok')],
+              ['Lini-2','Urea Prill','1.800 t/h','0 t/h','—','4,0 jam', badge('Maintenance','warn')],
+              ['Lini-3','SP-36','1.200 t/h','1.148 t/h','79,4%','0,6 jam', badge('Berjalan','ok')],
+              ['Lini-4','Organik','800 t/h','742 t/h','76,8%','0,4 jam', badge('Berjalan','ok')],
+              ['Lini-5','Blending ZA','1.000 t/h','0 t/h','—','0 jam', badge('Idle','idle')]
+            ]
+          ), {pad:'flush'})}
+          ${card('Trend Produksi 6 Bulan (ribu ton)', `
+            <div class="chart-wrap sm"><canvas id="pr-trend"></canvas></div>
+            ${legend([{label:'Target',color:'#94a3b8'},{label:'Aktual',color:'#16a34a'}])}
+          `)}
+        </div>
+      `,
+      after: () => {
+        barChart($('#pr-line'), ['Lini-1','Lini-2','Lini-3','Lini-4','Lini-5'], [
+          {data:[1412,0,1148,742,0], color:'#16a34a'}
+        ]);
+        barChart($('#pr-trend'), M6, [
+          {data:[120,125,130,132,135,138], color:'#94a3b8'},
+          {data:[118,127,129,134,133,128], color:'#16a34a'}
+        ]);
+      }
+    },
+    output: {
+      title:'Output Harian', icon:'📦',
+      render: () => `
+        ${kpiRow([
+          {label:'Output Hari Ini', value:'4.682 ton', delta:2.1, sub:'vs kemarin', icon:'📦'},
+          {label:'Target Hari', value:'4.600 ton', delta:null, sub:'101,8% tercapai', icon:'🎯', tone:'blue'},
+          {label:'Output Bulan', value:'128.450 ton', delta:6.2, sub:'93,1% target', icon:'📅', tone:'violet'},
+          {label:'Defect', value:'38,4 ton', delta:-8.2, sub:'0,82% dari output', icon:'🧱', tone:'amber'}
+        ])}
+        <div style="margin-top:16px">
+          ${card('Output Harian 30 Hari (ton)', `
+            <div class="chart-wrap lg"><canvas id="out-30"></canvas></div>
+            ${legend([{label:'Output Harian',color:'#16a34a'},{label:'Target',color:'#94a3b8'}])}
+          `)}
+        </div>
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Output per Produk (ton)', table(
+            ['Produk','Hari Ini','Bulan Ini','Target','% Capai'],
+            [
+              ['NPK Phonska','1.412','42.360','45.000','94,1%'],
+              ['Urea','0','28.400','32.000','88,8%'],
+              ['SP-36','1.148','28.740','30.000','95,8%'],
+              ['ZA','0','18.200','20.000','91,0%'],
+              ['Organik','742','10.750','11.000','97,7%']
+            ]
+          ), {pad:'flush'})}
+          ${card('Shift Performance', table(
+            ['Shift','Jam','Output','OEE','Downtime'],
+            [
+              ['Shift A','07:00-15:00','1.842 t','80,2%','0,8 j'],
+              ['Shift B','15:00-23:00','1.680 t','76,4%','2,4 j'],
+              ['Shift C','23:00-07:00','1.160 t','74,8%','3,0 j']
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {
+        const days = Array.from({length:30},(_,i)=>String(i+1));
+        const outputs = [4200,4380,4460,4520,4390,4480,4620,4510,4720,4680,4480,4640,4780,4820,4560,4620,4740,4680,4820,4610,4720,4580,4680,4820,4620,4740,4680,4520,4600,4682];
+        lineChart($('#out-30'), days, [
+          {data:outputs, color:'#16a34a'},
+          {data:days.map(()=>4600), color:'#94a3b8', fill:false, dash:true}
+        ]);
+      }
+    },
+    oee: {
+      title:'OEE & Efisiensi', icon:'📐',
+      render: () => `
+        ${kpiRow([
+          {label:'OEE', value:'78,4%', delta:1.9, sub:'target 85%', icon:'📐'},
+          {label:'Availability', value:'91,2%', delta:0.8, sub:'target 92%', icon:'🕐', tone:'blue'},
+          {label:'Performance', value:'89,6%', delta:1.4, sub:'target 92%', icon:'⚡', tone:'violet'},
+          {label:'Quality', value:'95,8%', delta:0.6, sub:'target 98%', icon:'✅', tone:'amber'}
+        ])}
+        <div style="margin-top:16px">
+          ${card('Tren OEE 12 Bulan (%)', `
+            <div class="chart-wrap lg"><canvas id="oee-12"></canvas></div>
+            ${legend([{label:'OEE',color:'#16a34a'},{label:'Target',color:'#94a3b8'}])}
+          `)}
+        </div>
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('OEE per Lini', table(
+            ['Lini','Availability','Performance','Quality','OEE','Verdict'],
+            [
+              ['Lini-1 NPK','93,2%','90,4%','97,4%','82,1%', badge('Baik','ok')],
+              ['Lini-2 Urea','—','—','—','—', badge('Offline','idle')],
+              ['Lini-3 SP-36','90,4%','89,2%','96,2%','79,4%', badge('Cukup','warn')],
+              ['Lini-4 Organik','89,6%','88,4%','97,2%','76,8%', badge('Cukup','warn')],
+              ['Lini-5 ZA','—','—','—','—', badge('Idle','idle')]
+            ]
+          ), {pad:'flush'})}
+          ${card('Loss Analysis (6 Factors)', `
+            ${statRow('Breakdown','2,4 j',progress(40,'red'))}
+            ${statRow('Setup & Adjust','1,8 j',progress(30,'amber'))}
+            ${statRow('Minor Stop','1,2 j',progress(20,'amber'))}
+            ${statRow('Speed Loss','0,8 j',progress(13,'amber'))}
+            ${statRow('Defect & Rework','0,6 j',progress(10,'amber'))}
+            ${statRow('Startup','0,4 j',progress(6,'amber'))}
+            <div style="margin-top:10px">
+              ${callout('warn','Prioritas','Breakdown Lini-2 mendominasi 40% total losses — jadwalkan preventive.')}
+            </div>
+          `)}
+        </div>
+      `,
+      after: () => {
+        lineChart($('#oee-12'), M12, [
+          {data:[72,74,73,75,76,75,77,78,76,77,77,78.4], color:'#16a34a'},
+          {data:M12.map(()=>85), color:'#94a3b8', fill:false, dash:true}
+        ]);
+      }
+    },
+    downtime: {
+      title:'Downtime', icon:'⏱️',
+      render: () => `
+        ${kpiRow([
+          {label:'Downtime Minggu Ini', value:'6,2 jam', delta:-12.4, sub:'vs 7,1 jam', icon:'⏱️'},
+          {label:'Unplanned', value:'62%', delta:-4.2, sub:'3,8 jam', icon:'⚠️', tone:'red'},
+          {label:'Planned', value:'38%', delta:4.2, sub:'2,4 jam', icon:'🔧', tone:'blue'},
+          {label:'MTBF', value:'184 jam', delta:6.8, sub:'mean time between failure', icon:'📊', tone:'violet'}
+        ])}
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Penyebab Downtime (jam)', `<div class="chart-wrap"><canvas id="dt-1"></canvas></div>`)}
+          ${card('MTTR per Kategori (jam)', table(
+            ['Kategori','Event','Total Jam','MTTR'],
+            [
+              ['Mekanikal','12','3,4','0,28'],
+              ['Elektrikal','8','1,2','0,15'],
+              ['Instrumentasi','6','0,8','0,13'],
+              ['Utilities','4','0,6','0,15'],
+              ['Operasional','2','0,2','0,10']
+            ]
+          ), {pad:'flush'})}
+        </div>
+        <div style="margin-top:16px">
+          ${card('Log Downtime 7 Hari Terakhir', table(
+            ['Tanggal','Lini','Kategori','Deskripsi','Durasi','Status'],
+            [
+              ['25 Okt','Lini-2','Mekanikal','Rotary dryer bearing overheat','4,0 j', badge('Open','warn')],
+              ['24 Okt','Lini-1','Elektrikal','Panel MCC trip','0,6 j', badge('Closed','ok')],
+              ['23 Okt','Lini-3','Instrumentasi','Flow meter drift','0,4 j', badge('Closed','ok')],
+              ['22 Okt','Lini-1','Utilities','Steam pressure drop','0,8 j', badge('Closed','ok')],
+              ['21 Okt','Lini-4','Operasional','Ganti produk','0,2 j', badge('Closed','ok')],
+              ['20 Okt','Lini-3','Mekanikal','Conveyor belt slip','0,5 j', badge('Closed','ok')],
+              ['19 Okt','Lini-2','Planned','Preventive maintenance','2,4 j', badge('Planned','info')]
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {
+        donutChart($('#dt-1'), [
+          {label:'Mekanikal',value:3.4,color:'#ef4444'},
+          {label:'Elektrikal',value:1.2,color:'#f59e0b'},
+          {label:'Instrumentasi',value:0.8,color:'#0ea5e9'},
+          {label:'Utilities',value:0.6,color:'#8b5cf6'},
+          {label:'Operasional',value:0.2,color:'#94a3b8'}
+        ], {center:'6,2 j', sub:'Total Downtime'});
+      }
+    },
+    quality: {
+      title:'Kualitas', icon:'✅',
+      render: () => `
+        ${kpiRow([
+          {label:'Reject Rate', value:'0,82%', delta:-0.3, sub:'standar ≤1,5%', icon:'🧱'},
+          {label:'First Pass Yield', value:'95,8%', delta:0.6, sub:'target 98%', icon:'✅', tone:'blue'},
+          {label:'Complaint', value:'3 keluhan', delta:-40.0, sub:'bulan ini', icon:'📣', tone:'amber'},
+          {label:'Uji Lab Lulus', value:'98,2%', delta:1.2, sub:'dari 428 sampel', icon:'🧪', tone:'violet'}
+        ])}
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Tren Reject Rate 6 Bulan (%)', `
+            <div class="chart-wrap"><canvas id="q-1"></canvas></div>
+            ${legend([{label:'Reject Rate',color:'#ef4444'},{label:'Target',color:'#94a3b8'}])}
+          `)}
+          ${card('Penyebab Reject', `
+            ${statRow('Kadar air tinggi','32%')}
+            ${statRow('Ukuran granul tidak seragam','24%')}
+            ${statRow('Kadar nutrisi di bawah spek','18%')}
+            ${statRow('Warna tidak sesuai','12%')}
+            ${statRow('Kemasan cacat','8%')}
+            ${statRow('Lainnya','6%')}
+            <div style="margin-top:10px">
+              ${callout('ok','Trend positif','Reject rate turun konsisten 4 bulan terakhir.')}
+            </div>
+          `)}
+        </div>
+        <div style="margin-top:16px">
+          ${card('Hasil Uji Lab Terbaru', table(
+            ['Batch','Produk','Parameter','Hasil','Standar','Verdict'],
+            [
+              ['B-2610-142','NPK Phonska','N','15,1%','15,0 ± 0,5%', badge('Lulus','ok')],
+              ['B-2610-142','NPK Phonska','P₂O₅','14,9%','15,0 ± 0,5%', badge('Lulus','ok')],
+              ['B-2610-142','NPK Phonska','K₂O','15,2%','15,0 ± 0,5%', badge('Lulus','ok')],
+              ['B-2610-141','SP-36','P₂O₅','35,8%','36,0 ± 1%', badge('Lulus','ok')],
+              ['B-2610-140','Organik','C-organik','18,4%','min 15%', badge('Lulus','ok')],
+              ['B-2610-139','ZA','N','20,8%','21,0 ± 0,5%', badge('Review','warn')],
+              ['B-2610-138','NPK','Kadar air','2,4%','maks 2,0%', badge('Gagal','bad')]
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {
+        lineChart($('#q-1'), M6, [
+          {data:[1.42,1.28,1.18,1.04,0.94,0.82], color:'#ef4444'},
+          {data:M6.map(()=>1.5), color:'#94a3b8', fill:false, dash:true}
+        ]);
+      }
+    },
+    materials: {
+      title:'Bahan Baku', icon:'🧱',
+      render: () => `
+        ${kpiRow([
+          {label:'Stok Ammonia', value:'1.240 ton', delta:-4.2, sub:'buffer 1.500 ton', icon:'🧪', tone:'amber'},
+          {label:'Stok Fosfat', value:'860 ton', delta:-8.4, sub:'buffer 1.200 ton', icon:'⛏️', tone:'red'},
+          {label:'Stok KCl', value:'1.930 ton', delta:2.4, sub:'buffer 2.000 ton', icon:'🧂'},
+          {label:'Stok Dolomit', value:'310 ton', delta:-24.0, sub:'buffer 800 ton', icon:'🪨', tone:'red'}
+        ])}
+        <div style="margin-top:16px">
+          ${card('Konsumsi Bahan Baku (ton/hari)', `
+            <div class="chart-wrap lg"><canvas id="mat-1"></canvas></div>
+            ${legend([
+              {label:'Ammonia',color:'#16a34a'},{label:'Fosfat',color:'#0ea5e9'},
+              {label:'KCl',color:'#f59e0b'},{label:'Dolomit',color:'#8b5cf6'}
+            ])}
+          `)}
+        </div>
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Stok & Buffer', table(
+            ['Material','Stok','Buffer','Status','Reorder'],
+            [
+              ['Ammonia','1.240 t','1.500 t', badge('Kritis','bad'),'1.200 t'],
+              ['Fosfat Rock','860 t','1.200 t', badge('Kritis','bad'),'950 t'],
+              ['Kalium Klorida','1.930 t','2.000 t', badge('Perhatian','warn'),'1.600 t'],
+              ['Dolomit','310 t','800 t', badge('Kritis','bad'),'600 t'],
+              ['Zeolit','1.840 t','1.200 t', badge('Aman','ok'),'900 t'],
+              ['Urea Teknis','2.640 t','1.800 t', badge('Aman','ok'),'1.400 t']
+            ]
+          ), {pad:'flush'})}
+          ${card('Supplier Bahan Baku', table(
+            ['Supplier','Material','Lead Time','Harga','Rating'],
+            [
+              ['PT Petrokimia Supply','Ammonia','14 hari','Rp 8,2 jt/t', badge('A','ok')],
+              ['PT Fosfat Nusantara','Fosfat','21 hari','Rp 4,6 jt/t', badge('A','ok')],
+              ['CV Kimia Sejahtera','KCl','18 hari','Rp 6,8 jt/t', badge('B','warn')],
+              ['PT Tambang Dolomit','Dolomit','12 hari','Rp 1,2 jt/t', badge('A','ok')],
+              ['PT Zeolit Prima','Zeolit','9 hari','Rp 0,9 jt/t', badge('A','ok')]
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {
+        lineChart($('#mat-1'), M6, [
+          {data:[640,680,650,690,670,684], color:'#16a34a'},
+          {data:[380,420,400,430,410,428], color:'#0ea5e9'},
+          {data:[520,540,530,560,550,548], color:'#f59e0b'},
+          {data:[180,200,190,210,200,196], color:'#8b5cf6'}
+        ]);
+      }
+    },
+    maintenance: {
+      title:'Maintenance', icon:'🔧',
+      render: () => `
+        ${kpiRow([
+          {label:'PM Compliance', value:'94,2%', delta:2.4, sub:'target 95%', icon:'📋'},
+          {label:'Work Order Open', value:'28', delta:-12.5, sub:'dari 142 total', icon:'🔧', tone:'blue'},
+          {label:'Breakdown Rate', value:'1,8%', delta:-0.4, sub:'dari total jam', icon:'⚠️', tone:'amber'},
+          {label:'MTTR', value:'0,22 jam', delta:-8.4, sub:'target ≤0,25', icon:'⏱️', tone:'violet'}
+        ])}
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('PM Schedule 30 Hari', table(
+            ['Tanggal','Aset','Jenis','Durasi','Teknisi','Status'],
+            [
+              ['28 Okt','Lini-2 Rotary Dryer','Preventive','4,0 j','Tim A', badge('Scheduled','info')],
+              ['30 Okt','Lini-1 Granulator','Inspeksi','2,0 j','Tim B', badge('Scheduled','info')],
+              ['02 Nov','Boiler #2','Overhaul','8,0 j','Vendor', badge('Scheduled','info')],
+              ['05 Nov','Lini-3 Belt Conveyor','Lubrikasi','1,0 j','Tim A', badge('Scheduled','info')],
+              ['08 Nov','Genset Backup','Test Run','1,5 j','Tim C', badge('Scheduled','info')],
+              ['12 Nov','Cooler Lini-1','Inspeksi','2,0 j','Tim B', badge('Scheduled','info')]
+            ]
+          ), {pad:'flush'})}
+          ${card('Spare Part Kritis', table(
+            ['Part','Stok','Min','Status','Lead Time'],
+            [
+              ['Bearing SKF 22320','4','6', badge('Kritis','bad'),'7 hari'],
+              ['V-Belt B-95','12','8', badge('Aman','ok'),'3 hari'],
+              ['Screen Mesh 4mm','8','5', badge('Aman','ok'),'5 hari'],
+              ['Gasket Boiler','2','4', badge('Kritis','bad'),'14 hari'],
+              ['Motor 15kW','1','2', badge('Kritis','bad'),'21 hari'],
+              ['Filter Oli','24','20', badge('Aman','ok'),'2 hari']
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {}
+    },
+    energy: {
+      title:'Energi & Utilitas', icon:'🔥',
+      render: () => `
+        ${kpiRow([
+          {label:'Konsumsi Gas', value:'28,4 MMBTU/t', delta:-2.6, sub:'efisiensi membaik', icon:'🔥'},
+          {label:'Konsumsi Listrik', value:'142 kWh/t', delta:-1.8, sub:'target ≤145', icon:'⚡', tone:'blue'},
+          {label:'Konsumsi Air', value:'2,8 m³/t', delta:-4.2, sub:'target ≤3,0', icon:'💧', tone:'violet'},
+          {label:'Biaya Energi', value:'Rp 68,4 M', delta:-3.4, sub:'bulan ini', icon:'💸', tone:'amber'}
+        ])}
+        <div style="margin-top:16px">
+          ${card('Konsumsi Energi 12 Bulan (relative index)', `
+            <div class="chart-wrap lg"><canvas id="en-1"></canvas></div>
+            ${legend([
+              {label:'Gas (MMBTU/t)',color:'#ef4444'},
+              {label:'Listrik (kWh/t)',color:'#0ea5e9'},
+              {label:'Air (m³/t)',color:'#06b6d4'}
+            ])}
+          `)}
+        </div>
+        <div class="grid cols-3" style="margin-top:16px">
+          ${card('Benchmark Industri', `
+            ${statRow('Gas — AgriNusa','28,4')}
+            ${statRow('Gas — Industri rata-rata','32,4')}
+            ${statRow('Listrik — AgriNusa','142')}
+            ${statRow('Listrik — Industri','156')}
+            ${statRow('Status', badge('Top Quartile','ok'))}
+          `)}
+          ${card('Program Efisiensi', `
+            ${statRow('Heat Recovery Boiler', progress(82))}
+            ${statRow('LED Retrofit', progress(100))}
+            ${statRow('VFD Motor Besar', progress(64))}
+            ${statRow('Solar Rooftop 1MWp', progress(38))}
+            ${statRow('Cogeneration Study', progress(22))}
+          `)}
+          ${card('Emisi & Lingkungan', `
+            ${statRow('CO₂ Scope 1','48.240 tCO₂e')}
+            ${statRow('CO₂ Scope 2','12.640 tCO₂e')}
+            ${statRow('Intensitas CO₂','0,42 tCO₂e/ton')}
+            ${statRow('Target 2030','-30% vs 2020')}
+            ${statRow('Kredit Karbon','0 tCO₂e')}
+          `)}
+        </div>
+      `,
+      after: () => {
+        lineChart($('#en-1'), M12, [
+          {data:[32,31,31,30,30,29.4,29.2,29.0,28.8,28.6,28.5,28.4], color:'#ef4444', fill:false},
+          {data:[156,154,152,150,149,148,146,145,145,144,143,142], color:'#0ea5e9', fill:false},
+          {data:[3.4,3.3,3.2,3.1,3.1,3.0,3.0,2.9,2.9,2.8,2.8,2.8], color:'#06b6d4', fill:false}
+        ], {min0:false});
+      }
+    },
+    lines: {
+      title:'Lini Produksi', icon:'⚙️',
+      render: () => `
+        <div class="grid cols-2">
+          ${card('Lini-1 · NPK Granulasi', `
+            ${statRow('Kapasitas','1.500 t/h')}
+            ${statRow('Output saat ini','1.412 t/h')}
+            ${statRow('OEE','82,1%')}
+            ${statRow('Suhu Granulator','68 °C')}
+            ${statRow('Kadar air produk','1,8%')}
+            ${statRow('Status', badge('Berjalan','ok'))}
+          `)}
+          ${card('Lini-2 · Urea Prill', `
+            ${statRow('Kapasitas','1.800 t/h')}
+            ${statRow('Output saat ini','0 t/h')}
+            ${statRow('OEE','—')}
+            ${statRow('Downtime','4,0 jam')}
+            ${statRow('Selesai maintenance','28 Okt')}
+            ${statRow('Status', badge('Maintenance','warn'))}
+          `)}
+          ${card('Lini-3 · SP-36', `
+            ${statRow('Kapasitas','1.200 t/h')}
+            ${statRow('Output saat ini','1.148 t/h')}
+            ${statRow('OEE','79,4%')}
+            ${statRow('Kadar P₂O₅','35,8%')}
+            ${statRow('Recycle rate','8,4%')}
+            ${statRow('Status', badge('Berjalan','ok'))}
+          `)}
+          ${card('Lini-4 · Pupuk Organik', `
+            ${statRow('Kapasitas','800 t/h')}
+            ${statRow('Output saat ini','742 t/h')}
+            ${statRow('OEE','76,8%')}
+            ${statRow('Kadar C-organik','18,4%')}
+            ${statRow('Fermentasi','OK')}
+            ${statRow('Status', badge('Berjalan','ok'))}
+          `)}
+          ${card('Lini-5 · Blending ZA', `
+            ${statRow('Kapasitas','1.000 t/h')}
+            ${statRow('Output saat ini','0 t/h')}
+            ${statRow('OEE','—')}
+            ${statRow('Alasan idle','Tidak ada order')}
+            ${statRow('Ready to run','Ya')}
+            ${statRow('Status', badge('Idle','idle'))}
+          `)}
+          ${card('Utilitas Pabrik', `
+            ${statRow('Boiler #1','Aktif · 92%')}
+            ${statRow('Boiler #2','Standby')}
+            ${statRow('Cooling Tower','Aktif · 88%')}
+            ${statRow('Air Compressor','Aktif · 2/3 unit')}
+            ${statRow('Genset Backup','Ready · 2.000 kVA')}
+            ${statRow('WWTP','Aktif · 78%')}
+          `)}
+        </div>
+      `,
+      after: () => {}
+    }
+  }
+});
+
+/* =========================================================
+   4. K3 & LINGKUNGAN
+   ========================================================= */
+page('k3', {
+  title:'K3 & Lingkungan', sub:'Keselamatan kerja dan kepatuhan lingkungan', icon:'🦺', group:'Divisi',
+  subs: {
+    overview: {
+      title:'Overview', icon:'📊',
+      render: () => `
+        ${kpiRow([
+          {label:'Hari Tanpa LTI', value:'184 hari', delta:null, sub:'rekor 210 hari', icon:'🎖️'},
+          {label:'TRIR', value:'0,42', delta:-28.6, sub:'industri 1,20', icon:'📉', tone:'blue'},
+          {label:'Insiden Bulan Ini', value:'1 kejadian', delta:-66.7, sub:'0 fatality', icon:'🚨', tone:'amber'},
+          {label:'Kepatuhan APD', value:'98,6%', delta:1.2, sub:'audit spot-check', icon:'🦺'},
+          {label:'Jam Training K3', value:'2.840 jam', delta:14.3, sub:'target 2.500 jam', icon:'🎓', tone:'violet'},
+          {label:'Limbah Diolah', value:'99,2%', delta:0.4, sub:'zero waste to landfill', icon:'♻️', tone:'red'}
+        ])}
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Tren Insiden 6 Bulan', `
+            <div class="chart-wrap"><canvas id="k3-inc"></canvas></div>
+            ${legend([{label:'Jumlah Insiden',color:'#ef4444'}])}
+          `)}
+          ${card('Skor K3 per Departemen', `
+            ${statRow('Produksi', progress(92)+' 92')}
+            ${statRow('Logistik', progress(88)+' 88')}
+            ${statRow('Maintenance', progress(85)+' 85')}
+            ${statRow('Laboratorium', progress(96)+' 96')}
+            ${statRow('Gudang', progress(90)+' 90')}
+            ${statRow('Kantor', progress(98)+' 98')}
+            <div style="margin-top:12px">
+              ${callout('ok','Audit SMK3 PP 50/2012','Level Lanjutan (166/180) — berlaku s.d. Agustus 2027')}
+            </div>
+          `)}
+        </div>
+      `,
+      after: () => {
+        barChart($('#k3-inc'), M6, [{data:[4,3,5,2,3,1], color:'#ef4444'}]);
+      }
+    },
+    incidents: {
+      title:'Insiden', icon:'🚨',
+      render: () => `
+        ${kpiRow([
+          {label:'Total Insiden YTD', value:'18', delta:-12.4, sub:'vs 21 periode lalu', icon:'🚨'},
+          {label:'Near-miss', value:'12', delta:-8.2, sub:'66,7% dari total', icon:'⚠️', tone:'amber'},
+          {label:'First-aid', value:'4', delta:-20.0, sub:'22,2%', icon:'🩹', tone:'blue'},
+          {label:'Lost Time Injury', value:'0', delta:null, sub:'184 hari', icon:'🎖️', tone:'violet'}
+        ])}
+        <div style="margin-top:16px">
+          ${card('Daftar Insiden 2026', table(
+            ['Tanggal','Lokasi','Kategori','Deskripsi','Severity','Status'],
+            [
+              ['24 Okt','Gudang Bahan Baku','Near-miss','Pallet hampir jatuh dari rak level 4', badge('Rendah','ok'), badge('Investigasi','warn')],
+              ['18 Okt','Lini-3','First-aid','Tergores plat conveyor saat pembersihan', badge('Ringan','info'), badge('Selesai','ok')],
+              ['09 Okt','Loading Dock','Near-miss','Forklift hampir bersenggolan dgn pejalan kaki', badge('Sedang','warn'), badge('Selesai','ok')],
+              ['02 Okt','Area Boiler','Property damage','Kebocoran pipa steam ringan', badge('Sedang','warn'), badge('Selesai','ok')],
+              ['24 Sep','Lini-1','Near-miss','Tool jatuh dari ketinggian 4m', badge('Rendah','ok'), badge('Selesai','ok')],
+              ['18 Sep','Gudang Produk','First-aid','Tertimpa karung 50kg', badge('Ringan','info'), badge('Selesai','ok')],
+              ['08 Sep','Lini-4','Near-miss','Tumpahan bahan fermentasi', badge('Rendah','ok'), badge('Selesai','ok')],
+              ['28 Agu','Workshop','First-aid','Luka bakar ringan saat welding', badge('Ringan','info'), badge('Selesai','ok')]
+            ]
+          ), {pad:'flush', actions:'<span class="chip active">Semua</span><span class="chip">2026</span><span class="chip">Near-miss</span>'})}
+        </div>
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Piramida Insiden', `
+            ${statRow('Fatality','0')}
+            ${statRow('Lost Time Injury','0')}
+            ${statRow('Medical Treatment','2')}
+            ${statRow('First-aid','4')}
+            ${statRow('Near-miss','12')}
+            ${statRow('Unsafe Act','184')}
+          `)}
+          ${card('Root Cause Analysis', `
+            ${statRow('Unsafe condition','42%')}
+            ${statRow('Unsafe act','34%')}
+            ${statRow('Equipment failure','16%')}
+            ${statRow('Procedure gap','8%')}
+          `)}
+        </div>
+      `,
+      after: () => {}
+    },
+    apd: {
+      title:'APD & Peralatan', icon:'🦺',
+      render: () => `
+        ${kpiRow([
+          {label:'Kepatuhan APD', value:'98,6%', delta:1.2, sub:'spot-check 428', icon:'🦺'},
+          {label:'Helm Safety', value:'100%', delta:null, sub:'wajib area pabrik', icon:'⛑️', tone:'blue'},
+          {label:'Safety Shoes', value:'99,2%', delta:0.8, sub:'semua karyawan produksi', icon:'👞', tone:'violet'},
+          {label:'Alat Berat Sertifikasi', value:'94,8%', delta:2.1, sub:'forklift, crane', icon:'🏗️', tone:'amber'}
+        ])}
+        <div style="margin-top:16px">
+          ${card('Daftar APD & Status', table(
+            ['Item APD','Wajib di','Cakupan','Kepatuhan','Next Audit'],
+            [
+              ['Helm Safety','Area pabrik','100%','98,8%','15 Nov 2026'],
+              ['Safety Shoes','Produksi, logistik','100%','99,2%','15 Nov 2026'],
+              ['Safety Glasses','Lab, welding','100%','97,4%','15 Nov 2026'],
+              ['Ear Plug','Area ≥85dB','100%','96,8%','15 Nov 2026'],
+              ['Masker N95','Area berdebu','100%','98,2%','15 Nov 2026'],
+              ['Sarung Tangan','Produksi','100%','97,6%','15 Nov 2026'],
+              ['Safety Harness','Ketinggian >2m','100%','100%','15 Nov 2026'],
+              ['Face Shield','Welding, kimia','100%','98,4%','15 Nov 2026']
+            ]
+          ), {pad:'flush'})}
+        </div>
+        <div class="grid cols-3" style="margin-top:16px">
+          ${card('Inspeksi K3 Terakhir', `
+            ${statRow('Tgl inspeksi','24 Okt 2026')}
+            ${statRow('Inspektur','Tim K3 internal')}
+            ${statRow('Temuan','6 item')}
+            ${statRow('Closed','5 item')}
+            ${statRow('Open','1 item')}
+          `)}
+          ${card('Peralatan K3', `
+            ${statRow('APAR','142 unit — OK')}
+            ${statRow('Smoke Detector','186 unit — OK')}
+            ${statRow('Hydrant','48 titik — OK')}
+            ${statRow('Eyewash Station','12 unit — OK')}
+            ${statRow('Safety Shower','4 unit — OK')}
+          `)}
+          ${card('Sertifikasi Operator', `
+            ${statRow('Forklift','42/42 ✓')}
+            ${statRow('Overhead Crane','12/12 ✓')}
+            ${statRow('Boiler','6/8 ⚠')}
+            ${statRow('Welding','18/20 ⚠')}
+            ${statRow('Confined Space','24/24 ✓')}
+          `)}
+        </div>
+      `,
+      after: () => {}
+    },
+    training: {
+      title:'Training K3', icon:'🎓',
+      render: () => `
+        ${kpiRow([
+          {label:'Jam Training YTD', value:'24.860 jam', delta:14.3, sub:'target 22.000', icon:'🎓'},
+          {label:'Peserta', value:'2.846', delta:2.4, sub:'100% karyawan', icon:'👥', tone:'blue'},
+          {label:'Rata-rata per Orang', value:'8,7 jam', delta:11.4, sub:'target 8 jam', icon:'📊', tone:'violet'},
+          {label:'Sertifikasi Aktif', value:'486', delta:6.8, sub:'K3 & teknis', icon:'🏅', tone:'amber'}
+        ])}
+        <div class="margin-top:16px">
+          ${card('Program Training 2026', table(
+            ['Program','Kategori','Peserta','Jam','Status'],
+            [
+              ['Basic Safety Induction','Wajib','284','4', badge('Selesai','ok')],
+              ['Confined Space Entry','Teknis','48','16', badge('Selesai','ok')],
+              ['Working at Height','Teknis','64','8', badge('Selesai','ok')],
+              ['Fire Fighting','Wajib','142','8', badge('Selesai','ok')],
+              ['Chemical Handling','Teknis','86','12', badge('Berjalan','info')],
+              ['First Aid & CPR','Wajib','124','8', badge('Berjalan','info')],
+              ['Forklift Refresher','Teknis','42','4', badge('Berjalan','info')],
+              ['Boiler Operator','Sertifikasi','6','40', badge('Terjadwal','warn')],
+              ['Emergency Response','Wajib','86','8', badge('Terjadwal','warn')]
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {}
+    },
+    certification: {
+      title:'Sertifikasi', icon:'📜',
+      render: () => `
+        ${card('Sertifikasi & Izin Aktif', table(
+          ['Item','Nomor','Penerbit','Berlaku s.d.','Status'],
+          [
+            ['SMK3 PP 50/2012','166/180','Kemnaker','Agu 2027', badge('Aktif','ok')],
+            ['ISO 9001:2015','ID-9001-2841','TÜV','Des 2027', badge('Aktif','ok')],
+            ['ISO 14001:2015','ID-14001-1190','TÜV','Jan 2027', badge('Aktif','ok')],
+            ['ISO 45001:2018','ID-45001-2284','TÜV','Mar 2027', badge('Aktif','ok')],
+            ['Izin Lingkungan (AMDAL)','660/AMDAL/2024','KLHK','Des 2029', badge('Aktif','ok')],
+            ['Izin Pemanfaatan Limbah B3','B3-0091/2025','KLHK','Jun 2026', badge('Segera','warn')],
+            ['Izin Operasional Boiler','BO-2210','Disnaker','Okt 2026', badge('Expired','bad')],
+            ['Sertifikat Halal Produk','ID-2411-0082','BPJPH','Mar 2028', badge('Aktif','ok')],
+            ['SNI Pupuk NPK','SNI-2803:2023','BSN','Jun 2027', badge('Aktif','ok')],
+            ['Izin TPS Limbah B3','TPS-0221','DLH','Feb 2027', badge('Aktif','ok')]
+          ]
+        ), {pad:'flush', actions:'<button class="btn ghost">Export</button><button class="btn primary">+ Tambah</button>'})}
+      `,
+      after: () => {}
+    },
+    waste: {
+      title:'Limbah & Emisi', icon:'♻️',
+      render: () => `
+        ${kpiRow([
+          {label:'Limbah Diolah', value:'99,2%', delta:0.4, sub:'zero waste to landfill', icon:'♻️'},
+          {label:'Limbah B3', value:'12,4 ton', delta:-8.6, sub:'bulan ini', icon:'☣️', tone:'red'},
+          {label:'CO₂ Scope 1', value:'48.240 tCO₂e', delta:-2.4, sub:'YTD', icon:'🌫️', tone:'amber'},
+          {label:'Air Didaur Ulang', value:'72,8%', delta:4.2, sub:'target 75%', icon:'💧', tone:'blue'}
+        ])}
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Limbah Bulan Ini', table(
+            ['Jenis','Jumlah','Metode','Vendor','Status'],
+            [
+              ['Limbah B3 cair','8,4 ton','Incineration','PT Waste Manage', badge('Terkelola','ok')],
+              ['Limbah B3 padat','4,0 ton','Landfill B3','PT Waste Manage', badge('Terkelola','ok')],
+              ['Fly ash','42 ton','Co-processing','PT Semen Nusantara', badge('Terkelola','ok')],
+              ['Bottom ash','28 ton','Co-processing','PT Semen Nusantara', badge('Terkelola','ok')],
+              ['Limbah organik','18 ton','Komposting','Internal', badge('Terkelola','ok')],
+              ['Scrap metal','6,2 ton','Recycling','CV Logam Jaya', badge('Terkelola','ok')],
+              ['E-waste','0,4 ton','Recycling','PT E-Waste ID', badge('Terkelola','ok')]
+            ]
+          ), {pad:'flush'})}
+          ${card('Emisi Gas Rumah Kaca (tCO₂e)', `
+            <div class="chart-wrap"><canvas id="w-1"></canvas></div>
+            ${legend([
+              {label:'Scope 1',color:'#ef4444'},{label:'Scope 2',color:'#f59e0b'},
+              {label:'Scope 3',color:'#0ea5e9'}
+            ])}
+          `)}
+        </div>
+      `,
+      after: () => {
+        donutChart($('#w-1'), [
+          {label:'Scope 1',value:48240,color:'#ef4444'},
+          {label:'Scope 2',value:12640,color:'#f59e0b'},
+          {label:'Scope 3',value:8640,color:'#0ea5e9'}
+        ], {center:'69,5 rb', sub:'tCO₂e YTD'});
+      }
+    },
+    health: {
+      title:'Kesehatan Kerja', icon:'🏥',
+      render: () => `
+        ${kpiRow([
+          {label:'MCU Berkala', value:'98,4%', delta:2.1, sub:'2.802/2.846', icon:'🏥'},
+          {label:'Sakit < 3 hari', value:'184 kasus', delta:-8.4, sub:'YTD', icon:'🤒', tone:'blue'},
+          {label:'Kasus Hipertensi', value:'142', delta:4.2, sub:'program wellness', icon:'💊', tone:'amber'},
+          {label:'Kunjungan Klinik', value:'628', delta:-6.2, sub:'YTD', icon:'🩺', tone:'violet'}
+        ])}
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Program Kesehatan Kerja', table(
+            ['Program','Peserta','Frekuensi','Status'],
+            [
+              ['Medical Check-up','2.802','Tahunan', badge('Aktif','ok')],
+              ['Senam Pagi','486','Mingguan', badge('Aktif','ok')],
+              ['Konseling Gizi','284','Bulanan', badge('Aktif','ok')],
+              ['Vaksinasi Influenza','1.240','Tahunan', badge('Aktif','ok')],
+              ['Program Berhenti Merokok','86','Berkelanjutan', badge('Aktif','ok')],
+              ['Cek Kesehatan Gratis','428','Triwulan', badge('Aktif','ok')]
+            ]
+          ), {pad:'flush'})}
+          ${card('Statistik Kesehatan', `
+            ${statRow('Karyawan dengan MCU lengkap','2.802 (98,4%)')}
+            ${statRow('Kasus penyakit akibat kerja','0')}
+            ${statRow('Kasus kecelakaan kerja','18 (YTD)')}
+            ${statRow('Rata-rata absensi sakit','1,84%')}
+            ${statRow('Program wellness aktif','6')}
+            ${statRow('Skor kesehatan karyawan','B+')}
+          `)}
+        </div>
+      `,
+      after: () => {}
+    }
+  }
+});
+
+/* =========================================================
+   5. MARKETING
+   ========================================================= */
+page('marketing', {
+  title:'Marketing & Penjualan', sub:'Kinerja penjualan dan pemasaran', icon:'📈', group:'Divisi',
+  subs: {
+    overview: {
+      title:'Overview', icon:'📊',
+      render: () => `
+        ${kpiRow([
+          {label:'Penjualan Okt', value:'Rp 248,7 M', delta:5.0, sub:'12.940 ton', icon:'🛒'},
+          {label:'Market Share', value:'23,8%', delta:1.1, sub:'nasional', icon:'🥇', tone:'blue'},
+          {label:'Leads Baru', value:'1.420', delta:12.7, sub:'konversi 18,4%', icon:'🎯', tone:'violet'},
+          {label:'CAC', value:'Rp 84 rb', delta:-6.2, sub:'per pelanggan', icon:'📊', tone:'amber'},
+          {label:'Distributor Aktif', value:'1.284', delta:3.4, sub:'+42 bulan ini', icon:'🏪'},
+          {label:'Repeat Order', value:'72,6%', delta:2.3, sub:'loyalitas', icon:'🔁', tone:'red'}
+        ])}
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Penjualan per Wilayah (Rp miliar)', `
+            <div class="chart-wrap"><canvas id="mk-reg"></canvas></div>
+          `, {actions:'<span class="chip active">Okt</span><span class="chip">YTD</span>'})}
+          ${card('Funnel Akuisisi', `
+            <div class="list">
+              <div class="list-row"><div class="ic" style="background:#e0f2fe">👁️</div>
+                <div class="tx"><b>Awareness — 48.200 impresi</b><small>Iklan digital + radio tani</small></div>
+                <div class="rt" style="width:110px">${progress(100)}</div></div>
+              <div class="list-row"><div class="ic" style="background:#dbeafe">🖱️</div>
+                <div class="tx"><b>Interest — 12.400 kunjungan</b><small>Website & katalog</small></div>
+                <div class="rt" style="width:110px">${progress(52)}</div></div>
+              <div class="list-row"><div class="ic" style="background:#fef3c7">📝</div>
+                <div class="tx"><b>Consideration — 4.180 leads</b><small>Permintaan penawaran</small></div>
+                <div class="rt" style="width:110px">${progress(28)}</div></div>
+              <div class="list-row"><div class="ic" style="background:#dcfce7">🤝</div>
+                <div class="tx"><b>Purchase — 1.420 order</b><small>Konversi 18,4%</small></div>
+                <div class="rt" style="width:110px">${progress(14)}</div></div>
+              <div class="list-row"><div class="ic" style="background:#f0fdf4">🔁</div>
+                <div class="tx"><b>Loyalty — 1.031 repeat</b><small>Repeat rate 72,6%</small></div>
+                <div class="rt" style="width:110px">${progress(9)}</div></div>
+            </div>
+          `, {pad:'tight'})}
+        </div>
+      `,
+      after: () => {
+        barChart($('#mk-reg'), ['Jatim','Jateng','Jabar','Sumut','Sulsel','Kaltim'], [
+          {data:[54.2, 44.8, 38.6, 39.6, 31.2, 24.7], color:'#16a34a'}
+        ]);
+      }
+    },
+    sales: {
+      title:'Penjualan', icon:'🛒',
+      render: () => `
+        ${kpiRow([
+          {label:'Penjualan Okt', value:'Rp 248,7 M', delta:5.0, sub:'12.940 ton', icon:'🛒'},
+          {label:'Avg Price', value:'Rp 19,2 rb/kg', delta:1.4, sub:'vs Rp 18,9 rb', icon:'💵', tone:'blue'},
+          {label:'Volume YTD', value:'128.400 ton', delta:8.4, sub:'vs 118.400', icon:'📦', tone:'violet'},
+          {label:'Penjualan YTD', value:'Rp 1,29 T', delta:11.8, sub:'vs Rp 1,16 T', icon:'📈', tone:'amber'}
+        ])}
+        <div style="margin-top:16px">
+          ${card('Trend Penjualan 12 Bulan (Rp miliar)', `
+            <div class="chart-wrap lg"><canvas id="sl-1"></canvas></div>
+            ${legend([{label:'Aktual',color:'#16a34a'},{label:'Target',color:'#94a3b8'}])}
+          `)}
+        </div>
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Penjualan per Produk', table(
+            ['Produk','Volume (ton)','Nilai','Harga Avg','Margin'],
+            [
+              ['NPK Phonska','5.420','Rp 104,4 M','Rp 19,3 rb','36,6%'],
+              ['Urea','3.360','Rp 64,6 M','Rp 19,2 rb','28,5%'],
+              ['SP-36','1.840','Rp 34,8 M','Rp 18,9 rb','32,2%'],
+              ['ZA','1.420','Rp 27,4 M','Rp 19,3 rb','29,6%'],
+              ['Organik','900','Rp 17,5 M','Rp 19,4 rb','25,7%']
+            ]
+          ), {pad:'flush'})}
+          ${card('Top Sales Performance', table(
+            ['Sales','Area','Target','Achievement','Rating'],
+            [
+              ['Andi Wijaya','Jawa Timur','Rp 42 M','Rp 46,2 M (110%)', badge('Excellent','ok')],
+              ['Rina Susanti','Jawa Tengah','Rp 38 M','Rp 40,4 M (106%)', badge('Excellent','ok')],
+              ['Dedi Kurniawan','Sumatera Utara','Rp 34 M','Rp 34,8 M (102%)', badge('Baik','ok')],
+              ['Fitri Handayani','Jawa Barat','Rp 32 M','Rp 30,4 M (95%)', badge('Cukup','warn')],
+              ['Galih Pratama','Sulawesi','Rp 28 M','Rp 24,6 M (88%)', badge('Perhatian','bad')]
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {
+        lineChart($('#sl-1'), M12, [
+          {data:[186,195,205,210,218,225,232,240,245,250,236,248], color:'#16a34a'},
+          {data:[190,200,208,215,222,228,235,242,248,252,252,252], color:'#94a3b8', fill:false, dash:true}
+        ]);
+      }
+    },
+    distributors: {
+      title:'Distributor', icon:'🏪',
+      render: () => `
+        ${kpiRow([
+          {label:'Total Distributor', value:'1.284', delta:3.4, sub:'+42 bulan ini', icon:'🏪'},
+          {label:'Distributor Aktif', value:'1.142', delta:2.1, sub:'88,9% aktif', icon:'✅', tone:'blue'},
+          {label:'Top Tier', value:'186', delta:4.8, sub:'Tier 1', icon:'🥇', tone:'violet'},
+          {label:'New Onboarding', value:'42', delta:50.0, sub:'bulan ini', icon:'🆕', tone:'amber'}
+        ])}
+        <div style="margin-top:16px">
+          ${card('Top 10 Distributor', table(
+            ['#','Distributor','Wilayah','Volume','Nilai','Growth','Rating'],
+            [
+              ['1','PT Tani Makmur','Jawa Timur','2.840 t','Rp 54,2 M','<span class="pos">+12,4%</span>', badge('Platinum','ok')],
+              ['2','CV Sumber Rejeki','Jawa Tengah','2.310 t','Rp 44,8 M','<span class="pos">+8,1%</span>', badge('Platinum','ok')],
+              ['3','PT Agro Lestari','Sumatera Utara','1.980 t','Rp 39,6 M','<span class="pos">+15,7%</span>', badge('Gold','ok')],
+              ['4','Koperasi Tani Sejahtera','Sulawesi Selatan','1.640 t','Rp 31,2 M','<span class="neg">-2,3%</span>', badge('Gold','ok')],
+              ['5','UD Bumi Subur','Kalimantan Timur','1.290 t','Rp 24,7 M','<span class="pos">+6,9%</span>', badge('Silver','info')],
+              ['6','PT Sarana Tani','Jawa Barat','1.180 t','Rp 22,4 M','<span class="pos">+4,2%</span>', badge('Silver','info')],
+              ['7','CV Mitra Tani','Lampung','980 t','Rp 18,6 M','<span class="pos">+2,8%</span>', badge('Silver','info')],
+              ['8','UD Tani Jaya','Jawa Timur','860 t','Rp 16,2 M','<span class="neg">-1,4%</span>', badge('Bronze','warn')],
+              ['9','PT Sumber Tani','Riau','820 t','Rp 15,4 M','<span class="pos">+8,4%</span>', badge('Bronze','warn')],
+              ['10','Koperasi Makmur','NTB','740 t','Rp 14,2 M','<span class="pos">+3,6%</span>', badge('Bronze','warn')]
+            ]
+          ), {pad:'flush'})}
+        </div>
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Klasifikasi Tier', `
+            ${statRow('Platinum (≥Rp 40 M)','86')}
+            ${statRow('Gold (Rp 20-40 M)','142')}
+            ${statRow('Silver (Rp 10-20 M)','284')}
+            ${statRow('Bronze (< Rp 10 M)','630')}
+            ${statRow('Inactive','142')}
+          `)}
+          ${card('Program Reseller', `
+            ${statRow('Program aktif','6 program')}
+            ${statRow('Bonus penjualan','Rp 4,2 M')}
+            ${statRow('Diskon volume','Rata-rata 4,8%')}
+            ${statRow('Kunjungan sales','1.240/bln')}
+            ${statRow('Training distributor','4 batch')}
+          `)}
+        </div>
+      `,
+      after: () => {}
+    },
+    campaigns: {
+      title:'Kampanye', icon:'📢',
+      render: () => `
+        ${kpiRow([
+          {label:'Kampanye Aktif', value:'4', delta:null, sub:'12 total YTD', icon:'📢'},
+          {label:'Budget Q4', value:'Rp 6,9 M', delta:8.4, sub:'vs Rp 6,4 M', icon:'💰', tone:'blue'},
+          {label:'Realisasi', value:'Rp 4,2 M', delta:null, sub:'60,9%', icon:'💸', tone:'violet'},
+          {label:'Avg ROAS', value:'3,8x', delta:12.4, sub:'return on ad spend', icon:'📊', tone:'amber'}
+        ])}
+        <div style="margin-top:16px">
+          ${card('Daftar Kampanye', table(
+            ['Kampanye','Kanal','Budget','Realisasi','ROAS','Status'],
+            [
+              ['Panen Raya NPK','TV + Radio','Rp 2,4 M','Rp 1,86 M','4,2x', badge('Aktif','ok')],
+              ['Demo Plot Jagung','Lapangan','Rp 1,8 M','Rp 1,42 M','5,1x', badge('Aktif','ok')],
+              ['Digital Ads Q4','Meta + Google','Rp 1,2 M','Rp 0,94 M','3,4x', badge('Aktif','ok')],
+              ['Program Reseller','Offline','Rp 900 jt','Rp 320 jt','2,1x', badge('Perencanaan','warn')],
+              ['Sponsor Kontes Tani','Event','Rp 600 jt','Rp 600 jt','1,6x', badge('Selesai','idle')],
+              ['Edukasi Petani','Webinar','Rp 400 jt','Rp 280 jt','2,8x', badge('Selesai','idle')]
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {}
+    },
+    leads: {
+      title:'Leads & CRM', icon:'🎯',
+      render: () => `
+        ${kpiRow([
+          {label:'Total Leads', value:'1.420', delta:12.7, sub:'bulan ini', icon:'🎯'},
+          {label:'Kualifikasi', value:'684', delta:8.4, sub:'48,2% qualified', icon:'✅', tone:'blue'},
+          {label:'Konversi', value:'18,4%', delta:2.1, sub:'ke customer', icon:'📈', tone:'violet'},
+          {label:'Sales Cycle', value:'34 hari', delta:-8.6, sub:'rata-rata', icon:'⏱️', tone:'amber'}
+        ])}
+        <div class="margin-top:16px">
+          ${card('Lead Scoring & Pipeline', table(
+            ['Sumber','Leads','Qualified','Converted','Conversion Rate'],
+            [
+              ['Website','428','212','42','19,8%'],
+              ['Referral Distributor','286','164','38','13,3%'],
+              ['Event/Expo','242','128','24','9,9%'],
+              ['Cold Call','184','82','14','7,6%'],
+              ['Social Media','168','64','12','7,1%'],
+              ['Radio/TV','112','34','8','7,1%']
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {}
+    },
+    pricing: {
+      title:'Harga & Diskon', icon:'💵',
+      render: () => `
+        ${kpiRow([
+          {label:'Avg Selling Price', value:'Rp 19,2 rb/kg', delta:1.4, sub:'vs Rp 18,9', icon:'💵'},
+          {label:'Diskon Rata-rata', value:'4,8%', delta:0.4, sub:'ke distributor', icon:'🏷️', tone:'amber'},
+          {label:'Price Realization', value:'96,4%', delta:1.2, sub:'vs harga list', icon:'📊', tone:'blue'},
+          {label:'Kompetitor Price Diff', value:'-2,4%', delta:null, sub:'vs rata-rata pasar', icon:'⚖️', tone:'violet'}
+        ])}
+        <div style="margin-top:16px">
+          ${card('Daftar Harga & Diskon', table(
+            ['Produk','Harga List','Harga Realisasi','Diskon','Kompetitor'],
+            [
+              ['NPK Phonska','Rp 20,0 rb/kg','Rp 19,3 rb/kg','3,5%','Rp 19,8 rb/kg'],
+              ['Urea','Rp 19,8 rb/kg','Rp 19,2 rb/kg','3,0%','Rp 19,6 rb/kg'],
+              ['SP-36','Rp 19,4 rb/kg','Rp 18,9 rb/kg','2,6%','Rp 19,0 rb/kg'],
+              ['ZA','Rp 20,2 rb/kg','Rp 19,3 rb/kg','4,5%','Rp 19,8 rb/kg'],
+              ['Organik','Rp 20,4 rb/kg','Rp 19,4 rb/kg','4,9%','Rp 19,6 rb/kg']
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {}
+    },
+    competitor: {
+      title:'Kompetitor', icon:'⚔️',
+      render: () => `
+        ${card('Analisis Kompetitor', table(
+          ['Kompetitor','Market Share','Harga NPK','Kekuatan','Kelemahan'],
+          [
+            ['AgriNusa','23,8%','Rp 20,0 rb','Jaringan luas, kualitas','Kapasitas terbatas'],
+            ['Petrokimia','28,4%','Rp 20,2 rb','Skala besar, brand kuat','Harga lebih tinggi'],
+            ['Pupuk Kujang','16,2%','Rp 19,6 rb','Fokus urea','Portofolio terbatas'],
+            ['Pupuk Sriwijaya','14,8%','Rp 19,8 rb','Integrasi hulu','Distribusi lambat'],
+            ['Import China','8,4%','Rp 18,2 rb','Harga murah','Kualitas bervariasi'],
+            ['Lainnya','8,4%','—','—','—']
+          ]
+        ), {pad:'flush'})}
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Positioning Map', `
+            <div class="chart-wrap"><canvas id="cp-1"></canvas></div>
+          `)}
+          ${card('Strategi Kompetitif', `
+            ${callout('ok','Strength','Jaringan distribusi 1.284 titik, brand awareness 41,2%.')}
+            <div style="margin-top:10px">
+              ${callout('warn','Gap','Harga 2,4% di atas rata-rata pasar, perlu efisiensi.')}
+            </div>
+            <div style="margin-top:10px">
+              ${callout('info','Opportunity','Segmen pupuk khusus (organik, slow-release) masih low competition.')}
+            </div>
+          `)}
+        </div>
+      `,
+      after: () => {
+        barChart($('#cp-1'), ['AgriNusa','Petrokimia','Kujang','Sriwijaya','Import','Lain'], [
+          {data:[23.8,28.4,16.2,14.8,8.4,8.4], color:'#16a34a'}
+        ]);
+      }
+    }
+  }
+});
+
+/* =========================================================
+   6. LOGISTIK
+   ========================================================= */
+page('logistik', {
+  title:'Logistik & Gudang', sub:'Distribusi dan manajemen stok', icon:'🚚', group:'Divisi',
+  subs: {
+    overview: {
+      title:'Overview', icon:'📊',
+      render: () => `
+        ${kpiRow([
+          {label:'Pengiriman Okt', value:'12.940 ton', delta:4.8, sub:'1.284 trip', icon:'📦'},
+          {label:'OTIF', value:'96,3%', delta:1.4, sub:'target 95%', icon:'⏱️', tone:'blue'},
+          {label:'Biaya per Ton', value:'Rp 142 rb', delta:-3.1, sub:'vs Rp 147 rb', icon:'💸'},
+          {label:'Utilisasi Armada', value:'84,6%', delta:2.7, sub:'128 unit aktif', icon:'🚛', tone:'violet'},
+          {label:'Stok Gudang', value:'18.420 ton', delta:-6.4, sub:'6 lokasi', icon:'🏬', tone:'amber'},
+          {label:'Retur', value:'0,34%', delta:-0.2, sub:'kerusakan', icon:'↩️', tone:'red'}
+        ])}
+        <div class="grid cols-3" style="margin-top:16px">
+          ${card('Moda Pengiriman', `
+            <div class="chart-wrap sm"><canvas id="lg-modal"></canvas></div>
+            ${legend([
+              {label:'Truk FTL',color:'#16a34a'},{label:'Truk LTL',color:'#0ea5e9'},
+              {label:'Kapal',color:'#f59e0b'},{label:'Kereta',color:'#8b5cf6'}
+            ])}
+          `)}
+          ${card('Utilisasi Gudang', `
+            ${statRow('Cikampek', progress(92)+' 92%')}
+            ${statRow('Gresik', progress(78)+' 78%')}
+            ${statRow('Medan', progress(64)+' 64%')}
+            ${statRow('Makassar', progress(88)+' 88%')}
+            ${statRow('Balikpapan', progress(51)+' 51%')}
+            ${statRow('Palembang', progress(73)+' 73%')}
+          `)}
+          ${card('Kinerja Vendor', `
+            ${statRow('PT Trans Nusantara', badge('A','ok')+' 97,2')}
+            ${statRow('CV Lintas Darat', badge('A','ok')+' 95,8')}
+            ${statRow('PT Samudra Kargo', badge('B','warn')+' 88,4')}
+            ${statRow('PT Rail Logistik', badge('A','ok')+' 94,1')}
+            ${statRow('UD Cepat Kirim', badge('C','bad')+' 76,9')}
+          `)}
+        </div>
+      `,
+      after: () => {
+        donutChart($('#lg-modal'), [
+          {label:'FTL',value:52,color:'#16a34a'},{label:'LTL',value:24,color:'#0ea5e9'},
+          {label:'Kapal',value:17,color:'#f59e0b'},{label:'Kereta',value:7,color:'#8b5cf6'}
+        ], {center:'12.940', sub:'ton Okt'});
+      }
+    },
+    shipments: {
+      title:'Pengiriman', icon:'📦',
+      render: () => `
+        ${kpiRow([
+          {label:'Dalam Perjalanan', value:'142', delta:8.4, sub:'DO aktif', icon:'🚚'},
+          {label:'Terkirim Hari Ini', value:'68', delta:4.2, sub:'1.240 ton', icon:'✅', tone:'blue'},
+          {label:'On Time Rate', value:'96,3%', delta:1.4, sub:'target 95%', icon:'⏱️', tone:'violet'},
+          {label:'In Transit Time', value:'18,4 jam', delta:-4.2, sub:'rata-rata', icon:'📊', tone:'amber'}
+        ])}
+        <div style="margin-top:16px">
+          ${card('Pelacakan Pengiriman Aktif', table(
+            ['No. DO','Tujuan','Muatan','Armada','ETA','Status'],
+            [
+              ['DO-2610-114','Surabaya, Jatim','NPK 32 ton','B 9421 XYZ','25 Okt 14:00', badge('Dalam Perjalanan','info')],
+              ['DO-2610-115','Semarang, Jateng','Urea 28 ton','H 8812 KLM','25 Okt 18:30', badge('Dalam Perjalanan','info')],
+              ['DO-2610-116','Medan, Sumut','SP-36 30 ton','BK 1120 TRK','27 Okt 09:00', badge('Menunggu Muat','warn')],
+              ['DO-2610-117','Makassar, Sulsel','NPK 40 ton','Kapal KM Sejahtera','29 Okt 06:00', badge('Transit Laut','info')],
+              ['DO-2610-118','Palembang','ZA 24 ton','BG 7734 NM','24 Okt 11:20', badge('Terkirim','ok')],
+              ['DO-2610-119','Balikpapan','Organik 18 ton','KT 5567 AB','24 Okt 08:40', badge('Terkirim','ok')],
+              ['DO-2610-120','Bandung, Jabar','NPK 26 ton','D 8842 QW','25 Okt 16:00', badge('Dalam Perjalanan','info')],
+              ['DO-2610-121','Denpasar, Bali','SP-36 22 ton','DK 4491 Z','26 Okt 08:00', badge('Dalam Perjalanan','info')]
+            ]
+          ), {pad:'flush', actions:'<span class="chip active">Semua</span><span class="chip">Transit</span><span class="chip">Terlambat</span>'})}
+        </div>
+      `,
+      after: () => {}
+    },
+    fleet: {
+      title:'Armada', icon:'🚛',
+      render: () => `
+        ${kpiRow([
+          {label:'Total Armada', value:'128 unit', delta:2.4, sub:'truk & trailer', icon:'🚛'},
+          {label:'Aktif', value:'118 unit', delta:1.8, sub:'92,2% available', icon:'✅', tone:'blue'},
+          {label:'Maintenance', value:'10 unit', delta:11.2, sub:'7,8%', icon:'🔧', tone:'amber'},
+          {label:'Utilitas', value:'84,6%', delta:2.7, sub:'target 85%', icon:'📊', tone:'violet'}
+        ])}
+        <div style="margin-top:16px">
+          ${card('Daftar Armada', table(
+            ['Nomor Polisi','Tipe','Kapasitas','Umur','Jadwal Service','Status'],
+            [
+              ['B 9421 XYZ','Truk FTL','32 ton','3 tahun','15 Nov 2026', badge('Aktif','ok')],
+              ['B 8834 ABC','Truk FTL','32 ton','5 tahun','20 Nov 2026', badge('Aktif','ok')],
+              ['H 8812 KLM','Truk FTL','28 ton','4 tahun','12 Nov 2026', badge('Aktif','ok')],
+              ['BK 1120 TRK','Truk FTL','30 ton','2 tahun','05 Des 2026', badge('Aktif','ok')],
+              ['BG 7734 NM','Truk LTL','12 ton','6 tahun','08 Nov 2026', badge('Aktif','ok')],
+              ['KT 5567 AB','Truk LTL','10 ton','7 tahun','28 Okt 2026', badge('Maintenance','warn')],
+              ['D 8842 QW','Truk FTL','28 ton','3 tahun','18 Nov 2026', badge('Aktif','ok')],
+              ['DK 4491 Z','Truk LTL','12 ton','5 tahun','10 Nov 2026', badge('Aktif','ok')]
+            ]
+          ), {pad:'flush'})}
+        </div>
+        <div class="grid cols-3" style="margin-top:16px">
+          ${card('Konsumsi BBM', `
+            ${statRow('Total (Okt)','184.240 liter')}
+            ${statRow('Rata-rata','144 l/100km')}
+            ${statRow('Biaya','Rp 2,4 M')}
+            ${statRow('Vs Sep','-3,2%')}
+          `)}
+          ${card('Driver Performance', `
+            ${statRow('Total driver','168')}
+            ${statRow('Safety score rata-rata','92,4')}
+            ${statRow('Pelanggaran','6 kasus')}
+            ${statRow('Training aktif','24 driver')}
+          `)}
+          ${card('GPS & Telematika', `
+            ${statRow('Unit terpasang GPS','128/128')}
+            ${statRow('Koneksi online','98,4%')}
+            ${statRow('Geofence alerts','14')}
+            ${statRow('Suhu monitoring','N/A')}
+          `)}
+        </div>
+      `,
+      after: () => {}
+    },
+    warehouse: {
+      title:'Gudang', icon:'🏬',
+      render: () => `
+        <div class="grid cols-2">
+          ${card('Daftar Gudang', table(
+            ['Lokasi','Kapasitas','Terpakai','Utilisasi','Status'],
+            [
+              ['Cikampek','12.000 t','11.040 t','92%', badge('Penuh','warn')],
+              ['Gresik','10.000 t','7.800 t','78%', badge('Normal','ok')],
+              ['Medan','8.000 t','5.120 t','64%', badge('Longgar','ok')],
+              ['Makassar','8.000 t','7.040 t','88%', badge('Normal','ok')],
+              ['Balikpapan','6.000 t','3.060 t','51%', badge('Longgar','ok')],
+              ['Palembang','6.000 t','4.380 t','73%', badge('Normal','ok')]
+            ]
+          ), {pad:'flush'})}
+          ${card('Stok per Gudang (ton)', table(
+            ['Produk','Cikampek','Gresik','Medan','Makassar','Total'],
+            [
+              ['NPK','3.240','2.180','1.420','1.860','8.700'],
+              ['Urea','412','1.240','860','640','3.152'],
+              ['SP-36','1.180','980','620','440','3.220'],
+              ['ZA','760','540','320','280','1.900'],
+              ['Organik','520','410','260','258','1.448']
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {}
+    },
+    stock: {
+      title:'Manajemen Stok', icon:'📊',
+      render: () => `
+        ${kpiRow([
+          {label:'Total Stok', value:'18.420 ton', delta:-6.4, sub:'6 lokasi', icon:'📦'},
+          {label:'Inventory Days', value:'42 hari', delta:-3.2, sub:'target 40', icon:'📅', tone:'blue'},
+          {label:'Stockout', value:'3 SKU', delta:-25.0, sub:'bulan ini', icon:'⚠️', tone:'amber'},
+          {label:'Dead Stock', value:'142 ton', delta:-18.4, sub:'> 180 hari', icon:'🗑️', tone:'red'}
+        ])}
+        <div style="margin-top:16px">
+          ${card('Status Stok Detail', table(
+            ['SKU','Kategori','Stok','Min','Max','Status','Action'],
+            [
+              ['NPK-15-15-15','NPK','4.240 t','3.000 t','6.000 t', badge('Normal','ok'),'—'],
+              ['NPK-13-13-20','NPK','2.180 t','2.000 t','4.000 t', badge('Normal','ok'),'—'],
+              ['NPK-16-16-16','NPK','1.284 t','2.000 t','4.000 t', badge('Kritis','bad'),'Reorder'],
+              ['UREA-46','Urea','2.412 t','2.500 t','5.000 t', badge('Perhatian','warn'),'Monitor'],
+              ['UREA-GRAN','Urea','740 t','500 t','1.500 t', badge('Normal','ok'),'—'],
+              ['SP36-STD','SP-36','2.840 t','2.000 t','4.000 t', badge('Normal','ok'),'—'],
+              ['SP36-PREM','SP-36','380 t','500 t','1.500 t', badge('Kritis','bad'),'Reorder'],
+              ['ZA-21','ZA','1.420 t','1.200 t','2.500 t', badge('Normal','ok'),'—'],
+              ['ORG-KOMPOS','Organik','980 t','800 t','2.000 t', badge('Normal','ok'),'—'],
+              ['ORG-GRANUL','Organik','468 t','500 t','1.500 t', badge('Perhatian','warn'),'Monitor']
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {}
+    },
+    vendors: {
+      title:'Vendor Logistik', icon:'🏢',
+      render: () => `
+        ${card('Daftar Vendor Logistik', table(
+          ['Vendor','Layanan','Rate/kg','OTIF','Kualitas','Rating'],
+          [
+            ['PT Trans Nusantara','Truk FTL','Rp 142','97,2%','A','4,8/5'],
+            ['CV Lintas Darat','Truk FTL/LTL','Rp 148','95,8%','A','4,6/5'],
+            ['PT Samudra Kargo','Kapal','Rp 184','88,4%','B','4,1/5'],
+            ['PT Rail Logistik','Kereta','Rp 118','94,1%','A','4,4/5'],
+            ['UD Cepat Kirim','LTL','Rp 162','76,9%','C','3,2/5'],
+            ['PT Ekspres Nusantara','Courier','Rp 248','92,4%','B','4,0/5']
+          ]
+        ), {pad:'flush'})}
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Kontrak Aktif', `
+            ${statRow('PT Trans Nusantara','Des 2026')}
+            ${statRow('CV Lintas Darat','Agu 2027')}
+            ${statRow('PT Samudra Kargo','Mar 2027')}
+            ${statRow('PT Rail Logistik','Jun 2027')}
+            ${statRow('UD Cepat Kirim','Nov 2026')}
+          `)}
+          ${card('Evaluasi Vendor', `
+            ${statRow('Vendor A (Top)','2')}
+            ${statRow('Vendor B (Baik)','2')}
+            ${statRow('Vendor C (Cukup)','1')}
+            ${statRow('Vendor D (Drop)','1')}
+            <div style="margin-top:10px">
+              ${callout('warn','Rekomendasi','UD Cepat Kirim di-review — skor C selama 3 bulan.')}
+            </div>
+          `)}
+        </div>
+      `,
+      after: () => {}
+    },
+    cost: {
+      title:'Analisis Biaya', icon:'💸',
+      render: () => `
+        ${kpiRow([
+          {label:'Biaya Logistik Okt', value:'Rp 18,4 M', delta:-4.2, sub:'vs Rp 19,2 M', icon:'💸'},
+          {label:'Biaya/ton', value:'Rp 142 rb', delta:-3.1, sub:'target Rp 138 rb', icon:'📊', tone:'blue'},
+          {label:'Fuel Cost', value:'Rp 2,4 M', delta:-3.4, sub:'13,0% dari total', icon:'⛽', tone:'amber'},
+          {label:'Labour Cost', value:'Rp 3,2 M', delta:1.8, sub:'17,4%', icon:'👷', tone:'violet'}
+        ])}
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Breakdown Biaya Logistik', `
+            <div class="chart-wrap"><canvas id="lc-1"></canvas></div>
+            ${legend([
+              {label:'Fuel',color:'#16a34a'},{label:'Labour',color:'#0ea5e9'},
+              {label:'Toll & Parkir',color:'#f59e0b'},{label:'Kontrak Vendor',color:'#8b5cf6'},
+              {label:'Lainnya',color:'#94a3b8'}
+            ])}
+          `)}
+          ${card('Trend Biaya 6 Bulan', `
+            <div class="chart-wrap"><canvas id="lc-2"></canvas></div>
+            ${legend([{label:'Biaya/ton (Rp rb)',color:'#16a34a'}])}
+          `)}
+        </div>
+      `,
+      after: () => {
+        donutChart($('#lc-1'), [
+          {label:'Fuel',value:2.4,color:'#16a34a'},{label:'Labour',value:3.2,color:'#0ea5e9'},
+          {label:'Toll',value:1.8,color:'#f59e0b'},{label:'Vendor',value:9.6,color:'#8b5cf6'},
+          {label:'Lainnya',value:1.4,color:'#94a3b8'}
+        ], {center:'Rp 18,4 M', sub:'Total Biaya'});
+        lineChart($('#lc-2'), M6, [
+          {data:[152,148,146,144,143,142], color:'#16a34a'}
+        ], {min0:false});
+      }
+    }
+  }
+});
+
+/* =========================================================
+   7. R&D
+   ========================================================= */
+page('rnd', {
+  title:'Riset & Pengembangan', sub:'Inovasi dan pengembangan produk', icon:'🧪', group:'Divisi',
+  subs: {
+    overview: {
+      title:'Overview', icon:'🔬',
+      render: () => `
+        ${kpiRow([
+          {label:'Proyek Aktif', value:'14', delta:16.7, sub:'4 komersialisasi', icon:'🔬'},
+          {label:'Formula Baru', value:'6', delta:50.0, sub:'tahun 2026', icon:'🧬', tone:'blue'},
+          {label:'Hak Paten', value:'3 terdaftar', delta:null, sub:'2 dalam proses', icon:'📜', tone:'violet'},
+          {label:'Rata-rata Uji', value:'4,2 bulan', delta:-15.0, sub:'vs 4,9 bulan', icon:'⏳', tone:'amber'},
+          {label:'Anggaran R&D', value:'Rp 42,8 M', delta:8.4, sub:'1,7% pendapatan', icon:'💡'},
+          {label:'Uji Lapangan', value:'28 lokasi', delta:22.0, sub:'12 provinsi', icon:'🌾', tone:'red'}
+        ])}
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Progres Proyek Riset', `
+            ${statRow('NPK Slow-Release 15-15-15', progress(84)+' 84%')}
+            ${statRow('Bio-Pupuk Rhizobium', progress(72)+' 72%')}
+            ${statRow('Urea Coating Sulfur', progress(91)+' 91%')}
+            ${statRow('Pupuk Silika Padi', progress(58)+' 58%')}
+            ${statRow('NPK + Boron', progress(45)+' 45%')}
+            ${statRow('Formula Sawit', progress(33)+' 33%')}
+            ${statRow('Granulasi Dingin', progress(26)+' 26%')}
+          `)}
+          ${card('Alokasi Anggaran R&D', `
+            <div class="chart-wrap"><canvas id="rd-bg"></canvas></div>
+            ${legend([
+              {label:'Uji Lab',color:'#16a34a'},{label:'Uji Lapangan',color:'#0ea5e9'},
+              {label:'Peralatan',color:'#f59e0b'},{label:'SDM',color:'#8b5cf6'},{label:'Sertifikasi',color:'#06b6d4'}
+            ])}
+          `)}
+        </div>
+      `,
+      after: () => {
+        donutChart($('#rd-bg'), [
+          {label:'Uji Lab',value:32,color:'#16a34a'},{label:'Uji Lapangan',value:28,color:'#0ea5e9'},
+          {label:'Peralatan',value:19,color:'#f59e0b'},{label:'SDM',value:15,color:'#8b5cf6'},
+          {label:'Sertifikasi',value:6,color:'#06b6d4'}
+        ], {center:'42,8 M', sub:'Rp Anggaran'});
+      }
+    },
+    projects: {
+      title:'Proyek Riset', icon:'📋',
+      render: () => `
+        ${card('Portofolio Proyek', table(
+          ['Kode','Proyek','Lead','Tahap','Progres','Target'],
+          [
+            ['RD-2601','NPK Slow-Release 15-15-15','Dr. Andini','Uji Lapangan', progress(84), 'Des 2026'],
+            ['RD-2602','Bio-Pupuk Rhizobium','Ir. Bayu','Uji Lapangan', progress(72), 'Feb 2027'],
+            ['RD-2603','Urea Coating Sulfur','Dr. Citra','Pilot Plant', progress(91), 'Nov 2026'],
+            ['RD-2604','Pupuk Silika Padi','Ir. Dharma','Uji Lab', progress(58), 'Apr 2027'],
+            ['RD-2605','NPK + Boron','Dr. Eka','Formulasi', progress(45), 'Jul 2027'],
+            ['RD-2606','Formula Sawit','Ir. Fajar','Riset Awal', progress(33), 'Okt 2027'],
+            ['RD-2607','Granulasi Dingin','Dr. Gita','Riset Awal', progress(26), 'Des 2027'],
+            ['RD-2608','Pupuk Hayati Plus','Ir. Hasan','Uji Lab', progress(64), 'Mei 2027']
+          ]
+        ), {pad:'flush'})}
+        <div class="grid cols-3" style="margin-top:16px">
+          ${card('Status Proyek', `
+            ${statRow('Riset Awal','3 proyek')}
+            ${statRow('Formulasi','2 proyek')}
+            ${statRow('Uji Lab','2 proyek')}
+            ${statRow('Uji Lapangan','2 proyek')}
+            ${statRow('Pilot Plant','1 proyek')}
+          `)}
+          ${card('Timeline Q4', `
+            ${statRow('Okt — Urea Coating final','Selesai')}
+            ${statRow('Nov — Pilot NPK SR','Berjalan')}
+            ${statRow('Des — Komersialisasi','Direncanakan')}
+          `)}
+          ${card('Risiko Proyek', `
+            ${statRow('Regulasi Kementan','Sedang')}
+            ${statRow('Ketersediaan bahan','Rendah')}
+            ${statRow('Birokrasi paten','Sedang')}
+            ${statRow('Budget overrun','Rendah')}
+          `)}
+        </div>
+      `,
+      after: () => {}
+    },
+    formula: {
+      title:'Formula & Bahan', icon:'🧬',
+      render: () => `
+        ${card('Database Formula', table(
+          ['Kode','Nama','Komposisi','Status','Aplikasi'],
+          [
+            ['FRM-2601','NPK 15-15-15','N15 P15 K15 + TE','Aktif','Padi, Jagung'],
+            ['FRM-2602','NPK 13-13-20','N13 P13 K20','Aktif','Sawit, Karet'],
+            ['FRM-2603','NPK 16-16-16','N16 P16 K16','Aktif','Hortikultura'],
+            ['FRM-2604','NPK SR 15-15-15','Slow-release coating','Uji Lapangan','Padi'],
+            ['FRM-2605','Bio Rhizobium','Rhizobium sp + carrier','Uji Lapangan','Kedelai'],
+            ['FRM-2606','Silika Padi','SiO₂ 20% + Ca','Uji Lab','Padi'],
+            ['FRM-2607','NPK + B','NPK 12-12-17 + B 0,5%','Formulasi','Sawit'],
+            ['FRM-2608','Pupuk Hayati','Mikoriza + Trichoderma','Uji Lab','Hortikultura']
+          ]
+        ), {pad:'flush'})}
+      `,
+      after: () => {}
+    },
+    labtest: {
+      title:'Uji Laboratorium', icon:'🧪',
+      render: () => `
+        ${kpiRow([
+          {label:'Uji Bulan Ini', value:'428 sampel', delta:8.4, sub:'+32 vs Sep', icon:'🧪'},
+          {label:'Lulus', value:'98,2%', delta:1.2, sub:'420/428', icon:'✅', tone:'blue'},
+          {label:'Review', value:'1,4%', delta:-0.6, sub:'6 sampel', icon:'⚠️', tone:'amber'},
+          {label:'Gagal', value:'0,4%', delta:-1.2, sub:'2 sampel', icon:'❌', tone:'red'}
+        ])}
+        <div style="margin-top:16px">
+          ${card('Hasil Uji Lab Terbaru', table(
+            ['Sampel','Parameter','Hasil','Standar','Verdict'],
+            [
+              ['RD-2601-A','Kadar N','15,2%','15,0 ± 0,5%', badge('Lulus','ok')],
+              ['RD-2601-A','Kadar P₂O₅','14,8%','15,0 ± 0,5%', badge('Lulus','ok')],
+              ['RD-2601-A','Kadar K₂O','15,1%','15,0 ± 0,5%', badge('Lulus','ok')],
+              ['RD-2601-A','Kadar Air','1,8%','maks 2,0%', badge('Lulus','ok')],
+              ['RD-2603-B','Kekerasan Granul','3,2 kg','min 2,5 kg', badge('Lulus','ok')],
+              ['RD-2603-B','Sulfur Coating','11,4%','12,0 ± 1%', badge('Review','warn')],
+              ['RD-2604-C','C-organik','18,2%','min 15%', badge('Lulus','ok')],
+              ['RD-2605-D','Kadar Boron','0,42%','0,50 ± 0,1%', badge('Gagal','bad')],
+              ['RD-2606-E','SiO₂','19,8%','min 20%', badge('Review','warn')],
+              ['RD-2608-F','Populasi Mikoriza','1,2×10⁸','min 1,0×10⁸', badge('Lulus','ok')]
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {}
+    },
+    fieldtest: {
+      title:'Uji Lapangan', icon:'🌾',
+      render: () => `
+        ${kpiRow([
+          {label:'Lokasi Uji', value:'28 lokasi', delta:22.0, sub:'12 provinsi', icon:'🌾'},
+          {label:'Luas Total', value:'142 ha', delta:18.4, sub:'naik dari 120 ha', icon:'📐', tone:'blue'},
+          {label:'Uji Selesai', value:'18', delta:null, sub:'64,3%', icon:'✅', tone:'violet'},
+          {label:'Uji Berjalan', value:'10', delta:null, sub:'35,7%', icon:'🔄', tone:'amber'}
+        ])}
+        <div style="margin-top:16px">
+          ${card('Daftar Uji Lapangan', table(
+            ['Lokasi','Komoditas','Formula','Luas','Hasil','Status'],
+            [
+              ['Karawang, Jabar','Padi','NPK 15-15-15','8 ha','+12,4% yield','Selesai'],
+              ['Ngawi, Jatim','Padi','NPK SR 15-15-15','6 ha','+18,2% yield','Berjalan'],
+              ['Lampung Tengah','Jagung','NPK 15-15-15','10 ha','+8,6% yield','Selesai'],
+              ['Kediri, Jatim','Kedelai','Bio Rhizobium','4 ha','+22,4% yield','Berjalan'],
+              ['Medan, Sumut','Sawit','NPK 13-13-20','12 ha','+6,8% yield','Selesai'],
+              ['Palembang','Sawit','NPK + Boron','8 ha','+9,2% yield','Berjalan'],
+              ['Makassar','Kakao','NPK 13-13-20','6 ha','+7,4% yield','Selesai'],
+              ['Bali','Hortikultura','NPK 16-16-16','4 ha','+14,2% yield','Selesai']
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {}
+    },
+    patents: {
+      title:'Hak Paten', icon:'📜',
+      render: () => `
+        ${card('Portofolio Hak Paten', table(
+          ['No. Pendaftaran','Judul','Inventor','Status','Tanggal'],
+          [
+            ['P-00202400841','Formula Pupuk NPK Slow-Release','Dr. Andini','Terdaftar','14 Mar 2024'],
+            ['P-00202400842','Proses Coating Urea Sulfur','Dr. Citra','Terdaftar','20 Jun 2024'],
+            ['P-00202500120','Bio-Pupuk Rhizobium','Ir. Bayu','Terdaftar','10 Jan 2025'],
+            ['P-00202500341','Formula NPK + Mikronutrien','Dr. Eka','Dalam Proses','15 Mei 2025'],
+            ['P-00202600082','Granulasi Dingin Hemat Energi','Dr. Gita','Dalam Proses','08 Feb 2026']
+          ]
+        ), {pad:'flush'})}
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Status Paten', `
+            ${statRow('Terdaftar','3')}
+            ${statRow('Dalam proses','2')}
+            ${statRow('Ditolak','0')}
+            ${statRow('Akan diajukan 2026','4')}
+            ${statRow('Lisensi keluar','1')}
+          `)}
+          ${card('Nilai IP', `
+            ${statRow('Estimasi nilai IP','Rp 18,4 M')}
+            ${statRow('Royalti masuk','Rp 1,2 M')}
+            ${statRow('Biaya pendaftaran YTD','Rp 480 jt')}
+            ${statRow('Maintenance fee','Rp 84 jt/tahun')}
+          `)}
+        </div>
+      `,
+      after: () => {}
+    }
+  }
+});
+
+/* =========================================================
+   8. SDM
+   ========================================================= */
+page('sdm', {
+  title:'Sumber Daya Manusia', sub:'Kepegawaian dan talenta', icon:'👥', group:'Divisi',
+  subs: {
+    overview: {
+      title:'Overview', icon:'👥',
+      render: () => `
+        ${kpiRow([
+          {label:'Total Karyawan', value:'2.846', delta:1.8, sub:'+51 YTD', icon:'👥'},
+          {label:'Turnover Rate', value:'4,2%', delta:-0.8, sub:'target <6%', icon:'📉', tone:'blue'},
+          {label:'Absensi', value:'1,84%', delta:-0.3, sub:'target <2,5%', icon:'📅'},
+          {label:'Produktivitas', value:'Rp 452 jt/org', delta:4.6, sub:'per karyawan', icon:'⚡', tone:'violet'},
+          {label:'Jam Training', value:'6.240 jam', delta:18.2, sub:'2,2 jam/org', icon:'🎓', tone:'amber'},
+          {label:'Kepuasan', value:'4,3/5', delta:2.4, sub:'survey Q3', icon:'😊', tone:'red'}
+        ])}
+        <div class="grid cols-3" style="margin-top:16px">
+          ${card('Komposisi Departemen', `
+            <div class="chart-wrap sm"><canvas id="hr-dept"></canvas></div>
+            ${legend([
+              {label:'Produksi',color:'#16a34a'},{label:'Logistik',color:'#0ea5e9'},
+              {label:'Marketing',color:'#f59e0b'},{label:'R&D',color:'#8b5cf6'},{label:'Support',color:'#94a3b8'}
+            ])}
+          `)}
+          ${card('Struktur Tenaga Kerja', `
+            ${statRow('Karyawan Tetap','1.842 (64,7%)')}
+            ${statRow('Kontrak PKWT','684 (24,0%)')}
+            ${statRow('Outsourcing','320 (11,3%)')}
+            ${statRow('Laki-laki','2.184 (76,7%)')}
+            ${statRow('Perempuan','662 (23,3%)')}
+            ${statRow('Rata-rata Usia','36,4 tahun')}
+            ${statRow('Rata-rata Masa Kerja','7,8 tahun')}
+          `)}
+          ${card('Rekrutmen Q4', `
+            ${statRow('Posisi dibuka','24')}
+            ${statRow('Pelamar','1.842')}
+            ${statRow('Lolos screening','284')}
+            ${statRow('Interview','96')}
+            ${statRow('Offer','31')}
+            ${statRow('Diterima','26')}
+            ${statRow('Time to hire','34 hari')}
+          `)}
+        </div>
+      `,
+      after: () => {
+        donutChart($('#hr-dept'), [
+          {label:'Produksi',value:1420,color:'#16a34a'},{label:'Logistik',value:512,color:'#0ea5e9'},
+          {label:'Marketing',value:368,color:'#f59e0b'},{label:'R&D',value:186,color:'#8b5cf6'},
+          {label:'Support',value:360,color:'#94a3b8'}
+        ], {center:'2.846', sub:'Karyawan'});
+      }
+    },
+    employees: {
+      title:'Kepegawaian', icon:'👤',
+      render: () => `
+        ${card('Karyawan Terbaru & Promosi', table(
+          ['Nama','Posisi','Departemen','Tanggal','Tipe','Status'],
+          [
+            ['Rizky Pratama','Operator Boiler','Produksi','01 Okt 2026','Rekrutmen', badge('Aktif','ok')],
+            ['Siti Nurhaliza','Analis Lab','R&D','01 Okt 2026','Rekrutmen', badge('Aktif','ok')],
+            ['Ahmad Fauzi','Supervisor Logistik','Logistik','15 Sep 2026','Promosi', badge('Aktif','ok')],
+            ['Dewi Lestari','Sales Area Manager','Marketing','15 Sep 2026','Promosi', badge('Aktif','ok')],
+            ['Hendra Wijaya','Teknisi Maintenance','Produksi','01 Sep 2026','Rekrutmen', badge('Aktif','ok')],
+            ['Maya Anggraini','Staf Akuntansi','Keuangan','01 Sep 2026','Rekrutmen', badge('Probation','warn')],
+            ['Bambang Sudiro','Supervisor K3','K3','15 Agu 2026','Rekrutmen', badge('Aktif','ok')],
+            ['Nurul Hidayah','HR Business Partner','SDM','01 Agu 2026','Promosi', badge('Aktif','ok')]
+          ]
+        ), {pad:'flush'})}
+      `,
+      after: () => {}
+    },
+    attendance: {
+      title:'Absensi', icon:'📅',
+      render: () => `
+        ${kpiRow([
+          {label:'Absensi Bulan Ini', value:'1,84%', delta:-0.3, sub:'target <2,5%', icon:'📅'},
+          {label:'Hadir', value:'98,16%', delta:0.3, sub:'2.794 orang', icon:'✅', tone:'blue'},
+          {label:'Sakit', value:'0,84%', delta:-0.2, sub:'24 kasus', icon:'🤒', tone:'amber'},
+          {label:'Izin/Cuti', value:'0,68%', delta:0.4, sub:'19 orang', icon:'🏖️', tone:'violet'}
+        ])}
+        <div class="margin-top:16px">
+          ${card('Absensi per Departemen', table(
+            ['Departemen','Karyawan','Hadir','Sakit','Izin','Absen %'],
+            [
+              ['Produksi','1.420','1.392','14','8','1,84%'],
+              ['Logistik','512','502','6','4','1,95%'],
+              ['Marketing','368','362','4','2','1,63%'],
+              ['R&D','186','184','1','1','1,08%'],
+              ['SDM','142','140','1','1','1,41%'],
+              ['Keuangan','86','85','0','1','1,16%'],
+              ['IT','52','51','1','0','1,92%'],
+              ['Umum','80','78','1','1','2,50%']
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {}
+    },
+    payroll: {
+      title:'Payroll', icon:'💰',
+      render: () => `
+        ${kpiRow([
+          {label:'Total Payroll Okt', value:'Rp 28,4 M', delta:2.8, sub:'2.846 karyawan', icon:'💰'},
+          {label:'Rata-rata Gaji', value:'Rp 9,98 jt', delta:1.4, sub:'per karyawan', icon:'💵', tone:'blue'},
+          {label:'Lembur', value:'Rp 2,4 M', delta:-8.4, sub:'8,5% payroll', icon:'⏰', tone:'amber'},
+          {label:'Bonus & THR', value:'Rp 4,2 M', delta:null, sub:'bulan ini', icon:'🎁', tone:'violet'}
+        ])}
+        <div class="margin-top:16px">
+          ${card('Rincian Payroll per Departemen', table(
+            ['Departemen','Karyawan','Gaji Pokok','Tunjangan','Lembur','Total'],
+            [
+              ['Produksi','1.420','Rp 9,84 M','Rp 4,28 M','Rp 1,42 M','Rp 15,54 M'],
+              ['Logistik','512','Rp 3,42 M','Rp 1,84 M','Rp 0,48 M','Rp 5,74 M'],
+              ['Marketing','368','Rp 3,68 M','Rp 1,62 M','Rp 0,28 M','Rp 5,58 M'],
+              ['R&D','186','Rp 2,48 M','Rp 0,86 M','Rp 0,14 M','Rp 3,48 M'],
+              ['SDM','142','Rp 1,28 M','Rp 0,62 M','Rp 0,04 M','Rp 1,94 M'],
+              ['Keuangan','86','Rp 1,42 M','Rp 0,58 M','Rp 0,02 M','Rp 2,02 M'],
+              ['IT','52','Rp 0,94 M','Rp 0,42 M','Rp 0,02 M','Rp 1,38 M'],
+              ['Umum','80','Rp 0,62 M','Rp 0,28 M','Rp 0,02 M','Rp 0,92 M']
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {}
+    },
+    training: {
+      title:'Training & Development', icon:'🎓',
+      render: () => `
+        ${kpiRow([
+          {label:'Jam Training YTD', value:'24.860', delta:14.3, sub:'target 22.000', icon:'🎓'},
+          {label:'Program Aktif', value:'18', delta:12.5, sub:'program', icon:'📚', tone:'blue'},
+          {label:'Rata-rata Jam/Org', value:'8,7', delta:11.4, sub:'target 8 jam', icon:'📊', tone:'violet'},
+          {label:'Sertifikasi Baru', value:'42', delta:20.0, sub:'bulan ini', icon:'🏅', tone:'amber'}
+        ])}
+        <div class="margin-top:16px">
+          ${card('Program Pelatihan', table(
+            ['Program','Kategori','Peserta','Jam','Status'],
+            [
+              ['Leadership Development','Manajerial','42','24', badge('Berjalan','info')],
+              ['Lean Manufacturing','Teknis','64','16', badge('Berjalan','info')],
+              ['Safety Induction','K3','284','4', badge('Selesai','ok')],
+              ['Digital Marketing','Marketing','38','12', badge('Selesai','ok')],
+              ['Data Analytics','IT','24','16', badge('Berjalan','info')],
+              ['Financial Literacy','Keuangan','86','8', badge('Selesai','ok')],
+              ['Public Speaking','Soft Skill','48','8', badge('Terjadwal','warn')],
+              ['Negotiation Skill','Soft Skill','32','12', badge('Terjadwal','warn')]
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {}
+    },
+    recruitment: {
+      title:'Rekrutmen', icon:'🆕',
+      render: () => `
+        ${kpiRow([
+          {label:'Posisi Terbuka', value:'24', delta:20.0, sub:'bulan ini', icon:'🆕'},
+          {label:'Pelamar', value:'1.842', delta:8.4, sub:'total', icon:'📥', tone:'blue'},
+          {label:'Time to Hire', value:'34 hari', delta:-8.6, sub:'target 32', icon:'⏱️', tone:'amber'},
+          {label:'Offer Rate', value:'83,9%', delta:2.1, sub:'26/31 diterima', icon:'📊', tone:'violet'}
+        ])}
+        <div class="margin-top:16px">
+          ${card('Status Rekrutmen per Posisi', table(
+            ['Posisi','Departemen','Pelamar','Interview','Offer','Status'],
+            [
+              ['Operator Boiler','Produksi','142','24','4', badge('Onboarding','ok')],
+              ['Analis Laboratorium','R&D','286','32','2', badge('Onboarding','ok')],
+              ['Sales Area Manager','Marketing','428','42','3', badge('Interview','info')],
+              ['Teknisi Listrik','Produksi','184','24','4', badge('Interview','info')],
+              ['Staf Akuntansi','Keuangan','240','28','2', badge('Onboarding','ok')],
+              ['Data Analyst','IT','168','22','2', badge('Interview','info')],
+              ['Supervisor K3','K3','86','16','2', badge('Offer','warn')],
+              ['HR Generalist','SDM','308','28','1', badge('Screening','warn')]
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {}
+    },
+    performance: {
+      title:'Kinerja', icon:'📊',
+      render: () => `
+        ${card('Kinerja per Departemen', table(
+          ['Departemen','KPI Score','Rating','Top Performer','Need Improvement'],
+          [
+            ['Produksi','84,2','B+','42','18'],
+            ['Logistik','88,4','A-','28','8'],
+            ['Marketing','86,8','A-','32','12'],
+            ['R&D','91,2','A','18','2'],
+            ['SDM','87,4','A-','14','4'],
+            ['Keuangan','89,6','A-','12','2'],
+            ['IT','82,4','B','6','4'],
+            ['Umum','80,2','B','8','6']
+          ]
+        ), {pad:'flush'})}
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('9-Box Grid', `
+            ${statRow('Star','128 (4,5%)')}
+            ${statRow('High Potential','284 (10,0%)')}
+            ${statRow('High Performer','486 (17,1%)')}
+            ${statRow('Core Player','1.240 (43,6%)')}
+            ${statRow('Solid Performer','482 (16,9%)')}
+            ${statRow('Under Performer','142 (5,0%)')}
+            ${statRow('Needs Improvement','84 (2,9%)')}
+          `)}
+          ${card('Program Retensi', `
+            ${statRow('Program aktif','4')}
+            ${statRow('Retention rate','95,8%')}
+            ${statRow('Internal promotion','8,4%')}
+            ${statRow('Succession ready','18 posisi')}
+            ${statRow('Employee engagement','4,3/5')}
+          `)}
+        </div>
+      `,
+      after: () => {}
+    }
+  }
+});
+
+/* =========================================================
+   9. PENGADAAN
+   ========================================================= */
+page('pengadaan', {
+  title:'Pengadaan', sub:'Procurement dan supply chain', icon:'🛒', group:'Divisi',
+  subs: {
+    overview: {
+      title:'Overview', icon:'📊',
+      render: () => `
+        ${kpiRow([
+          {label:'Total PO Okt', value:'Rp 168,4 M', delta:-4.2, sub:'-6,8% vs Sep', icon:'🛒'},
+          {label:'Vendor Aktif', value:'186', delta:3.2, sub:'87% lokal', icon:'🏢', tone:'blue'},
+          {label:'PO Open', value:'64', delta:-8.4, sub:'total Rp 42 M', icon:'📋', tone:'violet'},
+          {label:'Savings YTD', value:'Rp 18,4 M', delta:22.0, sub:'cost reduction', icon:'💵', tone:'amber'}
+        ])}
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Trend PO 6 Bulan (Rp miliar)', `
+            <div class="chart-wrap"><canvas id="pc-1"></canvas></div>
+            ${legend([{label:'Realisasi PO',color:'#16a34a'},{label:'Budget',color:'#94a3b8'}])}
+          `)}
+          ${card('Kategori Pengadaan', `
+            <div class="chart-wrap"><canvas id="pc-2"></canvas></div>
+            ${legend([
+              {label:'Bahan Baku',color:'#16a34a'},{label:'Energi',color:'#f59e0b'},
+              {label:'Kemasan',color:'#0ea5e9'},{label:'Spare Part',color:'#8b5cf6'},{label:'Jasa',color:'#94a3b8'}
+            ])}
+          `)}
+        </div>
+      `,
+      after: () => {
+        lineChart($('#pc-1'), M6, [
+          {data:[162,158,165,172,176,168], color:'#16a34a'},
+          {data:[172,172,178,180,180,175], color:'#94a3b8', fill:false, dash:true}
+        ]);
+        donutChart($('#pc-2'), [
+          {label:'Bahan Baku',value:82,color:'#16a34a'},{label:'Energi',value:38,color:'#f59e0b'},
+          {label:'Kemasan',value:18,color:'#0ea5e9'},{label:'Spare Part',value:14,color:'#8b5cf6'},
+          {label:'Jasa',value:16,color:'#94a3b8'}
+        ], {center:'168 M', sub:'Rp Okt'});
+      }
+    },
+    po: {
+      title:'Purchase Order', icon:'📋',
+      render: () => `
+        ${kpiRow([
+          {label:'PO Bulan Ini', value:'124', delta:2.4, sub:'vs 121 Sep', icon:'📋'},
+          {label:'PO Open', value:'64', delta:-8.4, sub:'total Rp 42 M', icon:'🔄', tone:'blue'},
+          {label:'PO Close', value:'60', delta:12.4, sub:'selesai', icon:'✅', tone:'violet'},
+          {label:'Avg Lead Time', value:'14 hari', delta:-6.8, sub:'target 12', icon:'⏱️', tone:'amber'}
+        ])}
+        <div class="margin-top:16px">
+          ${card('Daftar PO Aktif', table(
+            ['No. PO','Vendor','Material','Nilai','Tanggal','Status'],
+            [
+              ['PO-2610-118','PT Petrokimia Supply','Ammonia 800 ton','Rp 6,56 M','23 Okt','Dalam Proses'],
+              ['PO-2610-119','PT Fosfat Nusantara','Fosfat 500 ton','Rp 2,30 M','24 Okt','Konfirmasi Vendor'],
+              ['PO-2610-120','CV Kimia Sejahtera','KCl 400 ton','Rp 2,72 M','25 Okt','Dalam Pengiriman'],
+              ['PO-2610-121','PT Tambang Dolomit','Dolomit 600 ton','Rp 0,72 M','25 Okt','Dalam Pengiriman'],
+              ['PO-2610-122','PT Kemasan Prima','Karung 100 rb pcs','Rp 1,84 M','26 Okt','Draft'],
+              ['PO-2610-123','PT Gas Nusantara','Gas Industri','Rp 8,40 M','26 Okt','Approved'],
+              ['PO-2610-124','PT Zeolit Prima','Zeolit 400 ton','Rp 0,36 M','26 Okt','Approved']
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {}
+    },
+    suppliers: {
+      title:'Supplier', icon:'🏢',
+      render: () => `
+        ${card('Daftar Supplier Aktif', table(
+          ['Kode','Supplier','Kategori','Nilai YTD','Rating','Status'],
+          [
+            ['SUP-001','PT Petrokimia Supply','Ammonia','Rp 184 M','A+','Aktif'],
+            ['SUP-002','PT Fosfat Nusantara','Fosfat','Rp 96 M','A','Aktif'],
+            ['SUP-003','CV Kimia Sejahtera','KCl','Rp 84 M','B','Aktif'],
+            ['SUP-004','PT Gas Nusantara','Gas Industri','Rp 142 M','A+','Aktif'],
+            ['SUP-005','PT Kemasan Prima','Kemasan','Rp 42 M','A','Aktif'],
+            ['SUP-006','PT Listrik Negara','Listrik','Rp 68 M','A+','Aktif'],
+            ['SUP-007','PT Trans Nusantara','Logistik','Rp 32 M','A','Aktif'],
+            ['SUP-008','PT Tambang Dolomit','Dolomit','Rp 14 M','A','Aktif']
+          ]
+        ), {pad:'flush'})}
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Evaluasi Supplier Q3', `
+            ${statRow('A+ (Excellent)','4')}
+            ${statRow('A (Baik)','86')}
+            ${statRow('B (Cukup)','62')}
+            ${statRow('C (Perhatian)','28')}
+            ${statRow('D (Drop)','6')}
+          `)}
+          ${card('Kebijakan Supplier', `
+            ${statRow('Local content','87%')}
+            ${statRow('Single source','6% dari nilai')}
+            ${statRow('Dual source','64% dari nilai')}
+            ${statRow('Multi source','30% dari nilai')}
+            ${statRow('Background check','100%')}
+          `)}
+        </div>
+      `,
+      after: () => {}
+    },
+    contracts: {
+      title:'Kontrak', icon:'📄',
+      render: () => `
+        ${card('Daftar Kontrak Aktif', table(
+          ['No. Kontrak','Vendor','Jenis','Nilai','Mulai','Berakhir','Status'],
+          [
+            ['CTR-2025-014','PT Petrokimia Supply','Supply Ammonia','Rp 240 M','Jan 2025','Des 2026', badge('Aktif','ok')],
+            ['CTR-2025-021','PT Gas Nusantara','Gas Industri','Rp 168 M','Mar 2025','Feb 2027', badge('Aktif','ok')],
+            ['CTR-2025-028','PT Fosfat Nusantara','Supply Fosfat','Rp 124 M','Jun 2025','Mei 2027', badge('Aktif','ok')],
+            ['CTR-2026-004','PT Kemasan Prima','Kemasan','Rp 48 M','Jan 2026','Des 2026', badge('Aktif','ok')],
+            ['CTR-2026-008','PT Trans Nusantara','Logistik','Rp 42 M','Mar 2026','Feb 2027', badge('Aktif','ok')],
+            ['CTR-2026-012','CV Kimia Sejahtera','KCl','Rp 96 M','Jun 2026','Mei 2028', badge('Aktif','ok')],
+            ['CTR-2024-018','PT Listrik Negara','Listrik','Rp 84 M','Sep 2024','Agu 2026', badge('Segera','warn')]
+          ]
+        ), {pad:'flush'})}
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Kontrak Akan Berakhir', `
+            ${statRow('PT Listrik Negara','Agu 2026')}
+            ${statRow('PT Kemasan Prima','Des 2026')}
+            ${statRow('PT Petrokimia Supply','Des 2026')}
+            <div style="margin-top:10px">
+              ${callout('warn','Perhatian','3 kontrak akan berakhir dalam 3 bulan — review renewal.')}
+            </div>
+          `)}
+          ${card('Nilai Kontrak YTD', `
+            ${statRow('Total kontrak aktif','Rp 802 M')}
+            ${statRow('Kontrak baru YTD','Rp 148 M')}
+            ${statRow('Renewal YTD','Rp 328 M')}
+            ${statRow('Terminated','Rp 0')}
+          `)}
+        </div>
+      `,
+      after: () => {}
+    },
+    price: {
+      title:'Analisis Harga', icon:'💹',
+      render: () => `
+        ${kpiRow([
+          {label:'Harga Ammonia', value:'Rp 8,2 jt/t', delta:2.4, sub:'vs Sep', icon:'📈'},
+          {label:'Harga Fosfat', value:'Rp 4,6 jt/t', delta:-1.8, sub:'vs Sep', icon:'📉', tone:'blue'},
+          {label:'Harga KCl', value:'Rp 6,8 jt/t', delta:4.2, sub:'vs Sep', icon:'📈', tone:'amber'},
+          {label:'Harga Gas', value:'Rp 6,84 jt/MMBTU', delta:1.2, sub:'vs Sep', icon:'⛽', tone:'violet'}
+        ])}
+        <div style="margin-top:16px">
+          ${card('Trend Harga Bahan Baku 12 Bulan', `
+            <div class="chart-wrap lg"><canvas id="ph-1"></canvas></div>
+            ${legend([
+              {label:'Ammonia (jt/t)',color:'#16a34a'},{label:'Fosfat (jt/t)',color:'#0ea5e9'},
+              {label:'KCl (jt/t)',color:'#f59e0b'}
+            ])}
+          `)}
+        </div>
+      `,
+      after: () => {
+        lineChart($('#ph-1'), M12, [
+          {data:[7.8,7.9,7.8,7.9,8.0,8.1,8.0,8.1,8.2,8.2,8.1,8.2], color:'#16a34a', fill:false},
+          {data:[4.8,4.7,4.7,4.6,4.6,4.5,4.5,4.6,4.6,4.7,4.6,4.6], color:'#0ea5e9', fill:false},
+          {data:[6.2,6.3,6.4,6.5,6.4,6.5,6.6,6.5,6.6,6.7,6.7,6.8], color:'#f59e0b', fill:false}
+        ], {min0:false});
+      }
+    }
+  }
+});
+
+/* =========================================================
+   10. IT & SISTEM
+   ========================================================= */
+page('it', {
+  title:'IT & Sistem', sub:'Infrastruktur teknologi informasi', icon:'💻', group:'Sistem',
+  subs: {
+    overview: {
+      title:'Overview', icon:'📊',
+      render: () => `
+        ${kpiRow([
+          {label:'Uptime Sistem', value:'99,84%', delta:0.12, sub:'12 bulan', icon:'📶'},
+          {label:'Tiket Aktif', value:'18', delta:-24.0, sub:'dari 142 bulan ini', icon:'🎫', tone:'blue'},
+          {label:'Incident', value:'1', delta:-75.0, sub:'severity tinggi', icon:'🚨', tone:'amber'},
+          {label:'User Aktif', value:'2.846', delta:1.8, sub:'100% karyawan', icon:'👥', tone:'violet'}
+        ])}
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Uptime 12 Bulan (%)', `
+            <div class="chart-wrap"><canvas id="it-1"></canvas></div>
+            ${legend([{label:'Uptime',color:'#16a34a'},{label:'SLA Target',color:'#94a3b8'}])}
+          `)}
+          ${card('Infrastruktur', `
+            ${statRow('Server Fisik','14 unit')}
+            ${statRow('Server Virtual','86 VM')}
+            ${statRow('Storage','240 TB')}
+            ${statRow('Network Switch','42 unit')}
+            ${statRow('Access Point','184 unit')}
+            ${statRow('Firewall','4 unit')}
+            ${statRow('Endpoint','2.946 unit')}
+          `)}
+        </div>
+      `,
+      after: () => {
+        lineChart($('#it-1'), M12, [
+          {data:[99.6,99.7,99.8,99.7,99.9,99.8,99.9,99.8,99.9,99.9,99.8,99.84], color:'#16a34a'},
+          {data:M12.map(()=>99.5), color:'#94a3b8', fill:false, dash:true}
+        ], {min0:false});
+      }
+    },
+    tickets: {
+      title:'Helpdesk', icon:'🎫',
+      render: () => `
+        ${kpiRow([
+          {label:'Tiket Bulan Ini', value:'142', delta:-8.4, sub:'vs 155 Sep', icon:'🎫'},
+          {label:'Tiket Open', value:'18', delta:-24.0, sub:'12,7% dari total', icon:'🔄', tone:'blue'},
+          {label:'Avg Resolve', value:'4,2 jam', delta:-12.4, sub:'target 6 jam', icon:'⏱️', tone:'violet'},
+          {label:'First Call Resolution', value:'82,4%', delta:2.8, sub:'target 80%', icon:'✅', tone:'amber'}
+        ])}
+        <div class="margin-top:16px">
+          ${card('Tiket Open', table(
+            ['ID','Pelapor','Kategori','Deskripsi','Priority','Umur'],
+            [
+              ['T-2601','Budi S.','Network','WiFi drop di Gedung B','Tinggi','6 jam'],
+              ['T-2602','Rina M.','Aplikasi','Error saat export PDF','Sedang','4 jam'],
+              ['T-2603','Agus S.','Hardware','Printer rusak','Rendah','2 hari'],
+              ['T-2604','Dewi L.','Akses','Minta akses modul keuangan','Sedang','1 hari'],
+              ['T-2605','Hendra W.','Email','Email tidak terkirim','Tinggi','3 jam'],
+              ['T-2606','Maya A.','Aplikasi','Slow performance ERP','Tinggi','8 jam']
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {}
+    },
+    security: {
+      title:'Keamanan', icon:'🔒',
+      render: () => `
+        ${kpiRow([
+          {label:'Security Score', value:'A', delta:null, sub:'rating keseluruhan', icon:'🔒'},
+          {label:'Incident YTD', value:'6', delta:-33.3, sub:'0 major', icon:'🚨', tone:'blue'},
+          {label:'Patch Compliance', value:'94,8%', delta:2.4, sub:'target 95%', icon:'🔧', tone:'violet'},
+          {label:'Phishing Test', value:'8,4% klik', delta:-18.0, sub:'target <10%', icon:'🎣', tone:'amber'}
+        ])}
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Status Keamanan', `
+            ${statRow('Firewall aktif','✓ 4/4')}
+            ${statRow('Antivirus up-to-date','✓ 98,4%')}
+            ${statRow('MFA enforced','✓ 100% admin')}
+            ${statRow('Backup harian','✓ 100% sukses')}
+            ${statRow('Data encryption','✓ AES-256')}
+            ${statRow('VPN untuk remote','✓ Aktif')}
+            ${statRow('Penetration test','✓ Q3 2026')}
+          `)}
+          ${card('Insiden Keamanan YTD', table(
+            ['Tanggal','Jenis','Dampak','Resolusi','Status'],
+            [
+              ['14 Okt 2026','Phishing email','2 user klik','Reset + training', badge('Resolved','ok')],
+              ['02 Sep 2026','Malware','1 endpoint','Isolasi + cleanup', badge('Resolved','ok')],
+              ['18 Agu 2026','Brute force','Terblokir firewall','Auto-blocked', badge('Resolved','ok')],
+              ['22 Jun 2026','Unauthorized access','Terblokir','Investigasi', badge('Closed','ok')],
+              ['14 Apr 2026','Patch vuln','Diperbaiki','Patch segera', badge('Resolved','ok')],
+              ['08 Feb 2026','DDoS','Partial downtime 20 menit','Mitigasi ISP', badge('Closed','ok')]
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {}
+    },
+    apps: {
+      title:'Aplikasi', icon:'📱',
+      render: () => `
+        ${card('Aplikasi Aktif', table(
+          ['Aplikasi','Modul','User','Versi','Status','Owner'],
+          [
+            ['AgriNusa ERP','All-in-one','2.846','v4.2.1','Production','IT Internal'],
+            ['SAP Integration','Keuangan, Logistik','428','v2.1','Production','SAP'],
+            ['SCADA/DCS','Produksi','86','v5.4','Production','Vendor'],
+            ['Power BI','Analytics','142','v2024.8','Production','Microsoft'],
+            ['GPS Tracking','Logistik','184','v3.2','Production','Vendor'],
+            ['HRIS','SDM','2.846','v2.8','Production','IT Internal'],
+            ['Email O365','Office','2.846','Cloud','Production','Microsoft'],
+            ['Antivirus EDR','Security','2.946','v8.1','Production','Vendor']
+          ]
+        ), {pad:'flush'})}
+      `,
+      after: () => {}
+    },
+    backup: {
+      title:'Backup & DR', icon:'💾',
+      render: () => `
+        ${kpiRow([
+          {label:'Backup Sukses', value:'100%', delta:null, sub:'30 hari terakhir', icon:'💾'},
+          {label:'RPO', value:'4 jam', delta:null, sub:'target 4 jam', icon:'⏱️', tone:'blue'},
+          {label:'RTO', value:'2 jam', delta:null, sub:'target 4 jam', icon:'🚀', tone:'violet'},
+          {label:'DR Test', value:'Q3 2026', delta:null, sub:'sukses', icon:'✅', tone:'amber'}
+        ])}
+        <div class="margin-top:16px">
+          ${card('Jadwal Backup', table(
+            ['Sistem','Frekuensi','Retensi','Lokasi','Status'],
+            [
+              ['Database ERP','Harian (24:00)','30 hari','On-prem + Cloud','Sukses'],
+              ['File Server','Harian','30 hari','Cloud','Sukses'],
+              ['Email O365','Real-time','7 tahun','Microsoft','Sukses'],
+              ['SCADA Data','Harian','90 hari','On-prem','Sukses'],
+              ['VM Snapshot','Mingguan','4 minggu','On-prem','Sukses'],
+              ['Config Backup','Perubahan','30 versi','Git','Sukses']
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {}
+    },
+    integration: {
+      title:'Integrasi', icon:'🔗',
+      render: () => `
+        ${card('Status Integrasi', table(
+          ['Sistem','Tujuan','Protokol','Terakhir Sync','Status'],
+          [
+            ['SAP ERP','Master data, jurnal','REST API','5 menit lalu', badge('Terhubung','ok')],
+            ['SCADA/DCS','Sensor real-time','OPC-UA','1 menit lalu', badge('Terhubung','ok')],
+            ['GPS Armada','Posisi truk','MQTT','2 menit lalu', badge('Terhubung','ok')],
+            ['Payment Gateway','Virtual account','Webhook','Real-time', badge('Terhubung','ok')],
+            ['Power BI','Data warehouse','JDBC','30 menit lalu', badge('Terhubung','ok')],
+            ['BPJS Kesehatan','Iuran','REST','Harian 05:00', badge('Terhubung','ok')],
+            ['DJP Online','Pajak','SFTP','Harian 06:00', badge('Terhubung','ok')],
+            ['Bank Mandiri','Cash mgmt','Host-to-Host','Real-time', badge('Terhubung','ok')]
+          ]
+        ), {pad:'flush'})}
+      `,
+      after: () => {}
+    }
+  }
+});
+
+/* =========================================================
+   11. MANAJEMEN RISIKO
+   ========================================================= */
+page('risiko', {
+  title:'Manajemen Risiko', sub:'Enterprise risk management', icon:'🛡️', group:'Sistem',
+  subs: {
+    overview: {
+      title:'Overview', icon:'📊',
+      render: () => `
+        ${kpiRow([
+          {label:'Total Risiko', value:'42', delta:-4.2, sub:'terdaftar', icon:'🛡️'},
+          {label:'Risiko Tinggi', value:'6', delta:-14.3, sub:'prioritas', icon:'🔴', tone:'red'},
+          {label:'Risiko Sedang', value:'18', delta:5.8, sub:'monitoring', icon:'🟡', tone:'amber'},
+          {label:'Risiko Rendah', value:'18', delta:-8.4, sub:'terkendali', icon:'🟢'}
+        ])}
+        <div class="grid cols-2" style="margin-top:16px">
+          ${card('Risk Heat Map', `
+            <div class="chart-wrap lg"><canvas id="rk-1"></canvas></div>
+            ${legend([{label:'Impact x Probability',color:'#16a34a'}])}
+          `)}
+          ${card('Top 6 Risiko', table(
+            ['Risiko','Kategori','Owner','Level','Trend'],
+            [
+              ['Kenaikan harga gas','Operasional','Produksi', badge('Tinggi','bad'),'▲'],
+              ['Fluktuasi harga pupuk global','Pasar','Marketing', badge('Tinggi','bad'),'▲'],
+              ['Gangguan pasokan ammonia','Supply Chain','Pengadaan', badge('Tinggi','bad'),'—'],
+              ['Regulasi ekspor-impor','Regulasi','Legal', badge('Sedang','warn'),'▼'],
+              ['Sengketa lahan','Legal','Legal', badge('Sedang','warn'),'—'],
+              ['Siber attack','IT','IT', badge('Sedang','warn'),'▲']
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {
+        barChart($('#rk-1'), ['Operasional','Pasar','Regulasi','Keuangan','Legal','IT','SDM','Lingkungan'], [
+          {data:[18, 14, 12, 10, 8, 7, 5, 6], color:'#16a34a'}
+        ]);
+      }
+    },
+    register: {
+      title:'Register Risiko', icon:'📋',
+      render: () => `
+        ${card('Daftar Risiko Lengkap', table(
+          ['ID','Risiko','Kategori','Probability','Impact','Score','Mitigasi'],
+          [
+            ['R-001','Kenaikan harga gas','Operasional','Tinggi','Tinggi','20', badge('Tinggi','bad')],
+            ['R-002','Fluktuasi harga pupuk global','Pasar','Tinggi','Tinggi','20', badge('Tinggi','bad')],
+            ['R-003','Gangguan pasokan ammonia','Supply Chain','Sedang','Tinggi','15', badge('Tinggi','bad')],
+            ['R-004','Regulasi ekspor-impor','Regulasi','Sedang','Sedang','9', badge('Sedang','warn')],
+            ['R-005','Sengketa lahan','Legal','Rendah','Tinggi','8', badge('Sedang','warn')],
+            ['R-006','Siber attack','IT','Sedang','Sedang','9', badge('Sedang','warn')],
+            ['R-007','Kecelakaan kerja berat','K3','Rendah','Tinggi','8', badge('Sedang','warn')],
+            ['R-008','Kerusakan lingkungan','Lingkungan','Rendah','Tinggi','8', badge('Sedang','warn')],
+            ['R-009','Kehilangan talenta kunci','SDM','Sedang','Rendah','6', badge('Rendah','ok')],
+            ['R-010','Kegagalan sistem IT','IT','Rendah','Sedang','6', badge('Rendah','ok')]
+          ]
+        ), {pad:'flush'})}
+      `,
+      after: () => {}
+    },
+    mitigation: {
+      title:'Mitigasi', icon:'🛠️',
+      render: () => `
+        ${card('Rencana Mitigasi', table(
+          ['Risiko','Mitigasi','Owner','Timeline','Budget','Status'],
+          [
+            ['Kenaikan harga gas','Kontrak jangka panjang + hedging','Produksi','Q4 2026','Rp 12 M', badge('Berjalan','info')],
+            ['Fluktuasi harga global','Diversifikasi pasar + forward contract','Marketing','Berjalan','Rp 8 M', badge('Berjalan','info')],
+            ['Gangguan ammonia','Dual supplier + buffer stock','Pengadaan','Q4 2026','Rp 18 M', badge('Berjalan','info')],
+            ['Regulasi ekspor-impor','Lobbying + legal watch','Legal','Ongoing','Rp 2 M', badge('Monitor','warn')],
+            ['Siber attack','Penetration test + SOC','IT','Q4 2026','Rp 4 M', badge('Berjalan','info')],
+            ['Kecelakaan kerja','Program safety behavior','K3','Ongoing','Rp 6 M', badge('Berjalan','info')],
+            ['Kerusakan lingkungan','WWTP upgrade + monitoring','Lingkungan','Q1 2027','Rp 24 M', badge('Perencanaan','warn')],
+            ['Kehilangan talenta','Retention program + ESOP','SDM','Ongoing','Rp 8 M', badge('Berjalan','info')]
+          ]
+        ), {pad:'flush'})}
+      `,
+      after: () => {}
+    },
+    audit: {
+      title:'Audit Internal', icon:'🔍',
+      render: () => `
+        ${kpiRow([
+          {label:'Audit YTD', value:'18', delta:12.4, sub:'selesai', icon:'🔍'},
+          {label:'Temuan', value:'142', delta:-8.4, sub:'total', icon:'📋', tone:'blue'},
+          {label:'Closed', value:'128', delta:6.8, sub:'90,1%', icon:'✅', tone:'violet'},
+          {label:'Overdue', value:'6', delta:-25.0, sub:'prioritas', icon:'⚠️', tone:'amber'}
+        ])}
+        <div class="margin-top:16px">
+          ${card('Hasil Audit Terbaru', table(
+            ['Tanggal','Area','Auditor','Temuan','Severity','Status'],
+            [
+              ['15 Okt 2026','ISO 9001:2015','TÜV','0 mayor, 4 minor', badge('Baik','ok'), badge('Closed','ok')],
+              ['10 Okt 2026','Keuangan Internal','Internal','6 temuan', badge('Minor','warn'), badge('Berjalan','info')],
+              ['01 Okt 2026','K3 SMK3','Kemnaker','166/180', badge('Baik','ok'), badge('Closed','ok')],
+              ['22 Sep 2026','Lingkungan','KLHK','2 temuan minor', badge('Minor','warn'), badge('Closed','ok')],
+              ['15 Sep 2026','IT Security','External','3 temuan', badge('Sedang','warn'), badge('Berjalan','info')],
+              ['08 Sep 2026','Logistik','Internal','8 temuan', badge('Minor','warn'), badge('Closed','ok')]
+            ]
+          ), {pad:'flush'})}
+        </div>
+      `,
+      after: () => {}
+    },
+    compliance: {
+      title:'Kepatuhan', icon:'⚖️',
+      render: () => `
+        ${card('Status Kepatuhan Regulasi', table(
+          ['Regulasi','Penerbit','Kepatuhan','Status','Review'],
+          [
+            ['UU Ketenagakerjaan','Kemnaker','100%', badge('Patuh','ok'),'Q4 2026'],
+            ['PP 50/2012 SMK3','Kemnaker','100%', badge('Patuh','ok'),'Q4 2026'],
+            ['Permen LH Limbah B3','KLHK','100%', badge('Patuh','ok'),'Q4 2026'],
+            ['UU Pajak & PPN','DJP','100%', badge('Patuh','ok'),'Q4 2026'],
+            ['UU Perlindungan Data','Kominfo','96%', badge('Hampir','warn'),'Q4 2026'],
+            ['Standar SNI Pupuk','BSN','100%', badge('Patuh','ok'),'Q4 2026'],
+            ['Regulasi Ekspor','Kemendag','100%', badge('Patuh','ok'),'Q4 2026'],
+            ['Anti Money Laundering','PPATK','98%', badge('Hampir','warn'),'Q1 2027']
+          ]
+        ), {pad:'flush'})}
+      `,
+      after: () => {}
+    }
+  }
+});
+
+/* =========================================================
+   12. PENGATURAN
+   ========================================================= */
+page('pengaturan', {
+  title:'Pengaturan', sub:'Konfigurasi sistem dan pengguna', icon:'⚙️', group:'Sistem',
+  subs: {
+    profile: {
+      title:'Profil Perusahaan', icon:'🏢',
+      render: () => `
+        <div class="grid cols-2">
+          ${card('Profil Perusahaan', `
+            <div class="form-grid">
+              <div class="field"><label>Nama Perusahaan</label><input value="PT AgriNusa Fertilizer Indonesia"></div>
+              <div class="field"><label>NPWP</label><input value="01.234.567.8-901.000"></div>
+              <div class="field"><label>Industri</label><input value="Pupuk & Agrokimia"></div>
+              <div class="field"><label>Tahun Fiskal</label><select><option>Januari – Desember</option></select></div>
+              <div class="field"><label>Mata Uang</label><select><option>IDR — Rupiah</option></select></div>
+              <div class="field"><label>Zona Waktu</label><select><option>WIB (UTC+7)</option></select></div>
+              <div class="field"><label>Alamat</label><input value="Jl. Industri Pupuk No. 1, Cikampek"></div>
+              <div class="field"><label>Telepon</label><input value="+62 264 123456"></div>
+            </div>
+            <div style="margin-top:16px;display:flex;gap:10px">
+              <button class="btn primary">Simpan Perubahan</button>
+              <button class="btn ghost">Batal</button>
+            </div>
+          `)}
+          ${card('Logo & Branding', `
+            <div style="text-align:center;padding:20px">
+              <div style="width:120px;height:120px;border-radius:20px;margin:0 auto;background:linear-gradient(140deg,#22c55e,#0ea5e9);display:grid;place-items:center;color:#fff;font-size:60px">🌱</div>
+              <p style="margin:16px 0;color:var(--muted);font-size:12px">Logo perusahaan (SVG/PNG, maks 2MB)</p>
+              <button class="btn primary">Unggah Logo</button>
+              <button class="btn ghost">Hapus</button>
+            </div>
+          `)}
+        </div>
+      `,
+      after: () => {}
+    },
+    users: {
+      title:'Pengguna', icon:'👥',
+      render: () => `
+        ${card('Daftar Pengguna', table(
+          ['Nama','Email','Jabatan','Role','Last Login','Status'],
+          [
+            ['Budi Santoso','budi.s@agrinusa.id','Plant Manager','Admin','25 Okt 09:42', badge('Aktif','ok')],
+            ['Rina Marlina','rina.m@agrinusa.id','K3 Manager','Manajer','25 Okt 09:18', badge('Aktif','ok')],
+            ['Agus Setiawan','agus.s@agrinusa.id','Logistik Manager','Manajer','25 Okt 08:55', badge('Aktif','ok')],
+            ['Dewi Lestari','dewi.l@agrinusa.id','Marketing Manager','Manajer','25 Okt 08:30', badge('Aktif','ok')],
+            ['Andi Wijaya','andi.w@agrinusa.id','Sales Area Manager','Staf','25 Okt 07:15', badge('Aktif','ok')],
+            ['Hendra Wijaya','hendra.w@agrinusa.id','Teknisi Maintenance','Staf','24 Okt 22:00', badge('Aktif','ok')],
+            ['Maya Anggraini','maya.a@agrinusa.id','Staf Akuntansi','Staf','24 Okt 20:14', badge('Aktif','ok')],
+            ['Siti Nurhaliza','siti.n@agrinusa.id','Analis Laboratorium','Staf','24 Okt 18:42', badge('Aktif','ok')]
+          ]
+        ), {pad:'flush', actions:'<button class="btn ghost">Export</button><button class="btn primary">+ Tambah</button>'})}
+      `,
+      after: () => {}
+    },
+    roles: {
+      title:'Role & Akses', icon:'🔐',
+      render: () => `
+        ${card('Hak Akses per Role', table(
+          ['Role','Keuangan','Produksi','K3','Marketing','Logistik','R&D','SDM','Admin'],
+          [
+            ['Admin','Full','Full','Full','Full','Full','Full','Full','Full'],
+            ['Manajer','Lihat','Full','Full','Full','Full','Full','Full','—'],
+            ['Supervisor','—','Full','Full','Lihat','Full','Lihat','Lihat','—'],
+            ['Staf','—','Input','Input','Input','Input','Input','Input','—'],
+            ['Auditor','Lihat','Lihat','Lihat','Lihat','Lihat','Lihat','Lihat','—'],
+            ['Guest','—','—','Lihat','—','—','—','—','—']
+          ]
+        ), {pad:'flush'})}
+        <div class="grid cols-3" style="margin-top:16px">
+          ${card('Distribusi Role', `
+            ${statRow('Admin','4')}
+            ${statRow('Manajer','28')}
+            ${statRow('Supervisor','124')}
+            ${statRow('Staf','2.640')}
+            ${statRow('Auditor','8')}
+            ${statRow('Guest','42')}
+          `)}
+          ${card('Login Activity 24 Jam', `
+            ${statRow('Total login','1.842')}
+            ${statRow('Unique user','486')}
+            ${statRow('Failed login','14')}
+            ${statRow('MFA aktif','100% admin')}
+          `)}
+          ${card('Session Aktif', `
+            ${statRow('Web','428')}
+            ${statRow('Mobile','142')}
+            ${statRow('API','86')}
+            ${statRow('Total','656')}
+          `)}
+        </div>
+      `,
+      after: () => {}
+    },
+    notifications: {
+      title:'Notifikasi', icon:'🔔',
+      render: () => `
+        ${card('Preferensi Notifikasi', `
+          <div class="list">
+            <div class="list-row"><div class="tx"><b>Alert stok kritis</b><small>Kirim saat stok < buffer</small></div><div class="rt"><input type="checkbox" checked></div></div>
+            <div class="list-row"><div class="tx"><b>Laporan insiden K3</b><small>Notifikasi real-time ke manajemen</small></div><div class="rt"><input type="checkbox" checked></div></div>
+            <div class="list-row"><div class="tx"><b>Piutang jatuh tempo</b><small>Reminder H-7 dan H-3</small></div><div class="rt"><input type="checkbox" checked></div></div>
+            <div class="list-row"><div class="tx"><b>Deviasi produksi</b><small>Jika output < 90% target</small></div><div class="rt"><input type="checkbox" checked></div></div>
+            <div class="list-row"><div class="tx"><b>Ringkasan email harian</b><small>Dikirim 06:00 WIB</small></div><div class="rt"><input type="checkbox"></div></div>
+            <div class="list-row"><div class="tx"><b>Notifikasi WhatsApp</b><small>Supervisor & manajer</small></div><div class="rt"><input type="checkbox" checked></div></div>
+            <div class="list-row"><div class="tx"><b>Push mobile</b><small>Via aplikasi mobile</small></div><div class="rt"><input type="checkbox" checked></div></div>
+            <div class="list-row"><div class="tx"><b>Alert keamanan IT</b><small>Severity tinggi & kritis</small></div><div class="rt"><input type="checkbox" checked></div></div>
+          </div>
+        `, {pad:'tight'})}
+      `,
+      after: () => {}
+    },
+    integrations: {
+      title:'Integrasi', icon:'🔗',
+      render: () => `
+        ${card('Status Integrasi Sistem', `
+          <div class="list">
+            <div class="list-row"><div class="ic">🔗</div><div class="tx"><b>SAP ERP</b><small>Sinkron master data & jurnal</small></div><div class="rt">${badge('Terhubung','ok')}</div></div>
+            <div class="list-row"><div class="ic">📡</div><div class="tx"><b>SCADA / DCS Pabrik</b><small>Data sensor real-time</small></div><div class="rt">${badge('Terhubung','ok')}</div></div>
+            <div class="list-row"><div class="ic">🛰️</div><div class="tx"><b>GPS Armada</b><small>Pelacakan 128 unit truk</small></div><div class="rt">${badge('Terhubung','ok')}</div></div>
+            <div class="list-row"><div class="ic">💳</div><div class="tx"><b>Payment Gateway</b><small>Virtual account & e-wallet</small></div><div class="rt">${badge('Terhubung','ok')}</div></div>
+            <div class="list-row"><div class="ic">📊</div><div class="tx"><b>Power BI</b><small>Data warehouse analitik</small></div><div class="rt">${badge('Sync 5 mnt','warn')}</div></div>
+            <div class="list-row"><div class="ic">📧</div><div class="tx"><b>Email O365</b><small>Outlook & calendaring</small></div><div class="rt">${badge('Terhubung','ok')}</div></div>
+          </div>
+        `, {pad:'tight'})}
+      `,
+      after: () => {}
+    },
+    log: {
+      title:'Log Sistem', icon:'📜',
+      render: () => `
+        ${card('Log Aktivitas Sistem', table(
+          ['Waktu','Pengguna','Aksi','Modul','IP'],
+          [
+            ['25 Okt 09:42','Budi Santoso','Update target produksi Lini-1','Produksi','10.20.1.14'],
+            ['25 Okt 09:18','Rina Marlina','Input laporan insiden near-miss','K3','10.20.1.32'],
+            ['25 Okt 08:55','Agus Setiawan','Approve PO bahan baku #PO-8842','Logistik','10.20.2.08'],
+            ['25 Okt 08:30','Dewi Lestari','Export laporan penjualan regional','Marketing','10.20.3.21'],
+            ['25 Okt 07:55','Sistem','Backup harian berhasil','Sistem','—'],
+            ['25 Okt 07:42','Hendra Wijaya','Update work order #WO-2241','Produksi','10.20.1.86'],
+            ['25 Okt 07:18','Maya Anggraini','Input jurnal penyesuaian','Keuangan','10.20.4.12'],
+            ['25 Okt 06:42','Andi Wijaya','Input order penjualan','Marketing','10.20.3.44'],
+            ['25 Okt 06:00','Sistem','Email summary terkirim','Sistem','—'],
+            ['25 Okt 05:00','Sistem','Sinkronisasi SAP selesai','Sistem','—']
+          ]
+        ), {pad:'flush'})}
+      `,
+      after: () => {}
+    }
+  }
+});
+
+/* =========================================================
+   ROUTER & RENDER
+   ========================================================= */
+const NAV_ORDER = ['Utama','Divisi','Sistem'];
+
+function buildNav(){
+  const nav = $('#nav');
+  nav.innerHTML = NAV_ORDER.map(group => {
+    const items = Object.entries(PAGES).filter(([,p]) => p.group === group);
+    if(!items.length) return '';
+    return `<div class="nav-group"><span>${group}</span>
+      ${items.map(([id,p]) => `
+        <button class="nav-item" data-page="${id}">
+          <i>${p.icon}</i>${p.title}
+          ${id==='k3' ? '<span class="tag">1</span>' : ''}
+        </button>`).join('')}
+    </div>`;
+  }).join('');
+  nav.querySelectorAll('.nav-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      navigate(btn.dataset.page);
+      $('#sidebar').classList.remove('open');
+    });
+  });
+}
+function updateNavActive(){
+  $$('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.page === currentPage));
+}
+
+let currentPage = 'dashboard';
+let currentSub = 'overview';
+
+function renderSubNav(pageId){
+  const p = PAGES[pageId];
+  if(!p.subs) return '';
+  const active = SUB_STATE[pageId] || Object.keys(p.subs)[0];
+  return `<div class="subnav">${Object.entries(p.subs).map(([id,s])=>`
+    <button class="subnav-item ${id===active?'active':''}" data-sub="${id}">
+      ${s.icon?`<span class="sn-ic">${s.icon}</span>`:''}${s.title}
+    </button>
+  `).join('')}</div>`;
+}
+
+function navigate(id, subId){
+  if(!PAGES[id]) return;
+  currentPage = id;
+  const p = PAGES[id];
+
+  $('#pTitle').textContent = p.title;
+  $('#pSub').textContent = p.sub;
+
+  // Tentukan sub aktif
+  if(!SUB_STATE[id]) SUB_STATE[id] = Object.keys(p.subs)[0];
+  if(subId) SUB_STATE[id] = subId;
+  const activeSubId = SUB_STATE[id];
+  const sub = p.subs[activeSubId];
+
+  const content = $('#content');
+  content.innerHTML = renderSubNav(id) + `<div id="subcontent">${sub.render()}</div>`;
+
+  // Attach subnav listeners
+  content.querySelectorAll('.subnav-item').forEach(btn => {
+    btn.addEventListener('click', () => navigate(id, btn.dataset.sub));
+  });
+
+  content.classList.remove('fade');
+  void content.offsetWidth;
+  content.classList.add('fade');
+
+  updateNavActive();
+  window.scrollTo({top:0, behavior:'smooth'});
+
+  requestAnimationFrame(() => { try{ sub.after && sub.after(); }catch(e){ console.warn(e); } });
+}
+
+/* Resize → redraw chart sub aktif */
+let rz;
+window.addEventListener('resize', () => {
+  clearTimeout(rz);
+  rz = setTimeout(() => {
+    try{
+      const p = PAGES[currentPage];
+      const sub = p.subs[SUB_STATE[currentPage]];
+      sub.after && sub.after();
+    }catch(e){}
+  }, 180);
+});
+
+$('#hamb').addEventListener('click', () => $('#sidebar').classList.toggle('open'));
+
+/* Init */
+buildNav();
+navigate('dashboard');
+</script>
+</body>
+</html>
