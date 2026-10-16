@@ -18,7 +18,7 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             position: relative; box-sizing: border-box; color: #000; overflow: hidden;
         }
-        .font-serif-cert { font-family: 'Times New Roman', Times, serif; }
+        .font-serif-cert { font-family: 'Arial', Helvetica, sans-serif; }
         .editable-input {
             border: none; background: transparent; width: 100%;
             padding: 0; font-family: inherit; font-size: inherit;
@@ -34,22 +34,145 @@
             outline: none; display: inline-block; white-space: nowrap; min-width: 1em;
         }
         .nib-inline-wrapper .nib-value:focus { outline: 1px dashed #3b82f6; background: rgba(243, 244, 246, 0.8); }
-        .signature-block { display: inline-block; text-align: left; width: 220px; }
+
+        /* ====== CATATAN PENDAFTARAN — HANGING INDENT ====== */
+        .catatan-list {
+            font-size: 12px;
+            line-height: 1.4;
+            width: 100%;
+            padding: 0;
+            margin: 0;
+            border: none;
+            background: transparent;
+            color: inherit;
+            font-family: inherit;
+        }
+        .catatan-list .catatan-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 3px;
+        }
+        .catatan-list .catatan-num {
+            flex: 0 0 auto;
+            min-width: 1.5em;
+            padding-right: 0.15em;
+            white-space: nowrap;
+            font-weight: normal;
+        }
+        .catatan-list .catatan-text {
+            flex: 1 1 auto;
+            text-align: justify;
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+
+        /* ====== SIGNATURE WRAPPER — POSISI KANAN-TENGAH ====== */
+        .signature-wrapper {
+            display: flex;
+            justify-content: flex-end;
+            padding-right: 20mm;
+            margin-bottom: 18px;
+        }
+        .signature-block {
+            display: inline-block;
+            text-align: center;
+            width: 320px;           /* ← diperlebar dari 280px agar NIP punya ruang kanan */
+            max-width: 100%;
+        }
+        .signature-block .kepala-kantor-line1 {
+            font-weight: bold;
+            font-size: 14px;
+            line-height: 1.4;
+            text-align: center;
+            white-space: nowrap;
+            width: 100%;
+        }
+        .signature-block .kepala-kantor-line2 {
+            font-weight: bold;
+            font-size: 14px;
+            line-height: 1.4;
+            text-align: center;
+            border: none; background: transparent;
+            font-family: inherit;
+            color: inherit;
+            padding: 0; margin: 0;
+            width: 100%;
+            display: block;
+            outline: none;
+        }
+        .signature-block .kepala-kantor-line2:focus {
+            outline: 1px dashed #3b82f6;
+            background: rgba(243, 244, 246, 0.8);
+        }
+        .signature-img-box {
+            width: 100%;
+            max-width: 260px;
+            height: 75px;
+            margin: 4px auto 4px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+        }
+        .signature-img-box img {
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+            display: block;
+        }
+        .signature-img-box.empty::after {
+            content: '✍️ (klik untuk upload tanda tangan)';
+            font-size: 9px;
+            color: #9ca3af;
+            font-style: italic;
+            border: 1px dashed #d1d5db;
+            border-radius: 4px;
+            padding: 24px 8px;
+            width: 100%;
+            text-align: center;
+        }
         .signature-block .name-input {
-            font-weight: bold; font-size: 1.125rem; line-height: 1.4;
-            border: none; background: transparent; width: 100%;
-            padding: 0; margin: 0 0 2px 0; font-family: inherit;
-            color: inherit; display: block; text-align: left;
+            font-weight: bold;
+            font-size: 14px;
+            line-height: 1.4;
+            border: none;
+            background: transparent;
+            width: 100%;
+            padding: 0;
+            margin: 0 0 2px 0;
+            font-family: inherit;
+            color: inherit;
+            display: block;
+            text-align: center;
+            white-space: nowrap;
         }
         .signature-block .name-input:focus { outline: 1px dashed #3b82f6; background: rgba(243, 244, 246, 0.8); }
-        .nip-wrapper { display: flex; justify-content: flex-start; align-items: baseline; gap: 0; white-space: nowrap; width: 100%; }
-        .nip-wrapper .nip-label { margin: 0; padding: 0; white-space: nowrap; }
+
+        /* ====== NIP — DIGESER LEBIH KE KANAN ====== */
+        .nip-wrapper {
+            display: flex;
+            justify-content: flex-end;
+            align-items: baseline;
+            gap: 0.25em;
+            white-space: nowrap;
+            width: 100%;
+            font-weight: bold;
+            text-align: center;
+            padding-right: 0;
+            margin-right: -40px;
+        }
+        .nip-wrapper .nip-label { margin: 0; padding: 0; white-space: nowrap; font-weight: bold; }
         .nip-wrapper .nip-value {
             border: none; background: transparent; font-family: inherit;
             font-size: inherit; color: inherit; padding: 0; margin: 0;
-            flex: 1; text-align: left; outline: none; min-width: 0;
+            text-align: left; outline: none;
+            font-weight: bold;
+            width: auto;
         }
         .nip-wrapper .nip-value:focus { outline: 1px dashed #3b82f6; background: rgba(243, 244, 246, 0.8); }
+
         #map { height: 320px; width: 100%; border: 1px solid #ccc; z-index: 1; background: #ffffff; }
 
         .leaflet-tile {
@@ -135,7 +258,7 @@
             position: relative;
             height: 10px;
             margin-top: 2px;
-            font-family: 'Times New Roman', Times, serif;
+            font-family: 'Arial', Helvetica, sans-serif;
             font-size: 9px;
             font-weight: bold;
             color: #000;
@@ -193,9 +316,11 @@
                 color-adjust: exact !important;
             }
             .editable-input, .nip-wrapper .nip-value, .signature-block .name-input,
-            .footer-edit, .nib-inline-wrapper .nib-value, .judul-sertifikat {
+            .footer-edit, .nib-inline-wrapper .nib-value, .judul-sertifikat,
+            .signature-block .kepala-kantor-line2 {
                 border: none !important; background: transparent !important; outline: none !important;
             }
+            .signature-img-box.empty::after { display: none !important; }
             #map, .leaflet-container {
                 width: 100% !important; height: 320px !important;
                 background: #ffffff !important; border: 1px solid #ccc !important;
@@ -284,21 +409,40 @@
                 <label class="block font-semibold">NIB-El (Manual Override)</label>
                 <input type="text" id="inputNIB" class="w-full border p-2 rounded font-mono" value="32.15.000004207.0">
             </div>
-            <div>
-                <label class="block font-semibold">Kepala Kantor</label>
-                <input type="text" id="inputKepalaKantor" class="w-full border p-2 rounded" value="Kepala Kantor Pertanahan Kabupaten Karawang">
+
+            <!-- ============ DATA PEJABAT ============ -->
+            <div class="bg-slate-50 p-3 rounded border border-slate-200">
+                <h3 class="font-bold text-slate-800 mb-2">👤 Data Pejabat Penandatangan</h3>
+                <label class="block font-semibold text-xs mb-1">Baris 1 (tetap)</label>
+                <input type="text" class="w-full border p-2 rounded bg-gray-100 text-gray-500" value="Kepala Kantor Pertanahan" readonly>
+                <label class="block font-semibold text-xs mb-1 mt-2">Baris 2 (editable)</label>
+                <input type="text" id="inputKepalaKantor" class="w-full border p-2 rounded font-bold" value="Kabupaten Karawang">
+                <label class="block font-semibold text-xs mb-1 mt-2">Nama Pejabat (bold)</label>
+                <input type="text" id="inputNamaPejabat" class="w-full border p-2 rounded font-bold" value="Manase Daniel Binsar, S.T.">
+                <label class="block font-semibold text-xs mb-1 mt-2">NIP Pejabat (bold)</label>
+                <input type="text" id="inputNIP" class="w-full border p-2 rounded font-bold" value="198706072009121001">
             </div>
-            <div>
-                <label class="block font-semibold">Nama Pejabat</label>
-                <input type="text" id="inputNamaPejabat" class="w-full border p-2 rounded" value="Manase Daniel Binsar, S.T.">
+
+            <!-- ============ UPLOAD TANDA TANGAN ============ -->
+            <div class="bg-indigo-50 p-3 rounded border border-indigo-200">
+                <h3 class="font-bold text-indigo-800 mb-2">✍️ Tanda Tangan Pejabat</h3>
+                <label class="block font-semibold text-xs mb-1">Upload Gambar Tanda Tangan (PNG/JPG)</label>
+                <input type="file" id="inputSignatureFile" accept="image/*"
+                       class="w-full text-xs border p-1.5 rounded bg-white mb-2">
+                <div class="flex gap-2">
+                    <button onclick="clearSignature()" type="button"
+                            class="flex-1 bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded text-xs font-semibold">
+                        🗑️ Hapus Tanda Tangan
+                    </button>
+                </div>
+                <p class="text-[10px] text-gray-600 mt-2 italic">
+                    Tanda tangan akan tampil di atas nama pejabat pada sertifikat.
+                </p>
             </div>
-            <div>
-                <label class="block font-semibold">NIP Pejabat</label>
-                <input type="text" id="inputNIP" class="w-full border p-2 rounded" value="198706072009121001">
-            </div>
+
             <div class="bg-yellow-50 p-3 rounded border border-yellow-200">
                 <h3 class="font-bold text-yellow-800 mb-2">✍️ Teks Verifikasi (Footer)</h3>
-                <input type="text" id="inputTeksVerifikasi" class="w-full border p-2 rounded" value="Telah diperiksa oleh Bagyo Sangguru tanggal 14 Desember 2023">
+                <input type="text" id="inputTeksVerifikasi" class="w-full border p-2 rounded" value="Telah diperiksa oleh Bagyo Sangguru tanggal 1 Oktober 2026">
             </div>
 
             <div class="bg-pink-50 p-3 rounded border border-pink-200">
@@ -310,12 +454,9 @@
             <hr class="my-4">
             <h3 class="font-bold text-blue-800">Bidang Tanah (Point 5)</h3>
             <div>
-                <label class="block font-semibold">Lokasi</label>
-                <textarea id="inputLokasi" class="w-full border p-2 rounded" rows="2">RT.001/RW.001 Dusun Krajan Desa Kalangsari Kecamatan R.Dengklok Kabupaten Karawang Provinsi Jawa Barat 41352</textarea>
-            </div>
-            <div>
-                <label class="block font-semibold">Luas (Angka & Huruf)</label>
-                <input type="text" id="inputLuas" class="w-full border p-2 rounded" value="5.614,28 Meter Persegi (lima ribu enam ratus empat belas koma dua puluh delapan meter persegi)">
+                <label class="block font-semibold text-xs mb-1">Kalimat Lengkap Bidang Tanah (satu kesatuan)</label>
+                <textarea id="inputBidangTanah" class="w-full border p-2 rounded" rows="4">Bidang tanah ini terletak di RT.001/RW.001 Dusun Krajan Desa Kalangsari Kecamatan R.Dengklok Kabupaten Karawang Provinsi Jawa Barat 41352 seluas 5.614,28 Meter Persegi (lima ribu enam ratus empat belas koma dua puluh delapan meter persegi)</textarea>
+                <p class="text-[10px] text-gray-500 mt-1 italic">Edit langsung kalimat di atas sesuai kebutuhan — akan tampil utuh di sertifikat.</p>
             </div>
             <hr class="my-4">
             <h3 class="font-bold text-blue-800">Pemegang Hak (Point 6)</h3>
@@ -345,11 +486,11 @@
             <div class="grid grid-cols-2 gap-2">
                 <div>
                     <label class="block font-semibold text-xs mb-1">Tanggal Mulai</label>
-                    <input type="text" id="inputMasaMulai" class="w-full border p-2 rounded" value="15 Maret 2024">
+                    <input type="text" id="inputMasaMulai" class="w-full border p-2 rounded" value="1 Oktober 2026">
                 </div>
                 <div>
                     <label class="block font-semibold text-xs mb-1">Tanggal Berakhir</label>
-                    <input type="text" id="inputMasaBerakhir" class="w-full border p-2 rounded" value="14 Maret 2054">
+                    <input type="text" id="inputMasaBerakhir" class="w-full border p-2 rounded" value="30 September 2056">
                 </div>
             </div>
             <div class="mt-2">
@@ -364,9 +505,9 @@
             <h3 class="font-bold text-blue-800">Catatan Pendaftaran (Point 7)</h3>
             <div>
                 <label class="block font-semibold">Catatan Item 1-3 & 6 (Dasar Hukum & Teknis)</label>
-                <textarea id="inputCatatanBase" class="w-full border p-2 rounded" rows="5">1) Pemberian Hak Pakai berdasarkan Keputusan Kepala Kantor Wilayah Badan Pertanahan Nasional Provinsi Jawa Barat Nomor 27/HP/JABAR/2024 tanggal 15 Maret 2024.
-2) Diterbitkan melalui kegiatan Pendaftaran Tanah Sistematis Lengkap (PTSL) Tahun Anggaran 2024.
-3) Surat Ukur Nomor 00456/Karawang/2024 tanggal 20 Februari 2024 dengan luas 5.614,28 meter persegi.
+                <textarea id="inputCatatanBase" class="w-full border p-2 rounded" rows="5">1) Pemberian Hak Pakai berdasarkan Keputusan Kepala Kantor Wilayah Badan Pertanahan Nasional Provinsi Jawa Barat Nomor 27/HP/JABAR/2026 tanggal 1 Oktober 2026.
+2) Diterbitkan melalui kegiatan Pendaftaran Tanah Sistematis Lengkap (PTSL) Tahun Anggaran 2026.
+3) Surat Ukur Nomor 00456/Karawang/2026 tanggal 15 September 2026 dengan luas 5.614,28 meter persegi.
 4) Wajib didaftarkan peralihan, pembebanan, dan hapusnya hak kepada Kantor Pertanahan Kabupaten Karawang.</textarea>
             </div>
             <hr class="my-4">
@@ -460,10 +601,14 @@
                     <textarea id="outParagrafPembuka" class="editable-input w-full" rows="4" style="text-align: justify; line-height: 1.6;">Hak Pakai ini terdaftar atas nama pemegang hak yang tertera pada PEMEGANG HAK, atas sebagian tanah yang letaknya diuraikan pada bagian BIDANG TANAH, serta batasan dan kewajiban, pembebanan dan pencatatan lainnya yang tertera pada tanda bukti hak ini</textarea>
                 </div>
 
-                <div class="text-right mb-5 pr-16">
-                    <p class="text-sm mb-2"><input type="text" id="outKepalaKantor" class="editable-input text-right" value="Kepala Kantor Pertanahan Kabupaten Karawang"></p>
-                    <br>
+                <!-- ============ BLOK TANDA TANGAN (KANAN-TENGAH) ============ -->
+                <div class="signature-wrapper">
                     <div class="signature-block">
+                        <div class="kepala-kantor-line1">Kepala Kantor Pertanahan</div>
+                        <input type="text" id="outKepalaKantor" class="kepala-kantor-line2" value="Kabupaten Karawang">
+                        <div id="signatureBox" class="signature-img-box empty" onclick="document.getElementById('inputSignatureFile').click()" title="Klik untuk upload tanda tangan">
+                            <img id="outSignatureImg" src="" alt="" style="display:none;">
+                        </div>
                         <input type="text" id="outNamaPejabat" class="name-input" value="Manase Daniel Binsar, S.T.">
                         <div class="nip-wrapper text-sm">
                             <span class="nip-label">NIP.</span>
@@ -471,14 +616,10 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="text-sm mb-4">
                     <h4 class="font-bold mb-1">BIDANG TANAH</h4>
-                    <p class="text-justify">
-                        Bidang tanah ini terletak di
-                        <input type="text" id="outLokasi" class="editable-input mt-1 mb-1" value="RT.001/RW.001 Dusun Krajan Desa Kalangsari Kecamatan R.Dengklok Kabupaten Karawang Provinsi Jawa Barat 41352">
-                        seluas
-                        <input type="text" id="outLuas" class="editable-input inline-input" style="width: 320px;" value="5.614,28 Meter Persegi (lima ribu enam ratus empat belas koma dua puluh delapan meter persegi)">
-                    </p>
+                    <textarea id="outBidangTanah" class="editable-input w-full" rows="4" style="text-align: justify; line-height: 1.5;">Bidang tanah ini terletak di RT.001/RW.001 Dusun Krajan Desa Kalangsari Kecamatan R.Dengklok Kabupaten Karawang Provinsi Jawa Barat 41352 seluas 5.614,28 Meter Persegi (lima ribu enam ratus empat belas koma dua puluh delapan meter persegi)</textarea>
                 </div>
                 <div class="text-sm mb-4">
                     <h4 class="font-bold mb-1">PEMEGANG HAK</h4>
@@ -486,16 +627,12 @@
                 </div>
                 <div class="text-sm mb-4">
                     <h4 class="font-bold mb-1">CATATAN PENDAFTARAN</h4>
-                    <textarea id="outCatatan" class="editable-input w-full" rows="14" style="font-size: 12px; line-height: 1.35;">1) Pemberian Hak Pakai berdasarkan Keputusan Kepala Kantor Wilayah Badan Pertanahan Nasional Provinsi Jawa Barat Nomor 27/HP/JABAR/2024 tanggal 15 Maret 2024.
-2) Diterbitkan melalui kegiatan Pendaftaran Tanah Sistematis Lengkap (PTSL) Tahun Anggaran 2024.
-3) Surat Ukur Nomor 00456/Karawang/2024 tanggal 20 Februari 2024 dengan luas 5.614,28 meter persegi.
-4) Status Tanah Objek: Tanah Negara, berasal dari Tanah Negara yang dikuasai langsung oleh Negara berdasarkan Pasal 33 ayat (3) UUD 1945 dan UU Nomor 5 Tahun 1960 (UUPA).
-5) Masa Berlaku Hak: 30 (tiga puluh) tahun, terhitung mulai tanggal 15 Maret 2024 sampai dengan tanggal 14 Maret 2054; dapat diperpanjang paling lama 20 (dua puluh) tahun dan diperbarui paling lama 30 (tiga puluh) tahun sesuai PP Nomor 18 Tahun 2021.
-6) Wajib didaftarkan peralihan, pembebanan, dan hapusnya hak kepada Kantor Pertanahan Kabupaten Karawang.</textarea>
+                    <!-- CATATAN PENDAFTARAN: sekarang berupa DIV dengan hanging indent -->
+                    <div id="outCatatan" class="catatan-list"></div>
                 </div>
                 <div class="flex justify-between items-end text-[10px] absolute bottom-[15mm] left-[15mm] right-[15mm]">
                     <div style="width: 60%;">
-                        <input type="text" id="outTeksVerifikasiPage1" class="footer-edit" value="Telah diperiksa oleh Bagyo Sangguru tanggal 14 Desember 2023">
+                        <input type="text" id="outTeksVerifikasiPage1" class="footer-edit" value="Telah diperiksa oleh Bagyo Sangguru tanggal 1 Oktober 2026">
                     </div>
                     <div class="text-center"><p>1 dari 2 Halaman</p></div>
                 </div>
@@ -540,7 +677,7 @@
                                  alt="Balai Sertifikat Elektronik"
                                  crossorigin="anonymous">
                         </div>
-                        <input type="text" id="outTeksVerifikasiPage2" class="footer-edit" value="Telah diperiksa oleh Bagyo Sangguru tanggal 14 Desember 2023">
+                        <input type="text" id="outTeksVerifikasiPage2" class="footer-edit" value="Telah diperiksa oleh Bagyo Sangguru tanggal 1 Oktober 2026">
                     </div>
                     <div class="text-center"><p>2 dari 2 Halaman</p></div>
                 </div>
@@ -553,7 +690,6 @@
     </div>
 
     <!-- ==================== SUMBER DATA WILAYAH ==================== -->
-    <!-- File wilayah.js (hasil konversi dari wilayah.sql) harus berada di folder yang sama -->
     <script src="wilayah.js"></script>
 
     <script>
@@ -568,8 +704,13 @@
 
         L.control.zoom({ position: 'topright' }).addTo(map);
 
+        /* ====== SKALA PETA ADAPTIF (berubah otomatis mengikuti zoom) ====== */
         const CheckerScale = L.Control.extend({
-            options: { position: 'bottomleft', maxWidth: 300, segments: 4 },
+            options: {
+                position: 'bottomleft',
+                maxWidth: 300,      // lebar maksimal bar dalam piksel
+                segments: 4
+            },
             onAdd: function(map) {
                 this._map = map;
                 const container = L.DomUtil.create('div', 'leaflet-control-checker-scale');
@@ -584,14 +725,23 @@
             _update: function() {
                 const map = this._map;
                 if (!map) return;
+
                 const y = map.getSize().y / 2;
+
+                // Jarak (meter) yang diwakili oleh lebar maxWidth piksel pada zoom saat ini
                 const maxMeters = map.distance(
                     map.containerPointToLatLng([0, y]),
                     map.containerPointToLatLng([this.options.maxWidth, y])
                 );
-                const niceMeters = this._getRoundNum(maxMeters);
+
+                // Bulatkan ke angka "cantik" terdekat yang <= maxMeters
+                const niceMeters = this._getNiceNumber(maxMeters);
+
+                // Hitung lebar bar proporsional (dalam piksel)
                 const ratio = niceMeters / maxMeters;
                 const width = Math.round(this.options.maxWidth * ratio);
+
+                // Render segmen hitam-putih
                 const segments = this.options.segments;
                 const segWidth = width / segments;
                 let barHtml = '';
@@ -601,17 +751,27 @@
                 }
                 this._bar.style.width = width + 'px';
                 this._bar.innerHTML = barHtml;
+
+                // Label 0 dan nilai meter
                 this._labels.style.width = width + 'px';
                 this._labels.innerHTML = `
                     <span class="checker-label" style="left:0;transform:translateX(0);">0</span>
                     <span class="checker-label" style="left:${width}px;transform:translateX(-100%);">${niceMeters} m</span>
                 `;
             },
-            _getRoundNum: function(num) {
-                const pow10 = Math.pow(10, (Math.floor(num) + '').length - 1);
-                let d = num / pow10;
-                d = d >= 10 ? 10 : d >= 5 ? 5 : d >= 3 ? 3 : d >= 2 ? 2 : 1;
-                return pow10 * d;
+            _getNiceNumber: function(num) {
+                const niceNumbers = [
+                    5, 10, 20, 30, 50,
+                    100, 150, 200, 300, 500,
+                    1000, 1500, 2000, 3000, 5000,
+                    10000, 20000, 50000, 100000
+                ];
+                let best = niceNumbers[0];
+                for (const n of niceNumbers) {
+                    if (n <= num) best = n;
+                    else break;
+                }
+                return best;
             }
         });
         new CheckerScale().addTo(map);
@@ -814,9 +974,12 @@
             }
         }
         function applyLocationToField(addr) {
-            const field = document.getElementById('inputLokasi');
-            field.value = addr; field.dispatchEvent(new Event('input'));
-            showStatus('✅ Field Lokasi diisi', 'success');
+            const field = document.getElementById('inputBidangTanah');
+            if (field) {
+                field.value = `Bidang tanah ini terletak di ${addr} seluas 5.614,28 Meter Persegi (lima ribu enam ratus empat belas koma dua puluh delapan meter persegi)`;
+                field.dispatchEvent(new Event('input'));
+            }
+            showStatus('✅ Field Bidang Tanah diisi', 'success');
         }
         async function doForwardGeocode() {
             const query = document.getElementById('inputSearchAddress').value.trim();
@@ -966,13 +1129,7 @@
         }
 
         /* ============================================================
-           7. DATA WILAYAH — Sumber: wilayah.js
-           ------------------------------------------------------------
-           Struktur kode (dengan titik):
-             Provinsi  : "11"              (2 digit)
-             Kabupaten : "11.01"           (4 digit)
-             Kecamatan : "11.01.01"        (6 digit)
-             Desa      : "11.01.01.2001"   (10 digit)
+           7. DATA WILAYAH
         ============================================================ */
         const LEVEL_DIGITS = { provinsi: 2, kabupaten: 4, kecamatan: 6, desa: 10 };
 
@@ -1126,12 +1283,7 @@
         }
 
         /* ============================================================
-           9. NOMOR URUT OTOMATIS DARI KECAMATAN + DESA
-           ------------------------------------------------------------
-           Format 9 digit: KK DDDD SSS
-             KK   = 2 digit terakhir kode kecamatan
-             DDDD = 4 digit terakhir kode desa
-             SSS  = urutan bidang (dari inputSequence, default 001)
+           9. NOMOR URUT OTOMATIS
         ============================================================ */
         function autoFillNomorUrutFromWilayah() {
             const kecDigits = kodeTerpilih.kecamatan
@@ -1173,8 +1325,17 @@
         }
 
         /* ============================================================
-           11. CATATAN COMPOSE
+           11. CATATAN COMPOSE — render ke DIV dengan hanging indent
         ============================================================ */
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         function composeCatatan() {
             const base = document.getElementById('inputCatatanBase').value.trim();
             const statusTanah = document.getElementById('inputStatusTanah').value;
@@ -1190,7 +1351,16 @@
             baseItems.forEach(item => { const m = item.match(/^(\d+)\)/); if (m && parseInt(m[1]) <= 3) items.push(item); });
             items.push(itemStatus); items.push(itemMasa);
             baseItems.forEach(item => { const m = item.match(/^(\d+)\)/); if (m && parseInt(m[1]) === 4) items.push(item.replace(/^\d+\)/, '6)')); });
-            document.getElementById('outCatatan').value = items.join('\n');
+
+            // Render ke DIV sebagai struktur flex per-item (hanging indent)
+            const outCatatan = document.getElementById('outCatatan');
+            outCatatan.innerHTML = items.map(item => {
+                const m = item.match(/^(\d+)\)\s*([\s\S]*)$/);
+                const num = m ? m[1] + ')' : '';
+                const text = m ? m[2] : item;
+                const textHtml = escapeHtml(text).replace(/\n/g, '<br>');
+                return `<div class="catatan-item"><span class="catatan-num">${num}</span><span class="catatan-text">${textHtml}</span></div>`;
+            }).join('');
         }
         ['inputCatatanBase', 'inputStatusTanah', 'inputStatusTanahKet', 'inputMasaJangka', 'inputMasaMulai', 'inputMasaBerakhir', 'inputMasaKet'].forEach(id => {
             document.getElementById(id).addEventListener('input', composeCatatan);
@@ -1227,25 +1397,22 @@
             selectDesa.innerHTML = '<option value="">-- Pilih Kecamatan dulu --</option>'; selectDesa.disabled = true;
             infoKecamatan.textContent = kode ? `Terpilih: ${e.target.options[e.target.selectedIndex].text}` : '-';
             infoDesa.textContent = '-';
-            autoFillNomorUrutFromWilayah();   /* ← auto-isi 2 digit pertama */
+            autoFillNomorUrutFromWilayah();
             if (kode) loadDesa(kode);
         });
         selectDesa.addEventListener('change', (e) => {
             kodeTerpilih.desa = e.target.value;
             infoDesa.textContent = e.target.value ? `Terpilih: ${e.target.options[e.target.selectedIndex].text}` : '-';
-            autoFillNomorUrutFromWilayah();   /* ← auto-isi 4 digit berikutnya */
+            autoFillNomorUrutFromWilayah();
         });
 
-        /* Nomor urut manual — sanitasi input */
         inputNomorUrut.addEventListener('input', (e) => {
             e.target.value = e.target.value.replace(/\D/g, '').slice(0, 9);
             updateNIBPreview();
         });
 
-        /* Sequence input — sync ke nomor urut */
         inputSequence.addEventListener('input', (e) => {
             e.target.value = e.target.value.replace(/\D/g, '').slice(0, 3);
-            /* Update hanya 3 digit terakhir dari nomor urut */
             const current = (inputNomorUrut.value || '').replace(/\D/g, '').padStart(9, '0').slice(-9);
             const prefix = current.slice(0, 6);
             const seq = (e.target.value || '001').padStart(3, '0').slice(-3);
@@ -1267,8 +1434,7 @@
             { input: 'inputKepalaKantor', output: 'outKepalaKantor' },
             { input: 'inputNamaPejabat', output: 'outNamaPejabat' },
             { input: 'inputNIP', output: 'outNIP' },
-            { input: 'inputLokasi', output: 'outLokasi' },
-            { input: 'inputLuas', output: 'outLuas' },
+            { input: 'inputBidangTanah', output: 'outBidangTanah' },
             { input: 'inputPemegangHak', output: 'outPemegangHak' }
         ];
         bindings.forEach(bind => {
@@ -1282,6 +1448,38 @@
             setVal(inputEl.value);
             inputEl.addEventListener('input', (e) => setVal(e.target.value));
         });
+
+        /* ============================================================
+           13b. TANDA TANGAN UPLOAD
+        ============================================================ */
+        const inputSignatureFile = document.getElementById('inputSignatureFile');
+        const signatureBox = document.getElementById('signatureBox');
+        const outSignatureImg = document.getElementById('outSignatureImg');
+
+        inputSignatureFile.addEventListener('change', (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) {
+                alert('File harus berupa gambar (PNG/JPG).');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                outSignatureImg.src = ev.target.result;
+                outSignatureImg.style.display = 'block';
+                signatureBox.classList.remove('empty');
+                showStatus('✅ Tanda tangan berhasil dimuat', 'success');
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function clearSignature() {
+            outSignatureImg.src = '';
+            outSignatureImg.style.display = 'none';
+            signatureBox.classList.add('empty');
+            inputSignatureFile.value = '';
+            showStatus('🗑️ Tanda tangan dihapus', 'info');
+        }
 
         /* ============================================================
            14. BINDING VERIFIKASI
@@ -1316,7 +1514,7 @@
                 div.style.whiteSpace = 'pre-wrap';
                 div.style.wordBreak = 'break-word';
                 div.style.overflowWrap = 'break-word';
-                div.style.fontFamily = "'Times New Roman', Times, serif";
+                div.style.fontFamily = "Arial, Helvetica, sans-serif";
                 div.style.fontSize = ta.style.fontSize || cs.fontSize;
                 div.style.lineHeight = (ta.style.lineHeight && ta.style.lineHeight !== 'normal') ? ta.style.lineHeight : cs.lineHeight;
                 div.style.color = '#000';
@@ -1332,7 +1530,7 @@
                 const span = document.createElement('span');
                 span.className = inp.className;
                 span.textContent = inp.value;
-                span.style.fontFamily = "'Times New Roman', Times, serif";
+                span.style.fontFamily = "Arial, Helvetica, sans-serif";
                 span.style.fontSize = inp.style.fontSize || cs.fontSize;
                 span.style.fontWeight = cs.fontWeight;
                 span.style.fontStyle = cs.fontStyle;
@@ -1341,12 +1539,13 @@
                 span.style.border = 'none'; span.style.background = 'transparent';
                 span.style.whiteSpace = 'pre-wrap'; span.style.overflowWrap = 'break-word';
                 if (inp.classList.contains('nip-value')) {
-                    span.style.flex = '1'; span.style.minWidth = '0';
+                    span.style.width = 'auto';
                 } else if (inp.classList.contains('inline-input')) {
                     span.style.display = 'inline-block';
                     span.style.width = inp.style.width || 'auto';
                 } else if (inp.classList.contains('editable-input') || inp.classList.contains('name-input') ||
-                           inp.classList.contains('judul-sertifikat') || inp.classList.contains('footer-edit')) {
+                           inp.classList.contains('judul-sertifikat') || inp.classList.contains('footer-edit') ||
+                           inp.classList.contains('kepala-kantor-line2')) {
                     span.style.display = 'block'; span.style.width = '100%';
                 } else {
                     span.style.display = 'inline-block';
