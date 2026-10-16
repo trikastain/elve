@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Sertifikat Elektronik - F4</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+    <style>
+        body { background-color: #f3f4f6; font-family: 'Arial', sans-serif; }
+        .f4-page {
+            width: 215mm; height: 330mm; padding: 15mm;
+            margin: 15px auto; background: #ffffff;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative; box-sizing: border-box; color: #000; overflow: hidden;
+        }
+        .font-serif-cert { font-family: 'Times New Roman', Times, serif; }
+        .editable-input {
+            border: none; background: transparent; width: 100%;
+            padding: 0; font-family: inherit; font-size: inherit;
+            color: inherit; resize: none; line-height: 1.5; display: block;
+        }
+        .editable-input:focus { outline: 1px dashed #3b82f6; background: rgba(243, 244, 246, 0.8); }
+        .inline-input { display: inline-block; width: auto; }
+        .nib-inline-wrapper { display: flex; justify-content: center; align-items: baseline; gap: 0.3em; }
+        .nib-inline-wrapper .nib-label { font-weight: bold; font-size: 1.125rem; white-space: nowrap; }
+        .nib-inline-wrapper .nib-value {
+            font-family: inherit; font-size: 1.125rem; font-weight: bold;
+            color: inherit; padding: 0; margin: 0;
+            outline: none; display: inline-block; white-space: nowrap; min-width: 1em;
+        }
+        .nib-inline-wrapper .nib-value:focus { outline: 1px dashed #3b82f6; background: rgba(243, 244, 246, 0.8); }
+        .signature-block { display: inline-block; text-align: left; width: 220px; }
+        .signature-block .name-input {
+            font-weight: bold; font-size: 1.125rem; line-height: 1.4;
+            border: none; background: transparent; width: 100%;
+            padding: 0; margin: 0 0 2px 0; font-family: inherit;
+            color: inherit; display: block; text-align: left;
+        }
+        .signature-block .name-input:focus { outline: 1px dashed #3b82f6; background: rgba(243, 244, 246, 0.8); }
+        .nip-wrapper { display: flex; justify-content: flex-start; align-items: baseline; gap: 0; white-space: nowrap; width: 100%; }
+        .nip-wrapper .nip-label { margin: 0; padding: 0; white-space: nowrap; }
+        .nip-wrapper .nip-value {
+            border: none; background: transparent; font-family: inherit;
+            font-size: inherit; color: inherit; padding: 0; margin: 0;
+            flex: 1; text-align: left; outline: none; min-width: 0;
+        }
+        .nip-wrapper .nip-value:focus { outline: 1px dashed #3b82f6; background: rgba(243, 244, 246, 0.8); }
+        #map { height: 320px; width: 100%; border: 1px solid #ccc; z-index: 1; background: #ffffff; }
+
+        /* ============================================================
+           EFEK HITAM-PUTIH PADA TILE ESRI
+           Menggunakan CSS filter grayscale pada setiap tile.
+           Tetap pakai Esri (tanpa API key), hanya visualnya monokrom.
+        ============================================================ */
+        .leaflet-tile {
+            filter: grayscale(100%) contrast(1.05) brightness(1.02);
+        }
+
+        .qr-container { width: 60px; height: 60px; }
+        .qr-container img { width: 60px !important; height: 60px !important; display: block; }
+        .select-wilayah {
+            width: 100%; padding: 6px 8px; border: 1px solid #d1d5db;
+            border-radius: 6px; font-size: 12px; background: white;
+        }
+        .select-wilayah:disabled { background: #f3f4f6; color: #9ca3af; cursor: not-allowed; }
+        .footer-edit {
+            border: none; background: transparent;
+            font-family: inherit; font-size: 10px; color: inherit;
+            padding: 0; width: 100%;
+        }
+        .footer-edit:focus { outline: 1px dashed #3b82f6; background: rgba(243, 244, 246, 0.8); }
+        .judul-sertifikat {
+            border: none; background: transparent;
+            font-family: inherit; font-weight: bold;
+            font-size: 1.5rem; text-align: center;
+            color: inherit; padding: 0; width: 100%;
+            text-transform: uppercase;
+        }
+        .judul-sertifikat:focus { outline: 1px dashed #3b82f6; background: rgba(243, 244, 246, 0.8); }
+
+        .logo-bsre-box {
+            display: inline-block;
+            border: 2px solid #000000;
+            padding: 4px 6px;
+            margin-bottom: 8px;
+            background: #ffffff;
+            line-height: 0;
+        }
+        .logo-bsre-box img {
+            height: 36px;
+            width: auto;
+            display: block;
+        }
+
+        /* PANAH UTARA */
+        .north-arrow {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            z-index: 1000;
+            pointer-events: none;
+            line-height: 0;
+        }
+        .north-arrow svg {
+            width: 22px;
+            height: 36px;
+            display: block;
+            filter: drop-shadow(0 0 1.5px rgba(255, 255, 255, 0.9));
+        }
+        .north-arrow svg polygon {
+            fill: #000000;
+        }
+
+        /* SCALE BAR */
+        .leaflet-control-checker-scale {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            margin: 0 0 8px 10px !important;
+            padding: 0 !important;
+            line-height: 1 !important;
+            pointer-events: none;
+        }
+        .checker-scale-bar {
+            display: flex;
+            height: 3px;
+            border: 1px solid #000;
+            background: #ffffff;
+            box-sizing: content-box;
+            box-shadow: 0 0 3px rgba(255,255,255,0.95), 0 0 3px rgba(255,255,255,0.95);
+        }
+        .checker-seg {
+            height: 100%;
+            box-sizing: border-box;
+        }
+        .checker-scale-labels {
+            position: relative;
+            height: 10px;
+            margin-top: 2px;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 9px;
+            font-weight: bold;
+            color: #000;
+            text-shadow:
+                0 0 2px #ffffff, 0 0 2px #ffffff, 0 0 2px #ffffff,
+                0 0 3px #ffffff, 0 0 3px #ffffff;
+        }
+        .checker-label,
+        .checker-unit {
+            position: absolute;
+            top: 0;
+            white-space: nowrap;
+        }
+
+        /* PRINT CSS */
+        @media print {
+            @page { size: 215mm 330mm; margin: 0; }
+            html, body {
+                background: #ffffff !important; margin: 0 !important; padding: 0 !important;
+                display: block !important; width: 100% !important; height: auto !important;
+                overflow: visible !important;
+            }
+            body > div {
+                width: 100% !important; max-width: 100% !important; min-width: 0 !important;
+                display: block !important; padding: 0 !important; margin: 0 !important;
+                height: auto !important; max-height: none !important;
+                overflow: visible !important; box-shadow: none !important;
+                border-radius: 0 !important; background: transparent !important; border: none !important;
+            }
+            .no-print { display: none !important; }
+            #document-preview { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .f4-page {
+                width: 215mm !important; height: 330mm !important; margin: 0 !important;
+                padding: 15mm !important; box-shadow: none !important; border-radius: 0 !important;
+                background: #ffffff !important; page-break-after: always; break-after: page;
+                page-break-inside: avoid; break-inside: avoid; overflow: hidden !important;
+                position: relative !important;
+            }
+            .f4-page:last-child, .f4-page:last-of-type { page-break-after: auto; break-after: auto; }
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+            .editable-input, .nip-wrapper .nip-value, .signature-block .name-input,
+            .footer-edit, .nib-inline-wrapper .nib-value, .judul-sertifikat {
+                border: none !important; background: transparent !important; outline: none !important;
+            }
+            #map, .leaflet-container {
+                width: 100% !important; height: 320px !important;
+                background: #ffffff !important; border: 1px solid #ccc !important;
+            }
+            .leaflet-control-zoom { display: block !important; }
+            .north-arrow { display: block !important; }
+            .leaflet-control-checker-scale { display: block !important; }
+
+            /* Pastikan filter grayscale tetap aktif saat print */
+            .leaflet-tile {
+                filter: grayscale(100%) contrast(1.05) brightness(1.02) !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 flex flex-col lg:flex-row gap-6">
+
+    <!-- ==================== PANEL KONTROL ==================== -->
+    <div class="w-full lg:w-1/3 bg-white p-6 rounded-lg shadow-lg h-screen overflow-y-auto no-print">
+        <h2 class="text-xl font-bold mb-4 text-blue-800">Pengaturan Data Sertifikat</h2>
+        <div class="space-y-4 text-sm">
+            <div class="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                <h3 class="font-bold text-blue-800 mb-2">🗺️ Kode Wilayah & NIB-El</h3>
+                <label class="block font-semibold text-xs mb-1">Provinsi <span class="text-gray-500">(digit 1-2 NIB)</span></label>
+                <select id="selectProvinsi" class="select-wilayah mb-1"><option value="">⏳ Memuat Provinsi...</option></select>
+                <p id="infoProvinsi" class="text-[10px] text-gray-600 mb-2 italic">Pilih provinsi terlebih dahulu</p>
+                <label class="block font-semibold text-xs mb-1">Kabupaten/Kota <span class="text-gray-500">(digit 3-4 NIB)</span></label>
+                <select id="selectKabupaten" class="select-wilayah mb-1" disabled><option value="">-- Pilih Provinsi dulu --</option></select>
+                <p id="infoKabupaten" class="text-[10px] text-gray-600 mb-2 italic">-</p>
+                <label class="block font-semibold text-xs mb-1">Kecamatan <span class="text-gray-400">(info wilayah)</span></label>
+                <select id="selectKecamatan" class="select-wilayah mb-1" disabled><option value="">-- Pilih Kabupaten/Kota dulu --</option></select>
+                <p id="infoKecamatan" class="text-[10px] text-gray-600 mb-2 italic">-</p>
+                <label class="block font-semibold text-xs mb-1">Desa/Kelurahan <span class="text-gray-400">(info wilayah)</span></label>
+                <select id="selectDesa" class="select-wilayah mb-1" disabled><option value="">-- Pilih Kecamatan dulu --</option></select>
+                <p id="infoDesa" class="text-[10px] text-gray-600 mb-2 italic">-</p>
+                <hr class="my-2 border-blue-200">
+                <label class="block font-semibold text-xs mb-1">Nomor Urut Bidang Tanah <span class="text-gray-500">(digit 5-13, 9 digit)</span></label>
+                <input type="text" id="inputNomorUrut" class="select-wilayah mb-2 font-mono" maxlength="9" value="000004207">
+                <label class="block font-semibold text-xs mb-1">Indeks Letak Bidang Tanah <span class="text-gray-500">(digit 14)</span></label>
+                <select id="selectIndeksLetak" class="select-wilayah mb-2">
+                    <option value="0" selected>0 - Bidang tanah terletak di permukaan bumi</option>
+                    <option value="1">1 - Ruang atas tanah</option>
+                    <option value="2">2 - Ruang bawah tanah</option>
+                    <option value="3">3 - Satuan rumah susun</option>
+                    <option value="4">4 - Hak di atas hak pada bidang permukaan tanah</option>
+                    <option value="5">5 - Hak di atas hak pada ruang atas tanah</option>
+                    <option value="6">6 - Hak di atas hak pada ruang bawah tanah</option>
+                </select>
+                <div class="mt-2 p-2 bg-white rounded border border-blue-300">
+                    <p class="text-xs text-gray-600">Kode NIB-El (14 digit):</p>
+                    <p id="nibPreview" class="font-bold text-blue-800 text-base tracking-wider">--</p>
+                    <p class="text-[10px] text-gray-500 mt-1 font-mono">
+                        <span id="nibStructProv" class="inline-block px-1 bg-yellow-100 rounded">--</span>.
+                        <span id="nibStructKab" class="inline-block px-1 bg-green-100 rounded">--</span>.
+                        <span id="nibStructUrut" class="inline-block px-1 bg-blue-100 rounded">--</span>.
+                        <span id="nibStructIdx" class="inline-block px-1 bg-red-100 rounded">--</span>
+                    </p>
+                </div>
+            </div>
+            <div>
+                <label class="block font-semibold">Edisi & Kode</label>
+                <input type="text" id="inputEdisi" class="w-full border p-2 rounded" value="Edisi 1 | Pemberian Hak">
+                <input type="text" id="inputKodeEdisi" class="w-full border p-2 rounded mt-1" value="P024K7">
+            </div>
+            <div>
+                <label class="block font-semibold">Judul Sertifikat</label>
+                <input type="text" id="inputJudulSertifikat" class="w-full border p-2 rounded" value="SERTIFIKAT HAK PAKAI">
+            </div>
+            <div>
+                <label class="block font-semibold">NIB-El (Manual Override)</label>
+                <input type="text" id="inputNIB" class="w-full border p-2 rounded font-mono" value="65.04.000004207.0">
+            </div>
+            <div>
+                <label class="block font-semibold">Kepala Kantor</label>
+                <input type="text" id="inputKepalaKantor" class="w-full border p-2 rounded" value="Kepala Kantor Pertanahan Kabupaten Tana Tidung">
+            </div>
+            <div>
+                <label class="block font-semibold">Nama Pejabat</label>
+                <input type="text" id="inputNamaPejabat" class="w-full border p-2 rounded" value="Priyo Anandito">
+            </div>
+            <div>
+                <label class="block font-semibold">NIP Pejabat</label>
+                <input type="text" id="inputNIP" class="w-full border p-2 rounded" value="197008101991031004">
+            </div>
+            <div class="bg-yellow-50 p-3 rounded border border-yellow-200">
+                <h3 class="font-bold text-yellow-800 mb-2">✍️ Teks Verifikasi (Footer)</h3>
+                <input type="text" id="inputTeksVerifikasi" class="w-full border p-2 rounded" value="Telah diperiksa oleh Bagyo Sangguru tanggal 14 Desember 2023">
+            </div>
+
+            <div class="bg-pink-50 p-3 rounded border border-pink-200">
+                <h3 class="font-bold text-pink-800 mb-2">📝 Paragraf Pembuka (Halaman 1)</h3>
+                <label class="block font-semibold text-xs mb-1">Teks paragraf di bawah judul</label>
+                <textarea id="inputParagrafPembuka" class="w-full border p-2 rounded" rows="4">Hak Pakai ini terdaftar atas nama pemegang hak yang tertera pada PEMEGANG HAK, atas sebagian tanah yang letaknya diuraikan pada bagian BIDANG TANAH, serta batasan dan kewajiban, pembebanan dan pencatatan lainnya yang tertera pada tanda bukti hak ini</textarea>
+            </div>
+
+            <hr class="my-4">
+            <h3 class="font-bold text-blue-800">Bidang Tanah (Point 5)</h3>
+            <div>
+                <label class="block font-semibold">Lokasi</label>
+                <textarea id="inputLokasi" class="w-full border p-2 rounded" rows="2">Desa Bebatu Kecamatan Sesayap Hilir Kabupaten Tana Tidung Provinsi Kalimantan Utara</textarea>
+            </div>
+            <div>
+                <label class="block font-semibold">Luas (Angka & Huruf)</label>
+                <input type="text" id="inputLuas" class="w-full border p-2 rounded" value="3.704 Hektar (tiga ribu tujuh ratus empat hektar)">
+            </div>
+            <hr class="my-4">
+            <h3 class="font-bold text-blue-800">Pemegang Hak (Point 6)</h3>
+            <div>
+                <label class="block font-semibold">Data Pemegang Hak</label>
+                <textarea id="inputPemegangHak" class="w-full border p-2 rounded" rows="3">PT KARAK UNGOL BARA - Akta Pendirian Nomor 27 tanggal 12 Januari 2018 - 1 bagian (penuh)</textarea>
+            </div>
+            <hr class="my-4">
+            <h3 class="font-bold text-blue-800">Status Tanah Objek (masuk ke Catatan)</h3>
+            <div>
+                <label class="block font-semibold text-xs mb-1">Asal Tanah</label>
+                <select id="inputStatusTanah" class="w-full border p-2 rounded">
+                    <option value="Tanah Negara" selected>Tanah Negara</option>
+                    <option value="Tanah Hak Milik">Tanah Hak Milik</option>
+                    <option value="Tanah Hak Pengelolaan (HPL)">Tanah Hak Pengelolaan (HPL)</option>
+                    <option value="Tanah Hak Guna Bangunan">Tanah Hak Guna Bangunan</option>
+                    <option value="Tanah Hak Pakai">Tanah Hak Pakai</option>
+                    <option value="Tanah Wakaf">Tanah Wakaf</option>
+                </select>
+            </div>
+            <div class="mt-2">
+                <label class="block font-semibold text-xs mb-1">Dasar Hukum / Keterangan</label>
+                <textarea id="inputStatusTanahKet" class="w-full border p-2 rounded" rows="2">berasal dari Tanah Negara yang dikuasai langsung oleh Negara berdasarkan Pasal 33 ayat (3) UUD 1945 dan UU Nomor 5 Tahun 1960 (UUPA)</textarea>
+            </div>
+            <hr class="my-4">
+            <h3 class="font-bold text-blue-800">Masa Berlaku Hak (masuk ke Catatan)</h3>
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block font-semibold text-xs mb-1">Tanggal Mulai</label>
+                    <input type="text" id="inputMasaMulai" class="w-full border p-2 rounded" value="15 Maret 2024">
+                </div>
+                <div>
+                    <label class="block font-semibold text-xs mb-1">Tanggal Berakhir</label>
+                    <input type="text" id="inputMasaBerakhir" class="w-full border p-2 rounded" value="14 Maret 2054">
+                </div>
+            </div>
+            <div class="mt-2">
+                <label class="block font-semibold text-xs mb-1">Jangka Waktu Awal</label>
+                <input type="text" id="inputMasaJangka" class="w-full border p-2 rounded" value="30 (tiga puluh) tahun">
+            </div>
+            <div class="mt-2">
+                <label class="block font-semibold text-xs mb-1">Keterangan Perpanjangan/Pembaruan</label>
+                <textarea id="inputMasaKet" class="w-full border p-2 rounded" rows="2">dapat diperpanjang paling lama 20 (dua puluh) tahun dan diperbarui paling lama 30 (tiga puluh) tahun sesuai PP Nomor 18 Tahun 2021</textarea>
+            </div>
+            <hr class="my-4">
+            <h3 class="font-bold text-blue-800">Catatan Pendaftaran (Point 7)</h3>
+            <div>
+                <label class="block font-semibold">Catatan Item 1-3 & 6 (Dasar Hukum & Teknis)</label>
+                <textarea id="inputCatatanBase" class="w-full border p-2 rounded" rows="5">1) Pemberian Hak Pakai berdasarkan Keputusan Kepala Kantor Wilayah Badan Pertanahan Nasional Provinsi Kalimantan Utara Nomor 27/HP/KALTARA/2024 tanggal 15 Maret 2024.
+2) Diterbitkan melalui kegiatan Pendaftaran Tanah Sistematis Lengkap (PTSL) Tahun Anggaran 2024.
+3) Surat Ukur Nomor 00456/Tana Tidung/2024 tanggal 20 Februari 2024 dengan luas 3.704 Hektar.
+4) Wajib didaftarkan peralihan, pembebanan, dan hapusnya hak kepada Kantor Pertanahan Kabupaten Tana Tidung.</textarea>
+            </div>
+            <hr class="my-4">
+            <h3 class="font-bold text-purple-800">🌍 OpenStreetMap APIs (No API Key)</h3>
+            <div class="bg-purple-50 p-3 rounded border border-purple-200 space-y-3">
+                <div>
+                    <p class="text-xs font-semibold mb-1">🔍 Reverse Geocoding (Koordinat → Alamat)</p>
+                    <button onclick="doReverseGeocode()" id="btnReverse"
+                            class="w-full bg-purple-500 hover:bg-purple-600 text-white px-3 py-1.5 rounded text-xs font-semibold">
+                        🔍 Cari Alamat dari Koordinat
+                    </button>
+                    <div id="reverseResult" class="mt-2 text-[10px] bg-white p-2 rounded border border-purple-200 min-h-[42px] text-gray-500 italic">
+                        Belum ada hasil
+                    </div>
+                </div>
+                <div class="pt-2 border-t border-purple-200">
+                    <p class="text-xs font-semibold mb-1">🔍 Forward Geocoding (Alamat → Koordinat)</p>
+                    <input type="text" id="inputSearchAddress" class="select-wilayah mb-2"
+                           placeholder="Contoh: Kantor BPN Tana Tidung"
+                           onkeypress="if(event.key==='Enter') doForwardGeocode()">
+                    <button onclick="doForwardGeocode()" id="btnForward"
+                            class="w-full bg-purple-500 hover:bg-purple-600 text-white px-3 py-1.5 rounded text-xs font-semibold">
+                        🔍 Cari Koordinat dari Alamat
+                    </button>
+                    <div id="forwardResult" class="mt-2 text-[10px] bg-white p-2 rounded border border-purple-200 min-h-[42px] max-h-[200px] overflow-y-auto text-gray-500 italic">
+                        Belum ada hasil
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4">
+            <h3 class="font-bold text-blue-800">Keterangan Letak (Point 8)</h3>
+            <div>
+                <label class="block font-semibold">Koordinat Polygon</label>
+                <p class="text-xs text-gray-500 mb-1">Format: lat,lng; lat,lng; ...</p>
+                <textarea id="inputKoordinat" class="w-full border p-2 rounded" rows="3">3.601949908040122,117.1058830702327; 3.588404100623872,117.0478977094972; 3.541092887722529,117.0532043438046; 3.547347102008564,117.1114378309559; 3.601949908040122,117.1058830702327</textarea>
+                <button onclick="updateMap(); generateQR()" class="mt-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs">
+                    🔄 Update Peta & QR Bhumi
+                </button>
+            </div>
+            <hr class="my-4">
+            <h3 class="font-bold text-blue-800">QR Code → Bhumi ATR/BPN (Point 10)</h3>
+            <div>
+                <label class="block font-semibold">Link Bhumi (otomatis dari koordinat)</label>
+                <input type="text" id="inputQRLink" class="w-full border p-2 rounded text-xs font-mono" value="">
+            </div>
+
+            <div class="bg-green-50 border-2 border-green-500 rounded-lg p-3 mt-6">
+                <p class="text-xs font-bold text-green-800 mb-2">✅ Rekomendasi: Pakai Print Dialog</p>
+                <p class="text-[10px] text-green-700 mb-2">Browser akan merender peta dengan sempurna. Di dialog print, pilih <b>"Save as PDF"</b> — ukuran F4 otomatis.</p>
+                <button onclick="printCertificate()" id="btnPrint"
+                        class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded transition text-base">
+                    🖨️ Cetak / Simpan sebagai PDF (F4)
+                </button>
+            </div>
+
+            <details class="mt-3">
+                <summary class="text-xs text-gray-500 cursor-pointer">⚙️ Alternatif: generate PDF langsung</summary>
+                <button onclick="generatePDF()" id="btnDownload" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mt-2 transition text-sm">
+                    ⬇ Download PDF (metode lama)
+                </button>
+            </details>
+        </div>
+    </div>
+
+    <!-- ==================== PREVIEW DOKUMEN ==================== -->
+    <div class="w-full lg:w-2/3 flex flex-col items-center">
+        <div id="document-preview">
+            <!-- HALAMAN 1 -->
+            <div class="f4-page font-serif-cert" id="page-1">
+                <div class="relative mb-4" style="min-height: 100px;">
+                    <div class="flex justify-center items-center">
+                        <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/9/90/National_emblem_of_Indonesia_Garuda_Pancasila.svg/250px-National_emblem_of_Indonesia_Garuda_Pancasila.svg.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail" alt="Garuda Pancasila" class="h-20 object-contain" crossorigin="anonymous">
+                    </div>
+                    <div class="absolute top-0 right-0 text-right text-sm leading-tight" style="padding-top: 5px;">
+                        <p class="font-bold"><input type="text" id="outEdisi" class="editable-input text-right inline-input" style="width: 180px;" value="Edisi 1 | Pemberian Hak"></p>
+                        <p><input type="text" id="outKodeEdisi" class="editable-input text-right inline-input" style="width: 180px;" value="P024K7"></p>
+                    </div>
+                </div>
+                <div class="text-center mb-4">
+                    <h3 class="font-bold text-sm">KEMENTERIAN AGRARIA DAN TATA RUANG/<br>BADAN PERTANAHAN NASIONAL<br>REPUBLIK INDONESIA</h3>
+                </div>
+                <div class="text-center mb-4">
+                    <h1 class="mb-1"><input type="text" id="outJudulSertifikat" class="judul-sertifikat" value="SERTIFIKAT HAK PAKAI"></h1>
+                    <div class="nib-inline-wrapper">
+                        <span class="nib-label">NIB.</span>
+                        <span id="outNIB" class="nib-value" contenteditable="true">65.04.000004207.0</span>
+                    </div>
+                </div>
+
+                <div class="text-justify text-sm mb-5 leading-relaxed">
+                    <textarea id="outParagrafPembuka" class="editable-input w-full" rows="4" style="text-align: justify; line-height: 1.6;">Hak Pakai ini terdaftar atas nama pemegang hak yang tertera pada PEMEGANG HAK, atas sebagian tanah yang letaknya diuraikan pada bagian BIDANG TANAH, serta batasan dan kewajiban, pembebanan dan pencatatan lainnya yang tertera pada tanda bukti hak ini</textarea>
+                </div>
+
+                <div class="text-right mb-5 pr-16">
+                    <p class="text-sm mb-2"><input type="text" id="outKepalaKantor" class="editable-input text-right" value="Kepala Kantor Pertanahan Kabupaten Tana Tidung"></p>
+                    <br>
+                    <div class="signature-block">
+                        <input type="text" id="outNamaPejabat" class="name-input" value="Priyo Anandito">
+                        <div class="nip-wrapper text-sm">
+                            <span class="nip-label">NIP.</span>
+                            <input type="text" id="outNIP" class="nip-value" value="197008101991031004">
+                        </div>
+                    </div>
+                </div>
+                <div class="text-sm mb-4">
+                    <h4 class="font-bold mb-1">BIDANG TANAH</h4>
+                    <p class="text-justify">
+                        Bidang tanah ini terletak di
+                        <input type="text" id="outLokasi" class="editable-input mt-1 mb-1" value="Desa Bebatu Kecamatan Sesayap Hilir Kabupaten Tana Tidung Provinsi Kalimantan Utara">
+                        seluas
+                        <input type="text" id="outLuas" class="editable-input inline-input" style="width: 320px;" value="3.704 Hektar (tiga ribu tujuh ratus empat hektar)">
+                    </p>
+                </div>
+                <div class="text-sm mb-4">
+                    <h4 class="font-bold mb-1">PEMEGANG HAK</h4>
+                    <textarea id="outPemegangHak" class="editable-input w-full" rows="2">PT KARAK UNGOL BARA - Akta Pendirian Nomor 27 tanggal 12 Januari 2018 - 1 bagian (penuh)</textarea>
+                </div>
+                <div class="text-sm mb-4">
+                    <h4 class="font-bold mb-1">CATATAN PENDAFTARAN</h4>
+                    <textarea id="outCatatan" class="editable-input w-full" rows="14" style="font-size: 12px; line-height: 1.35;">1) Pemberian Hak Pakai berdasarkan Keputusan Kepala Kantor Wilayah Badan Pertanahan Nasional Provinsi Kalimantan Utara Nomor 27/HP/KALTARA/2024 tanggal 15 Maret 2024.
+2) Diterbitkan melalui kegiatan Pendaftaran Tanah Sistematis Lengkap (PTSL) Tahun Anggaran 2024.
+3) Surat Ukur Nomor 00456/Tana Tidung/2024 tanggal 20 Februari 2024 dengan luas 3.704 Hektar.
+4) Status Tanah Objek: Tanah Negara, berasal dari Tanah Negara yang dikuasai langsung oleh Negara berdasarkan Pasal 33 ayat (3) UUD 1945 dan UU Nomor 5 Tahun 1960 (UUPA).
+5) Masa Berlaku Hak: 30 (tiga puluh) tahun, terhitung mulai tanggal 15 Maret 2024 sampai dengan tanggal 14 Maret 2054; dapat diperpanjang paling lama 20 (dua puluh) tahun dan diperbarui paling lama 30 (tiga puluh) tahun sesuai PP Nomor 18 Tahun 2021.
+6) Wajib didaftarkan peralihan, pembebanan, dan hapusnya hak kepada Kantor Pertanahan Kabupaten Tana Tidung.</textarea>
+                </div>
+                <div class="flex justify-between items-end text-[10px] absolute bottom-[15mm] left-[15mm] right-[15mm]">
+                    <div style="width: 60%;">
+                        <input type="text" id="outTeksVerifikasiPage1" class="footer-edit" value="Telah diperiksa oleh Bagyo Sangguru tanggal 14 Desember 2023">
+                    </div>
+                    <div class="text-center"><p>1 dari 2 Halaman</p></div>
+                </div>
+            </div>
+
+            <!-- HALAMAN 2 -->
+            <div class="f4-page font-serif-cert" id="page-2">
+                <h3 class="font-bold text-sm mb-2">LETAK BIDANG TANAH</h3>
+
+                <div class="relative mb-4">
+                    <div id="map"></div>
+
+                    <div class="north-arrow">
+                        <svg viewBox="0 0 30 50" xmlns="http://www.w3.org/2000/svg" aria-label="Arah Utara">
+                            <polygon points="15,1 3,45 15,35 27,45" />
+                        </svg>
+                    </div>
+
+                    <div class="absolute bottom-2 right-2 bg-white px-2 py-1 text-[10px] border z-[1000]">© OpenStreetMap</div>
+                </div>
+
+                <h4 class="font-bold text-xs mb-2">PERHATIAN</h4>
+                <div class="text-xs text-justify mb-6">
+                    <ul class="list-disc pl-4 space-y-1">
+                        <li>Asli dokumen ini berbentuk dokumen elektronik yang ditandatangani dengan tanda tangan elektronik yang telah disertifikasi oleh Balai Sertifikasi Elektronik (BSrE).</li>
+                        <li>Dilarang melakukan penyebaran dan/atau penggandaan kepada pihak yang tidak berkepentingan.</li>
+                        <li>Pemalsuan surat atau manipulasi informasi elektronik dan/atau dokumen elektronik dapat dikenakan Pasal 263 KUHP dengan ancaman pidana paling lama 6 (enam) tahun.</li>
+                        <li>Untuk mencegah pemalsuan atas hasil cetak sertipikat elektronik, halaman pertama sertipikat elektronik mempunyai nomor seri blanko yang tercatat dalam sistem elektronik.</li>
+                        <li>Gambar letak bidang tanah dapat diakses melalui layanan Bhumi ATR/BPN dengan skala dan sistem referensi koordinat bidang tanah yang berbeda sehingga dapat terjadi pergeseran letak pada peta.</li>
+                        <li>Pemegang hak wajib mengetahui dan menjaga batas bidang tanah.</li>
+                        <li>Setiap perbuatan hukum atas bidang tanah ini termasuk perjanjian pengikatan jual beli, perjanjian sewa atau bentuk lainnya wajib didaftarkan ke Kantor Pertanahan setempat.</li>
+                        <li>Apabila bidang tanah tersebut jaminan utang hanya dapat dilakukan melalui lembaga Hak Tanggungan. Hasil cetak sertipikat elektronik ini tidak diperbolehkan untuk dijadikan jaminan utang dalam bentuk gadai atau bentuk lainnya selain Hak Tanggungan.</li>
+                    </ul>
+                </div>
+
+                <div class="flex justify-end mb-6"><div id="qrcode" class="qr-container"></div></div>
+
+                <div class="flex justify-between items-end text-[10px] absolute bottom-[15mm] left-[15mm] right-[15mm]">
+                    <div style="width: 70%;">
+                        <div class="logo-bsre-box">
+                            <img src="https://trikastain.github.io/Pelaporan-MUT/sertif.png"
+                                 alt="Balai Sertifikat Elektronik"
+                                 crossorigin="anonymous">
+                        </div>
+                        <input type="text" id="outTeksVerifikasiPage2" class="footer-edit" value="Telah diperiksa oleh Bagyo Sangguru tanggal 14 Desember 2023">
+                    </div>
+                    <div class="text-center"><p>2 dari 2 Halaman</p></div>
+                </div>
+            </div>
+        </div>
+        <div class="w-full max-w-[215mm] flex justify-between items-center mt-4 text-green-600 font-bold text-sm bg-green-100 p-2 rounded no-print">
+            <span>Melayani | Profesional | Terpercaya</span>
+            <span>@ditjenphpt.atrbpn</span>
+        </div>
+    </div>
+
+    <script>
+        /* ============================================================
+           1. PETA LEAFLET — ESRI (tetap), dengan filter grayscale CSS
+        ============================================================ */
+        let map = L.map('map', {
+            zoomControl: false,
+            attributionControl: false,
+            preferCanvas: true
+        }).setView([3.572, 117.079], 14);
+
+        L.control.zoom({ position: 'topright' }).addTo(map);
+
+        /* SCALE BAR KUSTOM */
+        const CheckerScale = L.Control.extend({
+            options: { position: 'bottomleft', maxWidth: 300, segments: 4 },
+            onAdd: function(map) {
+                this._map = map;
+                const container = L.DomUtil.create('div', 'leaflet-control-checker-scale');
+                container.innerHTML = '<div class="checker-scale-bar"></div><div class="checker-scale-labels"></div>';
+                this._bar = container.querySelector('.checker-scale-bar');
+                this._labels = container.querySelector('.checker-scale-labels');
+                map.on('zoomend moveend', this._update, this);
+                setTimeout(() => this._update(), 50);
+                return container;
+            },
+            onRemove: function(map) { map.off('zoomend moveend', this._update, this); },
+            _update: function() {
+                const map = this._map;
+                if (!map) return;
+                const y = map.getSize().y / 2;
+                const maxMeters = map.distance(
+                    map.containerPointToLatLng([0, y]),
+                    map.containerPointToLatLng([this.options.maxWidth, y])
+                );
+                const niceMeters = this._getRoundNum(maxMeters);
+                const ratio = niceMeters / maxMeters;
+                const width = Math.round(this.options.maxWidth * ratio);
+                const segments = this.options.segments;
+                const segWidth = width / segments;
+                let barHtml = '';
+                for (let i = 0; i < segments; i++) {
+                    const isBlack = i % 2 === 0;
+                    barHtml += `<div class="checker-seg" style="width:${segWidth}px;background:${isBlack ? '#000' : '#fff'};"></div>`;
+                }
+                this._bar.style.width = width + 'px';
+                this._bar.innerHTML = barHtml;
+                this._labels.style.width = width + 'px';
+                this._labels.innerHTML = `
+                    <span class="checker-label" style="left:0;transform:translateX(0);">0</span>
+                    <span class="checker-label" style="left:${width}px;transform:translateX(-100%);">${niceMeters} m</span>
+                `;
+            },
+            _getRoundNum: function(num) {
+                const pow10 = Math.pow(10, (Math.floor(num) + '').length - 1);
+                let d = num / pow10;
+                d = d >= 10 ? 10 : d >= 5 ? 5 : d >= 3 ? 3 : d >= 2 ? 2 : 1;
+                return pow10 * d;
+            }
+        });
+        new CheckerScale().addTo(map);
+
+        /* ============================================================
+           TILE LAYER — ESRI (TIDAK DIUBAH)
+           Filter grayscale diterapkan via CSS .leaflet-tile
+        ============================================================ */
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 19,
+            crossOrigin: true,
+            attribution: '&copy; OpenStreetMap'
+        }).addTo(map);
+
+        let polygonLayer = null;
+        function parseCoordinates(coordString) {
+            return coordString.split(';').map(pair => {
+                const parts = pair.split(',').map(s => Number(s.trim()));
+                if (parts.length >= 3) return [parts[1], parts[0]];
+                return [parts[0], parts[1]];
+            });
+        }
+        function updateMap() {
+            const coords = parseCoordinates(document.getElementById('inputKoordinat').value);
+            if (polygonLayer) map.removeLayer(polygonLayer);
+            polygonLayer = L.polygon(coords, {
+                color: '#3b6fc4',
+                fillColor: '#5b8fd9',
+                fillOpacity: 0.45,
+                weight: 2
+            }).addTo(map);
+            map.fitBounds(polygonLayer.getBounds());
+        }
+
+        /* ============================================================
+           2. TILE → DATA URL
+           PENTING: canvas 2D tidak bisa menerapkan CSS filter.
+           Karena itu, kita replikasi grayscale secara manual
+           pakai canvas pixel manipulation.
+        ============================================================ */
+        async function tilesToDataUrls() {
+            const tiles = document.querySelectorAll('#map .leaflet-tile');
+            const restored = new Map();
+            let converted = 0, failed = 0;
+
+            for (const tile of tiles) {
+                if (!tile.complete || !tile.naturalWidth) continue;
+                try {
+                    const c = document.createElement('canvas');
+                    c.width = tile.naturalWidth;
+                    c.height = tile.naturalHeight;
+                    const ctx = c.getContext('2d');
+                    ctx.drawImage(tile, 0, 0);
+
+                    // Replikasi filter: grayscale(100%) contrast(1.05) brightness(1.02)
+                    try {
+                        const imgData = ctx.getImageData(0, 0, c.width, c.height);
+                        const d = imgData.data;
+                        for (let i = 0; i < d.length; i += 4) {
+                            // Grayscale (luminance formula)
+                            const gray = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
+                            // Brightness +2%
+                            let v = gray * 1.02;
+                            // Contrast +5%
+                            v = (v - 128) * 1.05 + 128;
+                            // Clamp
+                            v = v < 0 ? 0 : v > 255 ? 255 : v;
+                            d[i] = d[i+1] = d[i+2] = v;
+                        }
+                        ctx.putImageData(imgData, 0, 0);
+                    } catch (e) {
+                        // Kalau getImageData gagal (tainted), skip pixel manipulation
+                        // tapi tile tetap data-URL (fallback tanpa grayscale)
+                        console.warn('Pixel manipulation gagal, fallback plain tile:', e.message);
+                    }
+
+                    const dataUrl = c.toDataURL('image/png');
+                    restored.set(tile, tile.src);
+                    tile.src = dataUrl;
+                    converted++;
+                } catch (e) {
+                    failed++;
+                }
+            }
+            console.log(`🗺️  Tile → data URL (grayscale): ${converted} berhasil, ${failed} gagal`);
+            return restored;
+        }
+
+        function restoreTiles(restoredMap) {
+            restoredMap.forEach((src, tile) => {
+                try { tile.src = src; } catch (e) {}
+            });
+        }
+
+        /* ============================================================
+           3. PRINT
+        ============================================================ */
+        function waitForMapReady(container, maxWaitMs = 30000) {
+            return new Promise(resolve => {
+                const start = Date.now();
+                let lastLoaded = -1, lastTotal = -1, stable = 0;
+                const check = () => {
+                    const tiles = container.querySelectorAll('.leaflet-tile');
+                    const total = tiles.length;
+                    const loaded = Array.from(tiles).filter(t => t.complete && t.naturalWidth > 0).length;
+                    if (total > 0 && loaded === total && loaded === lastLoaded && total === lastTotal) {
+                        stable++;
+                        if (stable >= 2) return resolve(true);
+                    } else { stable = 0; }
+                    lastLoaded = loaded; lastTotal = total;
+                    if (Date.now() - start > maxWaitMs) return resolve(loaded > 0);
+                    setTimeout(check, 300);
+                };
+                setTimeout(check, 300);
+            });
+        }
+
+        async function printCertificate() {
+            const btn = document.getElementById('btnPrint');
+            const originalText = btn.innerHTML;
+            let restored = null;
+            btn.innerHTML = '⏳ Menyiapkan peta...';
+            btn.disabled = true;
+            try {
+                try { map.invalidateSize(); } catch (e) {}
+                if (polygonLayer) { try { map.fitBounds(polygonLayer.getBounds()); } catch (e) {} }
+                btn.innerHTML = '⏳ Menunggu tile peta...';
+                await waitForMapReady(document.getElementById('map'), 30000);
+                btn.innerHTML = '⏳ Menyiapkan tile hitam-putih...';
+                await new Promise(r => setTimeout(r, 300));
+                restored = await tilesToDataUrls();
+                btn.innerHTML = '🖨️ Membuka dialog print...';
+                await new Promise(r => setTimeout(r, 600));
+                window.print();
+            } catch (err) {
+                console.error('Print error:', err);
+                alert('Gagal: ' + err.message);
+            } finally {
+                setTimeout(() => {
+                    if (restored) restoreTiles(restored);
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }, 3000);
+            }
+        }
+
+        window.addEventListener('beforeprint', () => {
+            try { map.invalidateSize(); } catch (e) {}
+        });
+
+        /* ============================================================
+           4. NOMINATIM
+        ============================================================ */
+        const NOMINATIM_BASE = 'https://nominatim.openstreetmap.org';
+        const nominatimCache = new Map();
+        let lastNominatimTs = 0;
+        async function nominatimFetch(url) {
+            if (nominatimCache.has(url)) return nominatimCache.get(url);
+            const elapsed = Date.now() - lastNominatimTs;
+            if (elapsed < 1100) await new Promise(r => setTimeout(r, 1100 - elapsed));
+            lastNominatimTs = Date.now();
+            const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+            if (!res.ok) {
+                if (res.status === 403) throw new Error('Nominatim 403');
+                if (res.status === 429) throw new Error('Rate limit (429)');
+                throw new Error(`Nominatim HTTP ${res.status}`);
+            }
+            const data = await res.json();
+            nominatimCache.set(url, data);
+            return data;
+        }
+        async function doReverseGeocode() {
+            const el = document.getElementById('reverseResult');
+            const btn = document.getElementById('btnReverse');
+            const coords = parseCoordinates(document.getElementById('inputKoordinat').value);
+            if (!coords || !coords.length || !isFinite(coords[0][0])) {
+                el.innerHTML = '<span class="text-red-600">❌ Koordinat tidak valid</span>'; return;
+            }
+            const avgLat = coords.reduce((s, c) => s + c[0], 0) / coords.length;
+            const avgLng = coords.reduce((s, c) => s + c[1], 0) / coords.length;
+            btn.disabled = true; btn.textContent = '⏳ Mencari...';
+            el.innerHTML = '<span class="text-gray-500">⏳ Menghubungi Nominatim...</span>';
+            try {
+                const url = `${NOMINATIM_BASE}/reverse?format=json&lat=${avgLat}&lon=${avgLng}&zoom=18&addressdetails=1&accept-language=id`;
+                const data = await nominatimFetch(url);
+                const addr = data.address || {};
+                const displayName = data.display_name || 'Alamat tidak ditemukan';
+                const parts = [];
+                if (addr.village || addr.hamlet) parts.push(addr.village || addr.hamlet);
+                if (addr.suburb) parts.push(addr.suburb);
+                if (addr.town) parts.push(addr.town);
+                if (addr.city) parts.push(addr.city);
+                if (addr.municipality) parts.push(addr.municipality);
+                if (addr.county) parts.push(addr.county);
+                if (addr.state) parts.push(addr.state);
+                if (addr.country) parts.push(addr.country);
+                const ringkas = parts.length > 0 ? parts.join(', ') : displayName;
+                const safeAttr = ringkas.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/'/g, "\\'");
+                el.innerHTML = `
+                    <p class="font-bold text-[10px] text-gray-800 mb-1">${ringkas}</p>
+                    <p class="text-[9px] text-gray-500 leading-tight mb-2">${displayName}</p>
+                    <button onclick="applyLocationToField('${safeAttr}')"
+                            class="w-full bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-[10px] font-semibold">
+                        ✔ Pakai Alamat Ini
+                    </button>
+                    <p class="text-[8px] text-gray-400 mt-1 text-right">Data © OpenStreetMap</p>
+                `;
+                showStatus('✅ Reverse geocoding berhasil', 'success');
+            } catch (err) {
+                el.innerHTML = `<span class="text-red-600">❌ ${err.message}</span>`;
+                showStatus(`❌ Nominatim: ${err.message}`, 'error');
+            } finally {
+                btn.disabled = false; btn.textContent = '🔍 Cari Alamat dari Koordinat';
+            }
+        }
+        function applyLocationToField(addr) {
+            const field = document.getElementById('inputLokasi');
+            field.value = addr; field.dispatchEvent(new Event('input'));
+            showStatus('✅ Field Lokasi diisi', 'success');
+        }
+        async function doForwardGeocode() {
+            const query = document.getElementById('inputSearchAddress').value.trim();
+            const el = document.getElementById('forwardResult');
+            const btn = document.getElementById('btnForward');
+            if (!query) { el.innerHTML = '<span class="text-red-600">❌ Masukkan kata kunci</span>'; return; }
+            btn.disabled = true; btn.textContent = '⏳ Mencari...';
+            el.innerHTML = '<span class="text-gray-500">⏳ Menghubungi Nominatim...</span>';
+            try {
+                const url = `${NOMINATIM_BASE}/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1&accept-language=id&countrycodes=id`;
+                const results = await nominatimFetch(url);
+                if (!results || results.length === 0) { el.innerHTML = '<span class="text-gray-500">Tidak ada hasil.</span>'; return; }
+                el.innerHTML = results.map(r => {
+                    const name = (r.display_name || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    const lat = Number(r.lat).toFixed(6), lon = Number(r.lon).toFixed(6);
+                    return `
+                        <div class="border-b border-purple-100 py-1.5 last:border-0">
+                            <p class="text-[10px] text-gray-800 font-semibold">${name}</p>
+                            <p class="text-[9px] text-gray-500 mb-1">${lat}, ${lon}</p>
+                            <button onclick="useForwardResult(${lat}, ${lon})"
+                                    class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-0.5 rounded text-[9px] font-semibold">
+                                📍 Pakai Koordinat Ini
+                            </button>
+                        </div>
+                    `;
+                }).join('') + '<p class="text-[8px] text-gray-400 mt-1 text-right">Data © OpenStreetMap</p>';
+                showStatus(`✅ ${results.length} hasil`, 'success');
+            } catch (err) {
+                el.innerHTML = `<span class="text-red-600">❌ ${err.message}</span>`;
+                showStatus(`❌ Nominatim: ${err.message}`, 'error');
+            } finally {
+                btn.disabled = false; btn.textContent = '🔍 Cari Koordinat dari Alamat';
+            }
+        }
+        function useForwardResult(lat, lng) {
+            const d = 0.002;
+            const coords = [
+                [lat - d, lng - d], [lat - d, lng + d], [lat + d, lng + d],
+                [lat + d, lng - d], [lat - d, lng - d]
+            ].map(c => `${c[0]},${c[1]}`).join('; ');
+            document.getElementById('inputKoordinat').value = coords;
+            updateMap(); generateQR();
+            showStatus('✅ Koordinat diisi', 'success');
+        }
+
+        /* ============================================================
+           5. QR + LOGO BPN
+        ============================================================ */
+        const LOGO_BPN_URL = 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/51/Logo_BPN-KemenATR_%282017%29.png/250px-Logo_BPN-KemenATR_%282017%29.png';
+        let _logoImgCache = null;
+        function loadLogo() {
+            if (_logoImgCache) return Promise.resolve(_logoImgCache);
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = () => { _logoImgCache = img; resolve(img); };
+                img.onerror = () => reject(new Error('Gagal memuat logo'));
+                img.src = LOGO_BPN_URL;
+            });
+        }
+        function loadImage(src, crossOrigin = 'anonymous') {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                if (crossOrigin) img.crossOrigin = crossOrigin;
+                img.onload = () => resolve(img);
+                img.onerror = () => reject(new Error('Gagal: ' + src));
+                img.src = src;
+            });
+        }
+        function buildBhumiUrl() {
+            const coords = parseCoordinates(document.getElementById('inputKoordinat').value);
+            const lats = coords.map(c => c[0]), lngs = coords.map(c => c[1]);
+            const minLat = Math.min(...lats), maxLat = Math.max(...lats);
+            const minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
+            const centerLat = (minLat + maxLat) / 2, centerLng = (minLng + maxLng) / 2;
+            const width = 1762, height = 1005;
+            const x = Math.round(width / 2), y = Math.round(height / 2);
+            return `https://bhumi.atrbpn.go.id/peta?bbox=${minLng},${minLat},${maxLng},${maxLat}&height=${height}&width=${width}&x=${x}&y=${y}&latitude=${centerLat}&longitude=${centerLng}`;
+        }
+        function roundRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+        async function generateQR() {
+            const bhumiUrl = buildBhumiUrl();
+            document.getElementById('inputQRLink').value = bhumiUrl;
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+            if (typeof qrcode === 'undefined') { qrContainer.textContent = 'QR gagal'; return; }
+            try {
+                const qr = qrcode(0, 'H'); qr.addData(bhumiUrl); qr.make();
+                const qrDataUrl = qr.createDataURL(8, 2);
+                const qrImg = await loadImage(qrDataUrl);
+                let logoImg = null;
+                try { logoImg = await loadLogo(); } catch (e) {}
+                const size = qrImg.naturalWidth || qrImg.width;
+                const canvas = document.createElement('canvas');
+                canvas.width = size; canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, size, size);
+                ctx.drawImage(qrImg, 0, 0, size, size);
+                if (logoImg) {
+                    const logoSize = Math.round(size * 0.20);
+                    const pad = Math.round(size * 0.025);
+                    const boxSize = logoSize + pad * 2;
+                    const boxX = (size - boxSize) / 2, boxY = (size - boxSize) / 2;
+                    ctx.fillStyle = '#ffffff';
+                    roundRect(ctx, boxX, boxY, boxSize, boxSize, Math.round(boxSize * 0.15));
+                    ctx.fill();
+                    ctx.drawImage(logoImg, (size - logoSize) / 2, (size - logoSize) / 2, logoSize, logoSize);
+                }
+                let finalUrl;
+                try { finalUrl = canvas.toDataURL('image/png'); } catch (e) { finalUrl = qrDataUrl; }
+                const img = document.createElement('img');
+                img.src = finalUrl; img.alt = 'QR Bhumi'; img.width = 60; img.height = 60;
+                qrContainer.appendChild(img);
+            } catch (err) {
+                console.error('QR error:', err);
+                qrContainer.textContent = 'QR gagal';
+            }
+        }
+
+        /* ============================================================
+           6. STATUS UI
+        ============================================================ */
+        function showStatus(message, type = 'info') {
+            let box = document.getElementById('apiStatusBox');
+            if (!box) {
+                box = document.createElement('div');
+                box.id = 'apiStatusBox';
+                const parent = document.getElementById('selectProvinsi').closest('.bg-blue-50');
+                parent.insertBefore(box, parent.firstChild);
+            }
+            const colors = {
+                info: 'bg-blue-100 border-blue-300 text-blue-800',
+                success: 'bg-green-100 border-green-300 text-green-800',
+                error: 'bg-red-100 border-red-300 text-red-800',
+                warning: 'bg-yellow-100 border-yellow-300 text-yellow-800'
+            };
+            box.className = `mt-2 mb-2 p-2 rounded text-xs border ${colors[type]}`;
+            box.innerHTML = message;
+        }
+
+        /* ============================================================
+           7. API WILAYAH
+        ============================================================ */
+        const API_BASE = 'https://cdn.jsdelivr.net/gh/ibnushahraa/nusantara-api@cdn/data';
+        async function fetchWilayah(path) {
+            try {
+                const res = await fetch(`${API_BASE}/${path}`, { cache: 'no-store' });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const json = await res.json();
+                const data = json.map(item => ({ id: item[0], name: item[1] }));
+                if (data.length === 0) throw new Error('Data kosong');
+                showStatus(`✅ Terhubung via <b>nusantara-api CDN</b>`, 'success');
+                return data;
+            } catch (err) {
+                showStatus(`❌ <b>Gagal memuat data wilayah</b><br>Error: ${err.message}`, 'error');
+                throw err;
+            }
+        }
+
+        /* ============================================================
+           8. SETUP DOM
+        ============================================================ */
+        const selectProvinsi = document.getElementById('selectProvinsi');
+        const selectKabupaten = document.getElementById('selectKabupaten');
+        const selectKecamatan = document.getElementById('selectKecamatan');
+        const selectDesa = document.getElementById('selectDesa');
+        const inputNomorUrut = document.getElementById('inputNomorUrut');
+        const selectIndeksLetak = document.getElementById('selectIndeksLetak');
+        const nibPreview = document.getElementById('nibPreview');
+        const infoProvinsi = document.getElementById('infoProvinsi');
+        const infoKabupaten = document.getElementById('infoKabupaten');
+        const infoKecamatan = document.getElementById('infoKecamatan');
+        const infoDesa = document.getElementById('infoDesa');
+        let kodeTerpilih = { provinsi: '', kabupaten: '', kecamatan: '', desa: '' };
+
+        function fillSelect(selectEl, data, placeholder) {
+            selectEl.innerHTML = `<option value="">${placeholder}</option>`;
+            data.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item.id;
+                opt.textContent = `${item.id} - ${item.name}`;
+                selectEl.appendChild(opt);
+            });
+        }
+        async function loadProvinsi() {
+            selectProvinsi.innerHTML = '<option value="">⏳ Memuat...</option>';
+            try { fillSelect(selectProvinsi, await fetchWilayah('provinces/index.json'), '-- Pilih Provinsi --'); }
+            catch (e) { selectProvinsi.innerHTML = '<option value="">⚠️ Gagal memuat</option>'; }
+        }
+        async function loadKabupaten(id) {
+            selectKabupaten.innerHTML = '<option value="">⏳ Memuat...</option>'; selectKabupaten.disabled = true;
+            try { fillSelect(selectKabupaten, await fetchWilayah(`regencies/${id}/index.json`), '-- Pilih Kabupaten/Kota --'); selectKabupaten.disabled = false; }
+            catch (e) { selectKabupaten.innerHTML = '<option value="">⚠️ Gagal memuat</option>'; }
+        }
+        async function loadKecamatan(id) {
+            selectKecamatan.innerHTML = '<option value="">⏳ Memuat...</option>'; selectKecamatan.disabled = true;
+            try { fillSelect(selectKecamatan, await fetchWilayah(`districts/${id}/index.json`), '-- Pilih Kecamatan --'); selectKecamatan.disabled = false; }
+            catch (e) { selectKecamatan.innerHTML = '<option value="">⚠️ Gagal memuat</option>'; }
+        }
+        async function loadDesa(id) {
+            selectDesa.innerHTML = '<option value="">⏳ Memuat...</option>'; selectDesa.disabled = true;
+            try { fillSelect(selectDesa, await fetchWilayah(`villages/${id}/index.json`), '-- Pilih Desa/Kelurahan --'); selectDesa.disabled = false; }
+            catch (e) { selectDesa.innerHTML = '<option value="">⚠️ Gagal memuat</option>'; }
+        }
+
+        /* ============================================================
+           9. NIB
+        ============================================================ */
+        function updateNIBPreview() {
+            const prov = (kodeTerpilih.provinsi || '00').padStart(2, '0');
+            let kab = '00';
+            if (kodeTerpilih.kabupaten) {
+                const parts = kodeTerpilih.kabupaten.split('.');
+                kab = (parts[parts.length - 1] || '00').padStart(2, '0');
+            }
+            let nomorUrut = (inputNomorUrut.value || '0').replace(/\D/g, '').padStart(9, '0').slice(-9);
+            const indeks = selectIndeksLetak.value || '0';
+            document.getElementById('nibStructProv').textContent = prov;
+            document.getElementById('nibStructKab').textContent = kab;
+            document.getElementById('nibStructUrut').textContent = nomorUrut;
+            document.getElementById('nibStructIdx').textContent = indeks;
+            if (kodeTerpilih.provinsi && kodeTerpilih.kabupaten) {
+                const nib = `${prov}.${kab}.${nomorUrut}.${indeks}`;
+                nibPreview.textContent = nib;
+                document.getElementById('inputNIB').value = nib;
+                document.getElementById('outNIB').textContent = nib;
+            } else {
+                nibPreview.textContent = '--';
+            }
+        }
+
+        /* ============================================================
+           10. CATATAN COMPOSE
+        ============================================================ */
+        function composeCatatan() {
+            const base = document.getElementById('inputCatatanBase').value.trim();
+            const statusTanah = document.getElementById('inputStatusTanah').value;
+            const statusKet = document.getElementById('inputStatusTanahKet').value.trim();
+            const masaJangka = document.getElementById('inputMasaJangka').value;
+            const masaMulai = document.getElementById('inputMasaMulai').value;
+            const masaBerakhir = document.getElementById('inputMasaBerakhir').value;
+            const masaKet = document.getElementById('inputMasaKet').value.trim();
+            const itemStatus = `4) Status Tanah Objek: ${statusTanah}${statusKet ? ', ' + statusKet : ''}.`;
+            const itemMasa = `5) Masa Berlaku Hak: ${masaJangka}, terhitung mulai tanggal ${masaMulai} sampai dengan tanggal ${masaBerakhir}${masaKet ? '; ' + masaKet : ''}.`;
+            const baseItems = base.split('\n').filter(l => l.trim());
+            const items = [];
+            baseItems.forEach(item => { const m = item.match(/^(\d+)\)/); if (m && parseInt(m[1]) <= 3) items.push(item); });
+            items.push(itemStatus); items.push(itemMasa);
+            baseItems.forEach(item => { const m = item.match(/^(\d+)\)/); if (m && parseInt(m[1]) === 4) items.push(item.replace(/^\d+\)/, '6)')); });
+            document.getElementById('outCatatan').value = items.join('\n');
+        }
+        ['inputCatatanBase', 'inputStatusTanah', 'inputStatusTanahKet', 'inputMasaJangka', 'inputMasaMulai', 'inputMasaBerakhir', 'inputMasaKet'].forEach(id => {
+            document.getElementById(id).addEventListener('input', composeCatatan);
+            document.getElementById(id).addEventListener('change', composeCatatan);
+        });
+
+        /* ============================================================
+           11. EVENT WILAYAH
+        ============================================================ */
+        selectProvinsi.addEventListener('change', (e) => {
+            const kode = e.target.value;
+            kodeTerpilih.provinsi = kode; kodeTerpilih.kabupaten = ''; kodeTerpilih.kecamatan = ''; kodeTerpilih.desa = '';
+            selectKabupaten.innerHTML = '<option value="">-- Pilih Provinsi dulu --</option>'; selectKabupaten.disabled = true;
+            selectKecamatan.innerHTML = '<option value="">-- Pilih Kabupaten/Kota dulu --</option>'; selectKecamatan.disabled = true;
+            selectDesa.innerHTML = '<option value="">-- Pilih Kecamatan dulu --</option>'; selectDesa.disabled = true;
+            infoProvinsi.textContent = kode ? `Terpilih: ${e.target.options[e.target.selectedIndex].text}` : 'Pilih provinsi terlebih dahulu';
+            infoKabupaten.textContent = '-'; infoKecamatan.textContent = '-'; infoDesa.textContent = '-';
+            if (kode) loadKabupaten(kode);
+            updateNIBPreview();
+        });
+        selectKabupaten.addEventListener('change', (e) => {
+            const kode = e.target.value;
+            kodeTerpilih.kabupaten = kode; kodeTerpilih.kecamatan = ''; kodeTerpilih.desa = '';
+            selectKecamatan.innerHTML = '<option value="">-- Pilih Kabupaten/Kota dulu --</option>'; selectKecamatan.disabled = true;
+            selectDesa.innerHTML = '<option value="">-- Pilih Kecamatan dulu --</option>'; selectDesa.disabled = true;
+            infoKabupaten.textContent = kode ? `Terpilih: ${e.target.options[e.target.selectedIndex].text}` : '-';
+            infoKecamatan.textContent = '-'; infoDesa.textContent = '-';
+            if (kode) loadKecamatan(kode);
+            updateNIBPreview();
+        });
+        selectKecamatan.addEventListener('change', (e) => {
+            const kode = e.target.value;
+            kodeTerpilih.kecamatan = kode; kodeTerpilih.desa = '';
+            selectDesa.innerHTML = '<option value="">-- Pilih Kecamatan dulu --</option>'; selectDesa.disabled = true;
+            infoKecamatan.textContent = kode ? `Terpilih: ${e.target.options[e.target.selectedIndex].text}` : '-';
+            infoDesa.textContent = '-';
+            if (kode) loadDesa(kode);
+        });
+        selectDesa.addEventListener('change', (e) => {
+            kodeTerpilih.desa = e.target.value;
+            infoDesa.textContent = e.target.value ? `Terpilih: ${e.target.options[e.target.selectedIndex].text}` : '-';
+        });
+        inputNomorUrut.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 9);
+            updateNIBPreview();
+        });
+        selectIndeksLetak.addEventListener('change', updateNIBPreview);
+
+        /* ============================================================
+           12. BINDING FORM
+        ============================================================ */
+        const bindings = [
+            { input: 'inputEdisi', output: 'outEdisi' },
+            { input: 'inputKodeEdisi', output: 'outKodeEdisi' },
+            { input: 'inputJudulSertifikat', output: 'outJudulSertifikat' },
+            { input: 'inputParagrafPembuka', output: 'outParagrafPembuka' },
+            { input: 'inputNIB', output: 'outNIB' },
+            { input: 'inputKepalaKantor', output: 'outKepalaKantor' },
+            { input: 'inputNamaPejabat', output: 'outNamaPejabat' },
+            { input: 'inputNIP', output: 'outNIP' },
+            { input: 'inputLokasi', output: 'outLokasi' },
+            { input: 'inputLuas', output: 'outLuas' },
+            { input: 'inputPemegangHak', output: 'outPemegangHak' }
+        ];
+        bindings.forEach(bind => {
+            const inputEl = document.getElementById(bind.input);
+            const outputEl = document.getElementById(bind.output);
+            if (!inputEl || !outputEl) return;
+            const setVal = (v) => {
+                if (outputEl.tagName === 'TEXTAREA' || outputEl.tagName === 'INPUT') outputEl.value = v;
+                else outputEl.textContent = v;
+            };
+            setVal(inputEl.value);
+            inputEl.addEventListener('input', (e) => setVal(e.target.value));
+        });
+
+        /* ============================================================
+           13. BINDING VERIFIKASI
+        ============================================================ */
+        const inputTeksVerifikasi = document.getElementById('inputTeksVerifikasi');
+        const outTeksVerifikasiPage1 = document.getElementById('outTeksVerifikasiPage1');
+        const outTeksVerifikasiPage2 = document.getElementById('outTeksVerifikasiPage2');
+        outTeksVerifikasiPage1.value = inputTeksVerifikasi.value;
+        outTeksVerifikasiPage2.value = inputTeksVerifikasi.value;
+        inputTeksVerifikasi.addEventListener('input', (e) => {
+            outTeksVerifikasiPage1.value = e.target.value;
+            outTeksVerifikasiPage2.value = e.target.value;
+        });
+        outTeksVerifikasiPage1.addEventListener('input', (e) => {
+            inputTeksVerifikasi.value = e.target.value;
+            outTeksVerifikasiPage2.value = e.target.value;
+        });
+        outTeksVerifikasiPage2.addEventListener('input', (e) => {
+            inputTeksVerifikasi.value = e.target.value;
+            outTeksVerifikasiPage1.value = e.target.value;
+        });
+
+        /* ============================================================
+           14. PDF GENERATION (cadangan)
+        ============================================================ */
+        function convertFormElements(clone) {
+            clone.querySelectorAll('textarea').forEach(ta => {
+                const cs = window.getComputedStyle(ta);
+                const div = document.createElement('div');
+                div.className = ta.className;
+                div.textContent = ta.value;
+                div.style.whiteSpace = 'pre-wrap';
+                div.style.wordBreak = 'break-word';
+                div.style.overflowWrap = 'break-word';
+                div.style.fontFamily = "'Times New Roman', Times, serif";
+                div.style.fontSize = ta.style.fontSize || cs.fontSize;
+                div.style.lineHeight = (ta.style.lineHeight && ta.style.lineHeight !== 'normal') ? ta.style.lineHeight : cs.lineHeight;
+                div.style.color = '#000';
+                div.style.width = '100%';
+                div.style.margin = '0'; div.style.padding = '0';
+                div.style.border = 'none'; div.style.background = 'transparent';
+                div.style.display = 'block';
+                div.style.textAlign = cs.textAlign || 'left';
+                ta.parentNode.replaceChild(div, ta);
+            });
+            clone.querySelectorAll('input').forEach(inp => {
+                const cs = window.getComputedStyle(inp);
+                const span = document.createElement('span');
+                span.className = inp.className;
+                span.textContent = inp.value;
+                span.style.fontFamily = "'Times New Roman', Times, serif";
+                span.style.fontSize = inp.style.fontSize || cs.fontSize;
+                span.style.fontWeight = cs.fontWeight;
+                span.style.fontStyle = cs.fontStyle;
+                span.style.color = '#000';
+                span.style.margin = '0'; span.style.padding = '0';
+                span.style.border = 'none'; span.style.background = 'transparent';
+                span.style.whiteSpace = 'pre-wrap'; span.style.overflowWrap = 'break-word';
+                if (inp.classList.contains('nip-value')) {
+                    span.style.flex = '1'; span.style.minWidth = '0';
+                } else if (inp.classList.contains('inline-input')) {
+                    span.style.display = 'inline-block';
+                    span.style.width = inp.style.width || 'auto';
+                } else if (inp.classList.contains('editable-input') || inp.classList.contains('name-input') ||
+                           inp.classList.contains('judul-sertifikat') || inp.classList.contains('footer-edit')) {
+                    span.style.display = 'block'; span.style.width = '100%';
+                } else {
+                    span.style.display = 'inline-block';
+                }
+                if (inp.classList.contains('text-right')) span.style.textAlign = 'right';
+                if (inp.classList.contains('text-center')) span.style.textAlign = 'center';
+                inp.parentNode.replaceChild(span, inp);
+            });
+        }
+        function createPageClone(page, tileMap = null) {
+            const clone = page.cloneNode(true);
+            clone.removeAttribute('id');
+            clone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+            if (tileMap) {
+                const origTiles = document.querySelectorAll('#map .leaflet-tile');
+                const cloneTiles = clone.querySelectorAll('.leaflet-tile');
+                cloneTiles.forEach((t, i) => {
+                    const orig = origTiles[i];
+                    if (orig && tileMap.has(orig)) { t.src = tileMap.get(orig); t.crossOrigin = ''; }
+                });
+            }
+            convertFormElements(clone);
+            Object.assign(clone.style, {
+                margin: '0', boxShadow: 'none', position: 'fixed',
+                top: '0', left: '-10000px', width: '215mm', height: '330mm',
+                zIndex: '1', opacity: '1', pointerEvents: 'none', transform: 'none'
+            });
+            return clone;
+        }
+        async function generatePDF() {
+            const btn = document.getElementById('btnDownload');
+            const originalBtnText = btn.innerHTML;
+            btn.innerHTML = '⏳ Membuat PDF...';
+            btn.disabled = true;
+            let currentClone = null;
+            let restored = null;
+            try {
+                const jsPDFClass = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+                if (!jsPDFClass) throw new Error('jsPDF tidak ditemukan');
+                if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch (e) {} }
+                await waitForMapReady(document.getElementById('map'), 30000);
+                btn.innerHTML = '⏳ Menyiapkan tile...';
+                restored = await tilesToDataUrls();
+                const tileMap = new Map();
+                restored.forEach((src, tile) => { tileMap.set(tile, tile.src); });
+                const pdf = new jsPDFClass({ unit: 'mm', format: [215, 330], orientation: 'portrait', compress: true });
+                const pages = document.querySelectorAll('.f4-page');
+                for (let i = 0; i < pages.length; i++) {
+                    btn.innerHTML = `⏳ Halaman ${i + 1}/${pages.length}...`;
+                    currentClone = createPageClone(pages[i], tileMap);
+                    document.body.appendChild(currentClone);
+                    await new Promise(r => setTimeout(r, 1000));
+                    const canvas = await html2canvas(currentClone, {
+                        scale: 2, useCORS: true, allowTaint: false,
+                        backgroundColor: '#ffffff', logging: false,
+                        imageTimeout: 30000, scrollX: 0, scrollY: 0
+                    });
+                    document.body.removeChild(currentClone);
+                    currentClone = null;
+                    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                    if (i > 0) pdf.addPage([215, 330], 'portrait');
+                    pdf.addImage(imgData, 'JPEG', 0, 0, 215, 330, undefined, 'FAST');
+                }
+                pdf.save('Sertifikat_Elektronik_F4.pdf');
+            } catch (err) {
+                alert('Gagal: ' + err.message);
+            } finally {
+                if (currentClone && currentClone.parentNode) currentClone.parentNode.removeChild(currentClone);
+                if (restored) restoreTiles(restored);
+                btn.innerHTML = originalBtnText;
+                btn.disabled = false;
+            }
+        }
+
+        /* ============================================================
+           15. INISIALISASI
+        ============================================================ */
+        updateMap();
+        generateQR();
+        updateNIBPreview();
+        composeCatatan();
+        loadProvinsi();
+
+        document.getElementById('inputKoordinat').addEventListener('input', () => {
+            clearTimeout(window._qrTimeout);
+            window._qrTimeout = setTimeout(() => { updateMap(); generateQR(); }, 500);
+        });
+    </script>
+</body>
+</html>
