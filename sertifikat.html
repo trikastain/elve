@@ -52,11 +52,6 @@
         .nip-wrapper .nip-value:focus { outline: 1px dashed #3b82f6; background: rgba(243, 244, 246, 0.8); }
         #map { height: 320px; width: 100%; border: 1px solid #ccc; z-index: 1; background: #ffffff; }
 
-        /* ============================================================
-           EFEK HITAM-PUTIH PADA TILE ESRI
-           Menggunakan CSS filter grayscale pada setiap tile.
-           Tetap pakai Esri (tanpa API key), hanya visualnya monokrom.
-        ============================================================ */
         .leaflet-tile {
             filter: grayscale(100%) contrast(1.05) brightness(1.02);
         }
@@ -97,7 +92,6 @@
             display: block;
         }
 
-        /* PANAH UTARA */
         .north-arrow {
             position: absolute;
             top: 8px;
@@ -116,7 +110,6 @@
             fill: #000000;
         }
 
-        /* SCALE BAR */
         .leaflet-control-checker-scale {
             background: transparent !important;
             border: none !important;
@@ -157,7 +150,6 @@
             white-space: nowrap;
         }
 
-        /* PRINT CSS */
         @media print {
             @page { size: 215mm 330mm; margin: 0; }
             html, body {
@@ -199,7 +191,6 @@
             .north-arrow { display: block !important; }
             .leaflet-control-checker-scale { display: block !important; }
 
-            /* Pastikan filter grayscale tetap aktif saat print */
             .leaflet-tile {
                 filter: grayscale(100%) contrast(1.05) brightness(1.02) !important;
                 -webkit-print-color-adjust: exact !important;
@@ -533,6 +524,10 @@
         </div>
     </div>
 
+    <!-- ==================== SUMBER DATA WILAYAH ==================== -->
+    <!-- File wilayah.js (hasil konversi dari wilayah.sql) harus berada di folder yang sama -->
+    <script src="wilayah.js"></script>
+
     <script>
         /* ============================================================
            1. PETA LEAFLET — ESRI (tetap), dengan filter grayscale CSS
@@ -594,10 +589,7 @@
         });
         new CheckerScale().addTo(map);
 
-        /* ============================================================
-           TILE LAYER — ESRI (TIDAK DIUBAH)
-           Filter grayscale diterapkan via CSS .leaflet-tile
-        ============================================================ */
+        /* TILE LAYER — ESRI */
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
             maxZoom: 19,
             crossOrigin: true,
@@ -625,10 +617,7 @@
         }
 
         /* ============================================================
-           2. TILE → DATA URL
-           PENTING: canvas 2D tidak bisa menerapkan CSS filter.
-           Karena itu, kita replikasi grayscale secara manual
-           pakai canvas pixel manipulation.
+           2. TILE → DATA URL (grayscale manual)
         ============================================================ */
         async function tilesToDataUrls() {
             const tiles = document.querySelectorAll('#map .leaflet-tile');
@@ -644,25 +633,18 @@
                     const ctx = c.getContext('2d');
                     ctx.drawImage(tile, 0, 0);
 
-                    // Replikasi filter: grayscale(100%) contrast(1.05) brightness(1.02)
                     try {
                         const imgData = ctx.getImageData(0, 0, c.width, c.height);
                         const d = imgData.data;
                         for (let i = 0; i < d.length; i += 4) {
-                            // Grayscale (luminance formula)
                             const gray = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
-                            // Brightness +2%
                             let v = gray * 1.02;
-                            // Contrast +5%
                             v = (v - 128) * 1.05 + 128;
-                            // Clamp
                             v = v < 0 ? 0 : v > 255 ? 255 : v;
                             d[i] = d[i+1] = d[i+2] = v;
                         }
                         ctx.putImageData(imgData, 0, 0);
                     } catch (e) {
-                        // Kalau getImageData gagal (tainted), skip pixel manipulation
-                        // tapi tile tetap data-URL (fallback tanpa grayscale)
                         console.warn('Pixel manipulation gagal, fallback plain tile:', e.message);
                     }
 
@@ -958,21 +940,151 @@
         }
 
         /* ============================================================
-           7. API WILAYAH
+           7. DATA WILAYAH — Sumber: wilayah.js (Array of {kode, nama})
+           ------------------------------------------------------------
+           File wilayah.js mengekspos variabel global `wilayah`:
+             const wilayah = [ {kode:"11", nama:"Aceh"}, ... ];
+           Struktur kode (dengan titik):
+             - Provinsi  : "11"              (2 digit)
+             - Kabupaten : "11.01"           (4 digit)
+             - Kecamatan : "11.01.01"        (6 digit)
+             - Desa      : "11.01.01.2001"   (10 digit)
+           Query dilakukan 100% lokal, tanpa network/API.
         ============================================================ */
-        const API_BASE = 'https://cdn.jsdelivr.net/gh/ibnushahraa/nusantara-api@cdn/data';
-        async function fetchWilayah(path) {
+
+        /* Jumlah digit kode per tingkat (setelah titik dihilangkan) */
+        const LEVEL_DIGITS = { provinsi: 2, kabupaten: 4, kecamatan: 6, desa: 10 };
+
+        let DB_READY     = false;
+        let DB_PROMISE   = null;
+        let WILAYAH_ARR  = null;      /* array mentah dari wilayah.js */
+        let WILAYAH_IDX  = null;      /* index berdasarkan jumlah digit */
+
+        /* ---------- Ambil array wilayah dari global scope ---------- */
+        function getWilayahArray() {
+            /* wilayah.js menggunakan `const wilayah = [...]`.
+               `const` di top-level tidak muncul di `window`, tapi tetap
+               accessible sebagai global identifier. Cek keduanya. */
             try {
-                const res = await fetch(`${API_BASE}/${path}`, { cache: 'no-store' });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const json = await res.json();
-                const data = json.map(item => ({ id: item[0], name: item[1] }));
-                if (data.length === 0) throw new Error('Data kosong');
-                showStatus(`✅ Terhubung via <b>nusantara-api CDN</b>`, 'success');
-                return data;
+                if (typeof wilayah !== 'undefined' && Array.isArray(wilayah)) return wilayah;
+            } catch (e) { /* referensi belum dideklarasi */ }
+            if (window.wilayah && Array.isArray(window.wilayah)) return window.wilayah;
+            /* fallback: cari global apapun yang cocok */
+            for (const k in window) {
+                try {
+                    const v = window[k];
+                    if (Array.isArray(v) && v.length > 1000
+                        && typeof v[0] === 'object' && v[0] !== null
+                        && 'kode' in v[0] && 'nama' in v[0]) {
+                        console.info(`ℹ️  Memakai variabel global "${k}" sebagai sumber data wilayah.`);
+                        return v;
+                    }
+                } catch (_) {}
+            }
+            return null;
+        }
+
+        /* ---------- Bangun index { 2: [...], 4: [...], 6: [...], 10: [...] } ---------- */
+        function buildWilayahIndex() {
+            if (WILAYAH_IDX) return WILAYAH_IDX;
+            if (!WILAYAH_ARR) {
+                WILAYAH_ARR = getWilayahArray();
+                if (!WILAYAH_ARR) throw new Error('Variabel global `wilayah` tidak ditemukan. Pastikan wilayah.js sudah dimuat.');
+            }
+            const idx = { 2: [], 4: [], 6: [], 10: [] };
+            for (const item of WILAYAH_ARR) {
+                if (!item || item.kode == null) continue;
+                const digits = String(item.kode).replace(/\D/g, '');
+                const bucket = idx[digits.length];
+                if (bucket) bucket.push({ id: item.kode, name: item.nama, digits });
+            }
+            WILAYAH_IDX = idx;
+            return idx;
+        }
+
+        /* ---------- Inisialisasi (idempotent) ---------- */
+        async function initWilayahDB() {
+            if (DB_READY) return;
+            if (DB_PROMISE) return DB_PROMISE;
+            DB_PROMISE = (async () => {
+                showStatus('⏳ Membaca <b>wilayah.js</b>...', 'info');
+                const idx = buildWilayahIndex();
+                DB_READY = true;
+                const total =
+                    (idx[2].length) + (idx[4].length) +
+                    (idx[6].length) + (idx[10].length);
+                showStatus(
+                    `✅ Data wilayah siap — ${total.toLocaleString('id-ID')} entri ` +
+                    `(${idx[2].length} prov, ${idx[4].length} kab, ${idx[6].length} kec, ${idx[10].length} desa)`,
+                    'success'
+                );
+            })();
+            try { await DB_PROMISE; }
+            catch (e) { DB_PROMISE = null; throw e; }
+        }
+
+        /* ---------- Query wilayah berdasarkan prefix kode ---------- */
+        function queryWilayah(parentCode, levelDigits) {
+            const idx = buildWilayahIndex();
+            const bucket = idx[levelDigits] || [];
+            const parentDigits = parentCode ? String(parentCode).replace(/\D/g, '') : '';
+            if (!parentDigits) return bucket;
+            return bucket.filter(item => item.digits.startsWith(parentDigits));
+        }
+
+        /* ---------- Loader per tingkat ---------- */
+        async function loadProvinsi() {
+            selectProvinsi.innerHTML = '<option value="">⏳ Memuat...</option>';
+            try {
+                await initWilayahDB();
+                const data = queryWilayah(null, LEVEL_DIGITS.provinsi);
+                if (!data.length) throw new Error('Data provinsi tidak ditemukan');
+                fillSelect(selectProvinsi, data, '-- Pilih Provinsi --');
             } catch (err) {
-                showStatus(`❌ <b>Gagal memuat data wilayah</b><br>Error: ${err.message}`, 'error');
-                throw err;
+                selectProvinsi.innerHTML = '<option value="">⚠️ Gagal memuat</option>';
+                showStatus(`❌ <b>Gagal memuat data wilayah</b><br>${err.message}`, 'error');
+            }
+        }
+
+        async function loadKabupaten(kodeProv) {
+            selectKabupaten.innerHTML = '<option value="">⏳ Memuat...</option>';
+            selectKabupaten.disabled = true;
+            try {
+                await initWilayahDB();
+                const data = queryWilayah(kodeProv, LEVEL_DIGITS.kabupaten);
+                fillSelect(selectKabupaten, data, '-- Pilih Kabupaten/Kota --');
+                selectKabupaten.disabled = false;
+            } catch (err) {
+                selectKabupaten.innerHTML = '<option value="">⚠️ Gagal memuat</option>';
+                showStatus(`❌ ${err.message}`, 'error');
+            }
+        }
+
+        async function loadKecamatan(kodeKab) {
+            selectKecamatan.innerHTML = '<option value="">⏳ Memuat...</option>';
+            selectKecamatan.disabled = true;
+            try {
+                await initWilayahDB();
+                const data = queryWilayah(kodeKab, LEVEL_DIGITS.kecamatan);
+                fillSelect(selectKecamatan, data, '-- Pilih Kecamatan --');
+                selectKecamatan.disabled = false;
+            } catch (err) {
+                selectKecamatan.innerHTML = '<option value="">⚠️ Gagal memuat</option>';
+                showStatus(`❌ ${err.message}`, 'error');
+            }
+        }
+
+        async function loadDesa(kodeKec) {
+            selectDesa.innerHTML = '<option value="">⏳ Memuat...</option>';
+            selectDesa.disabled = true;
+            try {
+                await initWilayahDB();
+                const data = queryWilayah(kodeKec, LEVEL_DIGITS.desa);
+                fillSelect(selectDesa, data, '-- Pilih Desa/Kelurahan --');
+                selectDesa.disabled = false;
+            } catch (err) {
+                selectDesa.innerHTML = '<option value="">⚠️ Gagal memuat</option>';
+                showStatus(`❌ ${err.message}`, 'error');
             }
         }
 
@@ -1001,36 +1113,16 @@
                 selectEl.appendChild(opt);
             });
         }
-        async function loadProvinsi() {
-            selectProvinsi.innerHTML = '<option value="">⏳ Memuat...</option>';
-            try { fillSelect(selectProvinsi, await fetchWilayah('provinces/index.json'), '-- Pilih Provinsi --'); }
-            catch (e) { selectProvinsi.innerHTML = '<option value="">⚠️ Gagal memuat</option>'; }
-        }
-        async function loadKabupaten(id) {
-            selectKabupaten.innerHTML = '<option value="">⏳ Memuat...</option>'; selectKabupaten.disabled = true;
-            try { fillSelect(selectKabupaten, await fetchWilayah(`regencies/${id}/index.json`), '-- Pilih Kabupaten/Kota --'); selectKabupaten.disabled = false; }
-            catch (e) { selectKabupaten.innerHTML = '<option value="">⚠️ Gagal memuat</option>'; }
-        }
-        async function loadKecamatan(id) {
-            selectKecamatan.innerHTML = '<option value="">⏳ Memuat...</option>'; selectKecamatan.disabled = true;
-            try { fillSelect(selectKecamatan, await fetchWilayah(`districts/${id}/index.json`), '-- Pilih Kecamatan --'); selectKecamatan.disabled = false; }
-            catch (e) { selectKecamatan.innerHTML = '<option value="">⚠️ Gagal memuat</option>'; }
-        }
-        async function loadDesa(id) {
-            selectDesa.innerHTML = '<option value="">⏳ Memuat...</option>'; selectDesa.disabled = true;
-            try { fillSelect(selectDesa, await fetchWilayah(`villages/${id}/index.json`), '-- Pilih Desa/Kelurahan --'); selectDesa.disabled = false; }
-            catch (e) { selectDesa.innerHTML = '<option value="">⚠️ Gagal memuat</option>'; }
-        }
 
         /* ============================================================
            9. NIB
         ============================================================ */
         function updateNIBPreview() {
-            const prov = (kodeTerpilih.provinsi || '00').padStart(2, '0');
+            const prov = (kodeTerpilih.provinsi || '00').replace(/\D/g, '').padStart(2, '0').slice(-2);
             let kab = '00';
             if (kodeTerpilih.kabupaten) {
-                const parts = kodeTerpilih.kabupaten.split('.');
-                kab = (parts[parts.length - 1] || '00').padStart(2, '0');
+                const digits = String(kodeTerpilih.kabupaten).replace(/\D/g, '');
+                kab = (digits.slice(-2) || '00').padStart(2, '0');
             }
             let nomorUrut = (inputNomorUrut.value || '0').replace(/\D/g, '').padStart(9, '0').slice(-9);
             const indeks = selectIndeksLetak.value || '0';
