@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERP Marketing - PT Elvenium Agro Inovasi</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+  :root {
+    --grad-primary: linear-gradient(135deg, #1b4332 0%, #2d6a4f 50%, #40916c 100%);
+    --grad-accent: linear-gradient(135deg, #52b788 0%, #74c69d 100%);
+    --grad-warm: linear-gradient(135deg, #e76f51 0%, #f4a261 100%);
+    --grad-blue: linear-gradient(135deg, #1d3557 0%, #457b9d 100%);
+    --grad-gold: linear-gradient(135deg, #f4a261 0%, #e9c46a 100%);
+    --grad-purple: linear-gradient(135deg, #5a189a 0%, #9d4edd 100%);
+    --grad-pink: linear-gradient(135deg, #c9184a 0%, #ff4d6d 100%);
+    --grad-teal: linear-gradient(135deg, #006d77 0%, #83c5be 100%);
+    --shadow-lg: 0 10px 30px rgba(27, 67, 50, 0.12);
+    --shadow-md: 0 4px 15px rgba(0,0,0,0.08);
+    --shadow-hover: 0 15px 40px rgba(27, 67, 50, 0.2);
+  }
+  * { box-sizing: border-box; }
+  body { background: #f0f4f1; font-family: 'Segoe UI', Tahoma, sans-serif; overflow-x: hidden; font-size: 14px; }
+
+  /* SIDEBAR */
+  .sidebar { background: var(--grad-primary); min-height: 100vh; color: white; padding: 0; position: relative; overflow: hidden; box-shadow: 4px 0 20px rgba(0,0,0,0.15); }
+  .sidebar::before { content: ''; position: absolute; top: -50px; right: -80px; width: 250px; height: 250px; background: radial-gradient(circle, rgba(116,198,157,0.25) 0%, transparent 70%); border-radius: 50%; pointer-events: none; }
+  .sidebar::after { content: ''; position: absolute; bottom: -100px; left: -100px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(82,183,136,0.15) 0%, transparent 70%); border-radius: 50%; pointer-events: none; }
+  .sidebar-header { padding: 18px 12px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); position: relative; z-index: 1; }
+  .logo-container { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: white; }
+  .logo-svg { width: 44px; height: 44px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); flex-shrink: 0; }
+  .logo-text h6 { margin: 0; font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; line-height: 1.2; }
+  .logo-text small { font-size: 0.55rem; opacity: 0.75; letter-spacing: 0.6px; text-transform: uppercase; }
+  .sidebar .nav { padding: 8px 0; position: relative; z-index: 1; overflow-y: auto; max-height: calc(100vh - 220px); }
+  .sidebar .nav-link { color: rgba(255,255,255,0.75); padding: 8px 16px; margin: 1px 8px; border-radius: 8px; transition: all 0.3s ease; font-size: 0.78rem; display: flex; align-items: center; gap: 9px; }
+  .sidebar .nav-link:hover { background: rgba(255,255,255,0.1); color: white; transform: translateX(3px); }
+  .sidebar .nav-link.active { background: rgba(255,255,255,0.18); color: white; box-shadow: inset 3px 0 0 #74c69d, 0 4px 12px rgba(0,0,0,0.2); backdrop-filter: blur(10px); }
+  .sidebar .nav-link i { font-size: 0.95rem; min-width: 16px; }
+  .nav-section { padding: 10px 16px 3px; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 1.2px; opacity: 0.5; font-weight: 700; }
+  .sidebar-footer { position: absolute; bottom: 0; left: 0; right: 0; padding: 10px; font-size: 0.62rem; opacity: 0.65; border-top: 1px solid rgba(255,255,255,0.1); text-align: center; background: rgba(0,0,0,0.1); }
+
+  /* MAIN */
+  .main-content { padding: 0; min-height: 100vh; }
+  .topbar { background: white; padding: 14px 24px; box-shadow: var(--shadow-md); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; border-bottom: 3px solid transparent; border-image: var(--grad-accent) 1; }
+  .topbar-title { display: flex; align-items: center; gap: 12px; }
+  .topbar-title h5 { margin: 0; font-weight: 700; background: var(--grad-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 1.05rem; }
+  .topbar-logo { width: 34px; height: 34px; flex-shrink: 0; }
+  .content-area { padding: 22px; }
+
+  .panel { display: none; animation: fadeIn 0.4s ease; }
+  .panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* STAT CARDS */
+  .stat-card { border: none; border-radius: 16px; padding: 18px; color: white; position: relative; overflow: hidden; transition: all 0.35s ease; box-shadow: var(--shadow-md); min-height: 120px; }
+  .stat-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); }
+  .stat-card::before { content: ''; position: absolute; top: -40px; right: -40px; width: 130px; height: 130px; background: rgba(255,255,255,0.1); border-radius: 50%; transition: all 0.4s ease; }
+  .stat-card:hover::before { transform: scale(1.3); background: rgba(255,255,255,0.15); }
+  .stat-card.g1 { background: var(--grad-primary); } .stat-card.g2 { background: var(--grad-gold); }
+  .stat-card.g3 { background: var(--grad-warm); } .stat-card.g4 { background: var(--grad-blue); }
+  .stat-card.g5 { background: var(--grad-purple); } .stat-card.g6 { background: var(--grad-pink); }
+  .stat-card.g7 { background: var(--grad-teal); }
+  .stat-card .stat-icon { position: absolute; top: 16px; right: 18px; font-size: 2rem; opacity: 0.4; z-index: 1; }
+  .stat-card .stat-label { font-size: 0.68rem; opacity: 0.9; letter-spacing: 0.4px; text-transform: uppercase; font-weight: 500; position: relative; z-index: 1; }
+  .stat-card .stat-value { font-size: 1.5rem; font-weight: 700; margin-top: 4px; position: relative; z-index: 1; }
+  .stat-card .stat-sub { font-size: 0.66rem; opacity: 0.85; margin-top: 3px; position: relative; z-index: 1; }
+
+  /* CARDS */
+  .content-card { background: white; border-radius: 14px; padding: 18px; box-shadow: var(--shadow-md); border: 1px solid rgba(0,0,0,0.03); transition: all 0.3s ease; }
+  .content-card:hover { box-shadow: var(--shadow-lg); }
+  .content-card h6 { font-weight: 700; color: #1b4332; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-size: 0.88rem; }
+  .content-card h6 i { background: var(--grad-accent); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 1.05rem; }
+
+  /* TABLE */
+  .table { margin-bottom: 0; font-size: 0.78rem; }
+  .table thead th { background: linear-gradient(135deg, #e8f5ee 0%, #d8ede1 100%); color: #1b4332; font-weight: 700; font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 2px solid #74c69d; padding: 8px 6px; white-space: nowrap; }
+  .table tbody tr { transition: all 0.2s ease; border-bottom: 1px solid #f0f4f1; }
+  .table tbody tr:hover { background: linear-gradient(90deg, #f0f9f4 0%, transparent 100%); }
+  .table tbody td { padding: 8px 6px; vertical-align: middle; }
+
+  /* BADGE */
+  .badge-pupuk { background: var(--grad-primary); padding: 4px 9px; border-radius: 20px; font-weight: 500; font-size: 0.68rem; }
+  .badge-pakan { background: var(--grad-warm); padding: 4px 9px; border-radius: 20px; font-weight: 500; font-size: 0.68rem; }
+  .badge-status { padding: 4px 9px; border-radius: 20px; font-weight: 500; font-size: 0.68rem; }
+
+  /* BUTTONS */
+  .btn { border-radius: 9px; font-weight: 500; transition: all 0.3s ease; border: none; }
+  .btn-success, .btn-primary, .btn-danger, .btn-warning, .btn-info, .btn-secondary, .btn-dark { box-shadow: var(--shadow-md); }
+  .btn-success { background: var(--grad-primary); color: white; }
+  .btn-primary { background: var(--grad-blue); color: white; }
+  .btn-danger { background: var(--grad-warm); color: white; }
+  .btn-warning { background: var(--grad-gold); color: white; }
+  .btn-info { background: var(--grad-purple); color: white; }
+  .btn-dark { background: linear-gradient(135deg, #212529, #495057); color: white; }
+  .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); filter: brightness(1.05); color: white; }
+  .btn-sm { padding: 5px 9px; font-size: 0.72rem; }
+  .btn-outline-primary { background: transparent; border: 1.5px solid #457b9d; color: #457b9d; }
+  .btn-outline-primary:hover { background: var(--grad-blue); color: white; }
+  .btn-outline-warning { background: transparent; border: 1.5px solid #f4a261; color: #f4a261; }
+  .btn-outline-warning:hover { background: var(--grad-gold); color: white; }
+  .btn-icon { width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+  .btn-icon i { font-size: 0.75rem; }
+
+  /* CHART */
+  .chart-container { position: relative; height: 250px; margin-top: 10px; }
+  .chart-container-sm { position: relative; height: 200px; margin-top: 10px; }
+
+  /* MODAL */
+  .modal-content { border-radius: 16px; overflow: hidden; border: none; box-shadow: 0 25px 60px rgba(0,0,0,0.25); }
+  .modal-header { border: none; padding: 14px 20px; }
+  .modal-header.bg-success { background: var(--grad-primary) !important; }
+  .modal-header.bg-primary { background: var(--grad-blue) !important; }
+  .modal-header.bg-danger { background: var(--grad-warm) !important; }
+  .modal-header.bg-warning { background: var(--grad-gold) !important; color: white; }
+  .modal-header.bg-info { background: var(--grad-purple) !important; }
+  .modal-header.bg-dark { background: linear-gradient(135deg, #212529, #495057) !important; }
+  .modal-body { padding: 20px; }
+  .modal-body label { font-size: 0.72rem; font-weight: 600; color: #2d6a4f; margin-bottom: 3px; }
+  .form-control, .form-select { border-radius: 8px; border: 1.5px solid #e0e8e3; padding: 7px 10px; font-size: 0.82rem; }
+  .form-control:focus, .form-select:focus { border-color: #52b788; box-shadow: 0 0 0 4px rgba(82,183,136,0.15); }
+  .form-control-sm, .form-select-sm { font-size: 0.78rem; padding: 5px 8px; }
+
+  /* BLOB */
+  .blob { position: fixed; border-radius: 50%; filter: blur(60px); opacity: 0.15; pointer-events: none; z-index: 0; }
+  .blob-1 { width: 400px; height: 400px; background: #52b788; top: -100px; right: -100px; }
+  .blob-2 { width: 350px; height: 350px; background: #e76f51; bottom: -120px; left: 200px; }
+
+  /* LAPORAN */
+  .laporan-header { background: var(--grad-primary); color: white; padding: 24px; border-radius: 14px; margin-bottom: 20px; position: relative; overflow: hidden; }
+  .laporan-header::before { content: ''; position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.08); border-radius: 50%; }
+  .laporan-header .logo-svg { width: 56px; height: 56px; }
+
+  /* AVATAR */
+  .avatar { width: 34px; height: 34px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 0.78rem; flex-shrink: 0; }
+  .avatar.a1 { background: var(--grad-primary); } .avatar.a2 { background: var(--grad-warm); }
+  .avatar.a3 { background: var(--grad-blue); } .avatar.a4 { background: var(--grad-purple); }
+  .avatar.a5 { background: var(--grad-gold); } .avatar.a6 { background: var(--grad-pink); }
+  .avatar.a7 { background: var(--grad-teal); }
+
+  /* KPI */
+  .kpi-bar { height: 7px; background: #e9ecef; border-radius: 4px; overflow: hidden; }
+  .kpi-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+
+  /* INFO BOX */
+  .info-box { background: linear-gradient(135deg, #f0f9f4 0%, #e8f5ee 100%); border-left: 4px solid #52b788; padding: 10px 14px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 12px; }
+
+  /* DETAIL VIEW */
+  .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .detail-item { padding: 10px 12px; background: #f8faf9; border-radius: 8px; border-left: 3px solid #74c69d; }
+  .detail-item .label { font-size: 0.66rem; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+  .detail-item .value { font-size: 0.85rem; font-weight: 600; color: #1b4332; margin-top: 2px; word-break: break-word; }
+
+  /* PRINT */
+  @media print {
+    .sidebar, .topbar, .no-print, .blob { display: none !important; }
+    .main-content { width: 100% !important; }
+    .content-area { padding: 0 !important; }
+    body { background: white !important; font-size: 11px; }
+    .panel { display: none !important; }
+    .panel.active { display: block !important; }
+    #panel-laporan { display: block !important; }
+    .content-card { box-shadow: none !important; border: 1px solid #ddd; }
+    .laporan-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .table thead th { -webkit-print-color-adjust: exact; print-color-adjust: exact; font-size: 9px; padding: 5px 3px; }
+    .table tbody td { font-size: 9px; padding: 4px 3px; }
+    .table { font-size: 9px; }
+    @page { size: A4 portrait; margin: 10mm; }
+  }
+
+  /* SCROLL */
+  ::-webkit-scrollbar { width: 7px; height: 7px; }
+  ::-webkit-scrollbar-track { background: #f0f4f1; }
+  ::-webkit-scrollbar-thumb { background: #74c69d; border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: #2d6a4f; }
+
+  /* SEARCH BAR */
+  .search-bar { position: relative; }
+  .search-bar input { padding-left: 32px; }
+  .search-bar i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #adb5bd; font-size: 0.85rem; }
+</style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<!-- LOGO SVG -->
+<svg style="display:none">
+  <symbol id="logoElvenium" viewBox="0 0 100 100">
+    <defs>
+      <linearGradient id="lgE" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#74c69d"/><stop offset="100%" stop-color="#1b4332"/>
+      </linearGradient>
+      <linearGradient id="lgO" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#f4a261"/><stop offset="100%" stop-color="#e76f51"/>
+      </linearGradient>
+    </defs>
+    <circle cx="50" cy="50" r="46" fill="url(#lgE)" opacity="0.12"/>
+    <circle cx="50" cy="50" r="46" fill="none" stroke="url(#lgE)" stroke-width="1.5" opacity="0.4"/>
+    <path d="M50 15 C 32 32, 28 55, 50 85 C 72 55, 68 32, 50 15 Z" fill="url(#lgE)"/>
+    <path d="M42 33 L 42 67 M 42 33 L 58 33 M 42 50 L 55 50 M 42 67 L 58 67" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <circle cx="74" cy="26" r="11" fill="url(#lgO)"/>
+    <path d="M74 20 L 76 24 L 80 24 L 77 27 L 78 31 L 74 29 L 70 31 L 71 27 L 68 24 L 72 24 Z" fill="white" transform="scale(0.6) translate(48, 15)"/>
+  </symbol>
+</svg>
+
+<div class="container-fluid p-0">
+  <div class="row g-0">
+    <!-- SIDEBAR -->
+    <div class="col-md-2 sidebar no-print">
+      <div class="sidebar-header">
+        <a href="#" class="logo-container">
+          <svg class="logo-svg"><use href="#logoElvenium"/></svg>
+          <div class="logo-text"><h6>ELVENIUM</h6><small>Agro Inovasi</small></div>
+        </a>
+      </div>
+      <nav class="nav flex-column">
+        <div class="nav-section">Utama</div>
+        <a class="nav-link active" href="#" data-panel="dashboard"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
+        <a class="nav-link" href="#" data-panel="permintaan"><i class="bi bi-clipboard-data-fill"></i> Permintaan</a>
+        <a class="nav-link" href="#" data-panel="sampel"><i class="bi bi-box-seam-fill"></i> Sampel</a>
+        <a class="nav-link" href="#" data-panel="kunjungan"><i class="bi bi-calendar-check-fill"></i> Kunjungan</a>
+        <div class="nav-section">Operasional</div>
+        <a class="nav-link" href="#" data-panel="bbm"><i class="bi bi-fuel-pump-fill"></i> Rembes BBM</a>
+        <a class="nav-link" href="#" data-panel="logistik"><i class="bi bi-truck"></i> Logistik</a>
+        <div class="nav-section">Master Data</div>
+        <a class="nav-link" href="#" data-panel="staff"><i class="bi bi-people-fill"></i> Staff Marketing</a>
+        <a class="nav-link" href="#" data-panel="pelanggan"><i class="bi bi-shop"></i> Pelanggan</a>
+        <a class="nav-link" href="#" data-panel="produk"><i class="bi bi-boxes"></i> Produk & Stok</a>
+        <a class="nav-link" href="#" data-panel="wilayah"><i class="bi bi-geo-alt-fill"></i> Wilayah Distribusi</a>
+        <div class="nav-section">Analisa</div>
+        <a class="nav-link" href="#" data-panel="kpi"><i class="bi bi-bullseye"></i> Target & KPI</a>
+        <a class="nav-link" href="#" data-panel="laporan"><i class="bi bi-file-earmark-bar-graph-fill"></i> Laporan</a>
+        <div class="nav-section">Sistem</div>
+        <a class="nav-link" href="#" data-panel="pengaturan"><i class="bi bi-gear-fill"></i> Pengaturan</a>
+      </nav>
+      <div class="sidebar-footer"><i class="bi bi-shield-check"></i> v3.1 &copy; 2025 Elvenium</div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="col-md-10 main-content">
+      <div class="topbar no-print">
+        <div class="topbar-title">
+          <svg class="topbar-logo"><use href="#logoElvenium"/></svg>
+          <div>
+            <h5 id="pageTitle">Dashboard ERP Marketing</h5>
+            <small class="text-muted" style="font-size:0.68rem">
+              <i class="bi bi-geo-alt-fill"></i> Jl. Raya Rengasdengklok No.55, Kalangsari, Karawang
+            </small>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge bg-success rounded-pill px-3 py-2" style="font-size:0.7rem"><i class="bi bi-circle-fill" style="font-size:0.45rem"></i> Online</span>
+          <button class="btn btn-success btn-sm" onclick="window.print()"><i class="bi bi-printer-fill"></i> Cetak PDF A4</button>
+        </div>
+      </div>
+
+      <div class="content-area">
+        <!-- DASHBOARD -->
+        <div id="panel-dashboard" class="panel active">
+          <div class="info-box mb-3">
+            <i class="bi bi-info-circle-fill text-success"></i> <b>PT Elvenium Agro Inovasi</b> — Distributor Pupuk & Pakan Ternak untuk wilayah <b>Karawang, Purwakarta, dan Subang</b>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-3"><div class="stat-card g1"><i class="bi bi-clipboard-data-fill stat-icon"></i><div class="stat-label">Total Permintaan</div><div class="stat-value" id="statTotalPermintaan">0</div><div class="stat-sub"><i class="bi bi-arrow-up-right"></i> Bulan ini</div></div></div>
+            <div class="col-md-3"><div class="stat-card g3"><i class="bi bi-cash-stack stat-icon"></i><div class="stat-label">Estimasi Nilai</div><div class="stat-value" id="statNilai">Rp 0</div><div class="stat-sub">Potensi total</div></div></div>
+            <div class="col-md-3"><div class="stat-card g2"><i class="bi bi-people-fill stat-icon"></i><div class="stat-label">Staff Aktif</div><div class="stat-value" id="statStaff">0</div><div class="stat-sub">Marketing</div></div></div>
+            <div class="col-md-3"><div class="stat-card g4"><i class="bi bi-shop stat-icon"></i><div class="stat-label">Pelanggan</div><div class="stat-value" id="statPelanggan">0</div><div class="stat-sub">Terdaftar</div></div></div>
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-md-3"><div class="stat-card g5"><i class="bi bi-box-seam-fill stat-icon"></i><div class="stat-label">Sampel</div><div class="stat-value" id="statSampel">0</div><div class="stat-sub">Permintaan</div></div></div>
+            <div class="col-md-3"><div class="stat-card g6"><i class="bi bi-calendar-check-fill stat-icon"></i><div class="stat-label">Kunjungan</div><div class="stat-value" id="statKunjungan">0</div><div class="stat-sub">Bulan ini</div></div></div>
+            <div class="col-md-3"><div class="stat-card g3"><i class="bi bi-fuel-pump-fill stat-icon"></i><div class="stat-label">Rembes BBM</div><div class="stat-value" id="statBBM">Rp 0</div><div class="stat-sub">Pengeluaran</div></div></div>
+            <div class="col-md-3"><div class="stat-card g4"><i class="bi bi-truck stat-icon"></i><div class="stat-label">Logistik Aktif</div><div class="stat-value" id="statLogistik">0</div><div class="stat-sub">Dikirim</div></div></div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-8"><div class="content-card"><h6><i class="bi bi-bar-chart-line-fill"></i> Tren Permintaan & Nilai Bulanan (6 Bulan Terakhir)</h6><div class="chart-container"><canvas id="chartTren"></canvas></div></div></div>
+            <div class="col-md-4"><div class="content-card"><h6><i class="bi bi-pie-chart-fill"></i> Distribusi Kategori</h6><div class="chart-container"><canvas id="chartKategori"></canvas></div></div></div>
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-md-4"><div class="content-card"><h6><i class="bi bi-geo-alt-fill"></i> Distribusi Wilayah</h6><div class="chart-container-sm"><canvas id="chartWilayah"></canvas></div></div></div>
+            <div class="col-md-4"><div class="content-card"><h6><i class="bi bi-radar"></i> Ketertarikan Pelanggan</h6><div class="chart-container-sm"><canvas id="chartTertarik"></canvas></div></div></div>
+            <div class="col-md-4"><div class="content-card"><h6><i class="bi bi-truck"></i> Status Logistik</h6><div class="chart-container-sm"><canvas id="chartLogistik"></canvas></div></div></div>
+          </div>
+          <div class="row g-3">
+            <div class="col-md-6"><div class="content-card"><h6><i class="bi bi-trophy-fill"></i> Top 5 Produk Diminati</h6><div class="chart-container-sm"><canvas id="chartTopProduk"></canvas></div></div></div>
+            <div class="col-md-6"><div class="content-card"><h6><i class="bi bi-award-fill"></i> Top 5 Pelanggan Potensial</h6><div class="chart-container-sm"><canvas id="chartTopPelanggan"></canvas></div></div></div>
+          </div>
+        </div>
+
+        <!-- PERMINTAAN -->
+        <div id="panel-permintaan" class="panel">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0 fw-bold" style="color:#1b4332"><i class="bi bi-clipboard-data-fill"></i> Panel Permintaan</h5>
+            <div class="d-flex gap-2 no-print">
+              <div class="search-bar"><i class="bi bi-search"></i><input type="text" class="form-control form-control-sm" placeholder="Cari..." oninput="filterTable('permintaanTable', this.value)" style="width:180px"></div>
+              <button class="btn btn-outline-primary btn-sm" onclick="exportCSV('permintaan')"><i class="bi bi-download"></i> CSV</button>
+              <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalPermintaan" onclick="resetPermintaanForm()"><i class="bi bi-plus-lg"></i> Tambah</button>
+            </div>
+          </div>
+          <div class="content-card">
+            <div class="table-responsive">
+              <table class="table table-hover" id="permintaanTable">
+                <thead>
+                  <tr>
+                    <th>No</th><th>Tgl</th><th>No. PO</th><th>Nama</th><th>Kontak</th><th>Jenis</th><th>Produk</th>
+                    <th>Jumlah</th><th>Total (Rp)</th><th>Prioritas</th><th>PIC</th><th>Tertarik</th><th class="no-print">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="permintaanTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- SAMPEL -->
+        <div id="panel-sampel" class="panel">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0 fw-bold" style="color:#1b4332"><i class="bi bi-box-seam-fill"></i> Panel Permintaan Sampel</h5>
+            <button class="btn btn-warning btn-sm no-print" data-bs-toggle="modal" data-bs-target="#modalSampel"><i class="bi bi-plus-lg"></i> Tambah Sampel</button>
+          </div>
+          <div class="content-card">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead><tr><th>No</th><th>No. SP</th><th>Tanggal</th><th>Nama</th><th>Produk</th><th>Jenis</th><th>Jumlah</th><th>No. Resi</th><th>Status</th><th>PIC</th><th class="no-print">Aksi</th></tr></thead>
+                <tbody id="sampelTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- KUNJUNGAN -->
+        <div id="panel-kunjungan" class="panel">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0 fw-bold" style="color:#1b4332"><i class="bi bi-calendar-check-fill"></i> Log Kunjungan Marketing</h5>
+            <button class="btn btn-info btn-sm no-print" data-bs-toggle="modal" data-bs-target="#modalKunjungan"><i class="bi bi-plus-lg"></i> Catat Kunjungan</button>
+          </div>
+          <div class="content-card">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead><tr><th>No</th><th>Tanggal</th><th>Staff</th><th>Pelanggan</th><th>Agenda</th><th>Durasi</th><th>Hasil</th><th>Action Item</th><th>Biaya</th><th class="no-print">Aksi</th></tr></thead>
+                <tbody id="kunjunganTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- BBM -->
+        <div id="panel-bbm" class="panel">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0 fw-bold" style="color:#1b4332"><i class="bi bi-fuel-pump-fill"></i> Panel Rembes BBM</h5>
+            <button class="btn btn-danger btn-sm no-print" data-bs-toggle="modal" data-bs-target="#modalBBM"><i class="bi bi-plus-lg"></i> Tambah Rembes</button>
+          </div>
+          <div class="content-card">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead><tr><th>No</th><th>Tgl</th><th>No. Nota</th><th>Staff</th><th>Kendaraan</th><th>No. Polisi</th><th>SPBU</th><th>Jenis BBM</th><th>Liter</th><th>Odometer</th><th>Biaya</th><th>Status</th><th class="no-print">Aksi</th></tr></thead>
+                <tbody id="bbmTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- LOGISTIK -->
+        <div id="panel-logistik" class="panel">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0 fw-bold" style="color:#1b4332"><i class="bi bi-truck"></i> Panel Logistik & Pengiriman</h5>
+            <button class="btn btn-primary btn-sm no-print" data-bs-toggle="modal" data-bs-target="#modalLogistik"><i class="bi bi-plus-lg"></i> Tambah Pengiriman</button>
+          </div>
+          <div class="content-card">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead><tr><th>No</th><th>No. DO</th><th>Tanggal</th><th>Produk</th><th>Jumlah</th><th>Tujuan</th><th>Supir</th><th>Kendaraan</th><th>No. Polisi</th><th>Jam Berangkat</th><th>Jam Tiba</th><th>Biaya</th><th>Status</th><th class="no-print">Aksi</th></tr></thead>
+                <tbody id="logistikTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- STAFF MARKETING -->
+        <div id="panel-staff" class="panel">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0 fw-bold" style="color:#1b4332"><i class="bi bi-people-fill"></i> Staff Marketing</h5>
+            <div class="d-flex gap-2 no-print">
+              <div class="search-bar"><i class="bi bi-search"></i><input type="text" class="form-control form-control-sm" placeholder="Cari staff..." oninput="filterTable('staffTable', this.value)" style="width:180px"></div>
+              <button class="btn btn-outline-primary btn-sm" onclick="exportCSV('staff')"><i class="bi bi-download"></i> CSV</button>
+              <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalStaff" onclick="resetStaffForm()"><i class="bi bi-person-plus-fill"></i> Tambah Staff</button>
+            </div>
+          </div>
+          <div class="content-card">
+            <div class="table-responsive">
+              <table class="table table-hover" id="staffTable">
+                <thead>
+                  <tr>
+                    <th>No</th><th>Avatar</th><th>NIK</th><th>Nama</th><th>Jabatan</th><th>Wilayah</th>
+                    <th>Kontak</th><th>Email</th><th>Target/Bln</th><th>Gaji</th><th>Komisi</th><th>Status</th><th class="no-print">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="staffTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- PELANGGAN -->
+        <div id="panel-pelanggan" class="panel">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0 fw-bold" style="color:#1b4332"><i class="bi bi-shop"></i> Database Pelanggan</h5>
+            <div class="d-flex gap-2 no-print">
+              <div class="search-bar"><i class="bi bi-search"></i><input type="text" class="form-control form-control-sm" placeholder="Cari..." oninput="filterTable('pelangganTable', this.value)" style="width:180px"></div>
+              <button class="btn btn-outline-primary btn-sm" onclick="exportCSV('pelanggan')"><i class="bi bi-download"></i> CSV</button>
+              <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalPelanggan" onclick="resetPelangganForm()"><i class="bi bi-plus-lg"></i> Tambah</button>
+            </div>
+          </div>
+          <div class="content-card">
+            <div class="table-responsive">
+              <table class="table table-hover" id="pelangganTable">
+                <thead><tr><th>No</th><th>Kode</th><th>Nama</th><th>Tipe</th><th>Wilayah</th><th>Kontak</th><th>NPWP</th><th>Limit Kredit</th><th>Termin</th><th>Sales PIC</th><th>Status</th><th class="no-print">Aksi</th></tr></thead>
+                <tbody id="pelangganTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRODUK -->
+        <div id="panel-produk" class="panel">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0 fw-bold" style="color:#1b4332"><i class="bi bi-boxes"></i> Master Produk & Stok</h5>
+            <div class="d-flex gap-2 no-print">
+              <div class="search-bar"><i class="bi bi-search"></i><input type="text" class="form-control form-control-sm" placeholder="Cari produk..." oninput="filterTable('produkTable', this.value)" style="width:180px"></div>
+              <button class="btn btn-outline-primary btn-sm" onclick="exportCSV('produk')"><i class="bi bi-download"></i> CSV</button>
+              <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalProduk" onclick="resetProdukForm()"><i class="bi bi-plus-lg"></i> Tambah Produk</button>
+            </div>
+          </div>
+          <div class="content-card">
+            <div class="table-responsive">
+              <table class="table table-hover" id="produkTable">
+                <thead><tr><th>No</th><th>Kode</th><th>Nama Produk</th><th>Kategori</th><th>Merek</th><th>Kemasan</th><th>Berat</th><th>Harga Beli</th><th>Harga Jual</th><th>Margin</th><th>Stok</th><th>Status</th><th class="no-print">Aksi</th></tr></thead>
+                <tbody id="produkTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- WILAYAH -->
+        <div id="panel-wilayah" class="panel">
+          <h5 class="mb-3 fw-bold" style="color:#1b4332"><i class="bi bi-geo-alt-fill"></i> Cakupan Wilayah Distribusi</h5>
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <div class="content-card">
+                <h6><i class="bi bi-building"></i> KARAWANG</h6>
+                <div class="info-box mb-2"><small>Wilayah Utama — Kantor Pusat</small></div>
+                <div class="detail-grid">
+                  <div class="detail-item"><div class="label">Kecamatan</div><div class="value">12 Kecamatan</div></div>
+                  <div class="detail-item"><div class="label">Pelanggan</div><div class="value" id="wilKarawang">0</div></div>
+                  <div class="detail-item"><div class="label">Potensi</div><div class="value" id="potKarawang">Rp 0</div></div>
+                  <div class="detail-item"><div class="label">PIC</div><div class="value">Andi Wijaya</div></div>
+                </div>
+                <div class="mt-2"><small class="text-muted">Area: Rengasdengklok, Karawang Barat, Karawang Timur, Klari, Cikampek, Telukjambe, Cilamaya, Pangkalan, Tirtamulya, Batujaya, Pakisjaya, Pedes</small></div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="content-card">
+                <h6><i class="bi bi-building"></i> PURWAKARTA</h6>
+                <div class="info-box mb-2" style="border-left-color:#f4a261"><small>Wilayah Ekspansi</small></div>
+                <div class="detail-grid">
+                  <div class="detail-item"><div class="label">Kecamatan</div><div class="value">17 Kecamatan</div></div>
+                  <div class="detail-item"><div class="label">Pelanggan</div><div class="value" id="wilPurwakarta">0</div></div>
+                  <div class="detail-item"><div class="label">Potensi</div><div class="value" id="potPurwakarta">Rp 0</div></div>
+                  <div class="detail-item"><div class="label">PIC</div><div class="value">Budi Santoso</div></div>
+                </div>
+                <div class="mt-2"><small class="text-muted">Area: Purwakarta Kota, Jatiluhur, Plered, Bungursari, Cibatu, Babakancikao, Pasawahan, Campaka, Darangdan, Bojong, Wanayasa, Kiarapedes, Maniis, Pondoksalam, Sukatani, Tegalwaru, Sukasari</small></div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="content-card">
+                <h6><i class="bi bi-building"></i> SUBANG</h6>
+                <div class="info-box mb-2" style="border-left-color:#5a189a"><small>Wilayah Pertanian</small></div>
+                <div class="detail-grid">
+                  <div class="detail-item"><div class="label">Kecamatan</div><div class="value">30 Kecamatan</div></div>
+                  <div class="detail-item"><div class="label">Pelanggan</div><div class="value" id="wilSubang">0</div></div>
+                  <div class="detail-item"><div class="label">Potensi</div><div class="value" id="potSubang">Rp 0</div></div>
+                  <div class="detail-item"><div class="label">PIC</div><div class="value">Candra Pratama</div></div>
+                </div>
+                <div class="mt-2"><small class="text-muted">Area: Subang Kota, Kalijati, Cipeundeuy, Pabuaran, Patokbeusi, Cibogo, Cijambe, Binong, Blanakan, Ciasem, Pusakanagara, Pusakajaya, Compreng, Dawuan, Pagaden, Sagalaherang, Cisalak, Tanjungsiang, dll.</small></div>
+              </div>
+            </div>
+          </div>
+          <div class="content-card">
+            <h6><i class="bi bi-bar-chart-fill"></i> Ringkasan Potensi per Wilayah</h6>
+            <div class="chart-container"><canvas id="chartPerWilayah"></canvas></div>
+          </div>
+        </div>
+
+        <!-- KPI -->
+        <div id="panel-kpi" class="panel">
+          <h5 class="mb-3 fw-bold" style="color:#1b4332"><i class="bi bi-bullseye"></i> Target & KPI Marketing</h5>
+          <div class="row g-3 mb-3">
+            <div class="col-md-6"><div class="content-card"><h6><i class="bi bi-trophy-fill"></i> Pencapaian per Staff</h6><div id="kpiList"></div></div></div>
+            <div class="col-md-6"><div class="content-card"><h6><i class="bi bi-bar-chart-fill"></i> Grafik Target vs Realisasi</h6><div class="chart-container"><canvas id="chartKPI"></canvas></div></div></div>
+          </div>
+        </div>
+
+        <!-- PENGATURAN -->
+        <div id="panel-pengaturan" class="panel">
+          <h5 class="mb-3 fw-bold" style="color:#1b4332"><i class="bi bi-gear-fill"></i> Pengaturan Sistem</h5>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="content-card">
+                <h6><i class="bi bi-building"></i> Profil Perusahaan</h6>
+                <div class="mb-2"><label>Nama Perusahaan</label><input type="text" class="form-control form-control-sm" value="PT Elvenium Agro Inovasi"></div>
+                <div class="mb-2"><label>Alamat Kantor Pusat</label><input type="text" class="form-control form-control-sm" value="Jl. Raya Rengasdengklok No.55, Kalangsari, Rengasdengklok, Karawang, Jawa Barat 41371"></div>
+                <div class="mb-2"><label>Telepon</label><input type="text" class="form-control form-control-sm" value="(0267) 8888-2025"></div>
+                <div class="mb-2"><label>Email</label><input type="text" class="form-control form-control-sm" value="info@elvenium-agro.co.id"></div>
+                <div class="mb-2"><label>Website</label><input type="text" class="form-control form-control-sm" value="www.elvenium-agro.co.id"></div>
+                <div class="mb-2"><label>NPWP</label><input type="text" class="form-control form-control-sm" value="01.234.567.8-901.000"></div>
+                <button class="btn btn-success btn-sm mt-2" onclick="alert('Pengaturan disimpan!')"><i class="bi bi-check-lg"></i> Simpan</button>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="content-card">
+                <h6><i class="bi bi-gear"></i> Parameter Sistem</h6>
+                <div class="mb-2"><label>PPN (%)</label><input type="number" class="form-control form-control-sm" value="11"></div>
+                <div class="mb-2"><label>Mata Uang</label><select class="form-select form-select-sm"><option>IDR (Rp)</option><option>USD ($)</option></select></div>
+                <div class="mb-2"><label>Satuan Berat</label><select class="form-select form-select-sm"><option>Kilogram (kg)</option><option>Ton</option></select></div>
+                <div class="mb-2"><label>Format Tanggal</label><select class="form-select form-select-sm"><option>DD/MM/YYYY</option><option>YYYY-MM-DD</option></select></div>
+                <div class="mb-2"><label>Termin Default (hari)</label><input type="number" class="form-control form-control-sm" value="30"></div>
+                <div class="mb-2"><label>Limit Kredit Default (Rp)</label><input type="number" class="form-control form-control-sm" value="50000000"></div>
+              </div>
+              <div class="content-card mt-3">
+                <h6><i class="bi bi-hdd-stack"></i> Data Management</h6>
+                <button class="btn btn-primary btn-sm me-1" onclick="backupData()"><i class="bi bi-download"></i> Backup JSON</button>
+                <button class="btn btn-warning btn-sm me-1" onclick="document.getElementById('restoreFile').click()"><i class="bi bi-upload"></i> Restore</button>
+                <input type="file" id="restoreFile" style="display:none" accept=".json" onchange="restoreData(event)">
+                <button class="btn btn-danger btn-sm" onclick="if(confirm('Reset semua data?')) location.reload()"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LAPORAN -->
+        <div id="panel-laporan" class="panel">
+          <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+            <h5 class="mb-0 fw-bold" style="color:#1b4332"><i class="bi bi-file-earmark-bar-graph-fill"></i> Laporan</h5>
+            <div class="d-flex gap-2">
+              <select id="filterLaporan" class="form-select form-select-sm" style="width:auto">
+                <option value="semua">Semua Data</option>
+                <option value="permintaan">Permintaan</option>
+                <option value="staff">Staff</option>
+                <option value="pelanggan">Pelanggan</option>
+                <option value="produk">Produk</option>
+                <option value="kunjungan">Kunjungan</option>
+                <option value="sampel">Sampel</option>
+                <option value="bbm">Rembes BBM</option>
+                <option value="logistik">Logistik</option>
+              </select>
+              <button class="btn btn-success btn-sm" onclick="window.print()"><i class="bi bi-printer-fill"></i> Cetak PDF A4</button>
+            </div>
+          </div>
+          <div class="laporan-header">
+            <div class="d-flex align-items-center gap-3 position-relative">
+              <svg class="logo-svg"><use href="#logoElvenium"/></svg>
+              <div>
+                <h4 class="mb-1 fw-bold" style="letter-spacing:1px">PT ELVENIUM AGRO INOVASI</h4>
+                <p class="mb-1" style="opacity:0.9;font-size:0.78rem">
+                  <i class="bi bi-geo-alt-fill"></i> Jl. Raya Rengasdengklok No.55, Kalangsari, Rengasdengklok, Karawang, Jawa Barat 41371
+                </p>
+                <p class="mb-1" style="opacity:0.85;font-size:0.74rem">
+                  <i class="bi bi-telephone-fill"></i> (0267) 8888-2025 | <i class="bi bi-envelope-fill"></i> info@elvenium-agro.co.id | <i class="bi bi-globe"></i> www.elvenium-agro.co.id
+                </p>
+                <p class="mb-1" style="opacity:0.85;font-size:0.72rem">
+                  <i class="bi bi-shield-check"></i> NPWP: 01.234.567.8-901.000
+                </p>
+                <p class="mb-0" style="opacity:0.85;font-size:0.72rem">
+                  <i class="bi bi-geo"></i> <b>Wilayah Distribusi:</b> Karawang, Purwakarta, Subang
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="text-center mb-4">
+            <h5 class="fw-bold" style="color:#1b4332;letter-spacing:1px">LAPORAN ERP MARKETING</h5>
+            <p class="text-muted mb-0" style="font-size:0.85rem">Distribusi Pupuk & Pakan Ternak</p>
+            <p class="text-muted small mb-0">Periode: <span id="laporanPeriode"></span></p>
+            <p class="text-muted small">Dicetak: <span id="laporanCetak"></span></p>
+          </div>
+          <div class="content-card" id="laporanBody"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PERMINTAAN -->
+<div class="modal fade" id="modalPermintaan" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="mb-0"><i class="bi bi-clipboard-plus"></i> <span id="permintaanModalTitle">Form Permintaan</span></h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="pEditId">
+        <h6 class="text-success mb-2" style="font-size:0.8rem"><i class="bi bi-person"></i> DATA PELANGGAN</h6>
+        <div class="row g-2 mb-3">
+          <div class="col-md-4"><label>Nama Pelanggan *</label><input type="text" id="pNama" class="form-control form-control-sm"></div>
+          <div class="col-md-2"><label>Kontak</label><input type="text" id="pKontak" class="form-control form-control-sm"></div>
+          <div class="col-md-3"><label>Wilayah</label><select id="pWilayah" class="form-select form-select-sm"><option>Karawang</option><option>Purwakarta</option><option>Subang</option></select></div>
+          <div class="col-md-3"><label>Alamat Lengkap</label><input type="text" id="pAlamat" class="form-control form-control-sm"></div>
+          <div class="col-md-6"><label>Koordinat GPS (Lat, Lng)</label><input type="text" id="pKoordinat" class="form-control form-control-sm" placeholder="-6.2, 106.8"></div>
+        </div>
+
+        <h6 class="text-success mb-2" style="font-size:0.8rem"><i class="bi bi-box"></i> DETAIL PERMINTAAN</h6>
+        <div class="row g-2 mb-3">
+          <div class="col-md-2"><label>No. PO</label><input type="text" id="pNoPO" class="form-control form-control-sm" placeholder="PO-2025-001"></div>
+          <div class="col-md-2"><label>Tanggal Order</label><input type="date" id="pTanggalOrder" class="form-control form-control-sm"></div>
+          <div class="col-md-2"><label>Jenis</label><select id="pJenis" class="form-select form-select-sm"><option>Pupuk</option><option>Pakan Ternak</option></select></div>
+          <div class="col-md-3"><label>Produk</label><select id="pProduk" class="form-select form-select-sm"></select></div>
+          <div class="col-md-3"><label>Jumlah/Potensi</label><input type="text" id="pJumlah" class="form-control form-control-sm" placeholder="cth: 5 ton/bulan"></div>
+        </div>
+
+        <h6 class="text-success mb-2" style="font-size:0.8rem"><i class="bi bi-cash"></i> NILAI & KOMERSIAL</h6>
+        <div class="row g-2 mb-3">
+          <div class="col-md-2"><label>Harga Satuan (Rp)</label><input type="number" id="pHargaSatuan" class="form-control form-control-sm" value="0" oninput="hitungTotal()"></div>
+          <div class="col-md-2"><label>Qty</label><input type="number" id="pQty" class="form-control form-control-sm" value="0" oninput="hitungTotal()"></div>
+          <div class="col-md-2"><label>Diskon (%)</label><input type="number" id="pDiskon" class="form-control form-control-sm" value="0" oninput="hitungTotal()"></div>
+          <div class="col-md-2"><label>PPN (%)</label><input type="number" id="pPPN" class="form-control form-control-sm" value="11" oninput="hitungTotal()"></div>
+          <div class="col-md-2"><label>Ongkir (Rp)</label><input type="number" id="pOngkir" class="form-control form-control-sm" value="0" oninput="hitungTotal()"></div>
+          <div class="col-md-2"><label>Total (Rp)</label><input type="text" id="pTotal" class="form-control form-control-sm fw-bold" readonly style="background:#e8f5ee;color:#1b4332"></div>
+        </div>
+
+        <h6 class="text-success mb-2" style="font-size:0.8rem"><i class="bi bi-info-circle"></i> STATUS & FOLLOW-UP</h6>
+        <div class="row g-2">
+          <div class="col-md-2"><label>Prioritas</label><select id="pPrioritas" class="form-select form-select-sm"><option>Tinggi</option><option>Sedang</option><option>Rendah</option></select></div>
+          <div class="col-md-2"><label>Sumber Lead</label><select id="pSumber" class="form-select form-select-sm"><option>Referral</option><option>Walk-in</option><option>Event</option><option>Online</option><option>Telemarketing</option><option>Kunjungan</option></select></div>
+          <div class="col-md-2"><label>Termin</label><select id="pTermin" class="form-select form-select-sm"><option>Cash</option><option>7 Hari</option><option>14 Hari</option><option>30 Hari</option><option>60 Hari</option></select></div>
+          <div class="col-md-2"><label>Staff PIC</label><select id="pPIC" class="form-select form-select-sm"></select></div>
+          <div class="col-md-2"><label>Follow-up</label><input type="date" id="pFollowup" class="form-control form-control-sm"></div>
+          <div class="col-md-2"><label>Kompetitor</label><input type="text" id="pKompetitor" class="form-control form-control-sm" placeholder="cth: Merek X"></div>
+          <div class="col-md-3"><label>Permintaan Sampel</label><select id="pSampel" class="form-select form-select-sm"><option>Ya</option><option>Tidak</option></select></div>
+          <div class="col-md-3"><label>Tertarik</label><select id="pTertarik" class="form-select form-select-sm"><option>Ya</option><option>Belum</option><option>Tidak</option></select></div>
+          <div class="col-md-6"><label>Catatan</label><input type="text" id="pCatatan" class="form-control form-control-sm" placeholder="Catatan tambahan"></div>
+        </div>
+      </div>
+      <div class="modal-footer" style="border:none">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+        <button class="btn btn-success btn-sm" onclick="simpanPermintaan()"><i class="bi bi-check-lg"></i> Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL STAFF -->
+<div class="modal fade" id="modalStaff" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="mb-0"><i class="bi bi-person-plus-fill"></i> <span id="staffModalTitle">Form Staff Marketing</span></h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="stEditId">
+        <h6 class="text-success mb-2" style="font-size:0.8rem"><i class="bi bi-person-badge"></i> IDENTITAS</h6>
+        <div class="row g-2 mb-3">
+          <div class="col-md-2"><label>NIK Karyawan *</label><input type="text" id="stNIK" class="form-control form-control-sm" placeholder="EMP-001"></div>
+          <div class="col-md-4"><label>Nama Lengkap *</label><input type="text" id="stNama" class="form-control form-control-sm"></div>
+          <div class="col-md-3"><label>NIK KTP</label><input type="text" id="stKTP" class="form-control form-control-sm" placeholder="16 digit"></div>
+          <div class="col-md-3"><label>NPWP</label><input type="text" id="stNPWP" class="form-control form-control-sm"></div>
+          <div class="col-md-3"><label>Tempat Lahir</label><input type="text" id="stTempatLahir" class="form-control form-control-sm"></div>
+          <div class="col-md-2"><label>Tgl Lahir</label><input type="date" id="stTglLahir" class="form-control form-control-sm"></div>
+          <div class="col-md-2"><label>Jenis Kelamin</label><select id="stJK" class="form-select form-select-sm"><option>Laki-laki</option><option>Perempuan</option></select></div>
+          <div class="col-md-3"><label>Pendidikan</label><select id="stPendidikan" class="form-select form-select-sm"><option>SMA/SMK</option><option>D3</option><option>S1</option><option>S2</option></select></div>
+          <div class="col-md-2"><label>Agama</label><select id="stAgama" class="form-select form-select-sm"><option>Islam</option><option>Kristen</option><option>Katolik</option><option>Hindu</option><option>Buddha</option></select></div>
+        </div>
+
+        <h6 class="text-success mb-2" style="font-size:0.8rem"><i class="bi bi-briefcase"></i> JABATAN & PENEMPATAN</h6>
+        <div class="row g-2 mb-3">
+          <div class="col-md-3"><label>Jabatan</label><select id="stJabatan" class="form-select form-select-sm">
+            <option>Marketing Manager</option><option>Area Sales Manager</option><option>Sales Supervisor</option>
+            <option>Marketing Executive</option><option>Sales Representative</option><option>Teknisi Lapangan</option>
+          </select></div>
+          <div class="col-md-2"><label>Wilayah Tugas</label><select id="stWilayah" class="form-select form-select-sm"><option>Karawang</option><option>Purwakarta</option><option>Subang</option><option>Karawang & Purwakarta</option><option>Semua Wilayah</option></select></div>
+          <div class="col-md-2"><label>Status</label><select id="stStatus" class="form-select form-select-sm"><option>Aktif</option><option>Cuti</option><option>Nonaktif</option></select></div>
+          <div class="col-md-2"><label>Tgl Bergabung</label><input type="date" id="stJoin" class="form-control form-control-sm"></div>
+          <div class="col-md-3"><label>Atasan/Supervisor</label><input type="text" id="stAtasan" class="form-control form-control-sm"></div>
+        </div>
+
+        <h6 class="text-success mb-2" style="font-size:0.8rem"><i class="bi bi-telephone"></i> KONTAK & ALAMAT</h6>
+        <div class="row g-2 mb-3">
+          <div class="col-md-3"><label>No. HP</label><input type="text" id="stKontak" class="form-control form-control-sm"></div>
+          <div class="col-md-4"><label>Email</label><input type="email" id="stEmail" class="form-control form-control-sm"></div>
+          <div class="col-md-5"><label>Alamat Domisili</label><input type="text" id="stAlamat" class="form-control form-control-sm"></div>
+        </div>
+
+        <h6 class="text-success mb-2" style="font-size:0.8rem"><i class="bi bi-cash-coin"></i> KOMPENSASI</h6>
+        <div class="row g-2 mb-3">
+          <div class="col-md-2"><label>Gaji Pokok (Rp)</label><input type="number" id="stGaji" class="form-control form-control-sm" value="0"></div>
+          <div class="col-md-2"><label>Tunjangan (Rp)</label><input type="number" id="stTunjangan" class="form-control form-control-sm" value="0"></div>
+          <div class="col-md-2"><label>Komisi (%)</label><input type="number" id="stKomisi" class="form-control form-control-sm" value="0" step="0.1"></div>
+          <div class="col-md-3"><label>Target Bulanan (Rp)</label><input type="number" id="stTarget" class="form-control form-control-sm" value="0"></div>
+          <div class="col-md-3"><label>Bank & No. Rekening</label><input type="text" id="stBank" class="form-control form-control-sm" placeholder="BCA 1234567890"></div>
+          <div class="col-md-3"><label>BPJS Kesehatan</label><input type="text" id="stBPJSKes" class="form-control form-control-sm"></div>
+          <div class="col-md-3"><label>BPJS Ketenagakerjaan</label><input type="text" id="stBPJSTK" class="form-control form-control-sm"></div>
+        </div>
+
+        <h6 class="text-success mb-2" style="font-size:0.8rem"><i class="bi bi-car-front"></i> KENDARAAN & SIM</h6>
+        <div class="row g-2">
+          <div class="col-md-3"><label>Jenis SIM</label><select id="stSIM" class="form-select form-select-sm"><option>-</option><option>SIM A</option><option>SIM B1</option><option>SIM C</option><option>SIM A & C</option></select></div>
+          <div class="col-md-3"><label>No. SIM</label><input type="text" id="stNoSIM" class="form-control form-control-sm"></div>
+          <div class="col-md-3"><label>Kendaraan Dinas</label><input type="text" id="stKendaraan" class="form-control form-control-sm" placeholder="cth: Motor Vario B-1234"></div>
+          <div class="col-md-3"><label>No. Polisi</label><input type="text" id="stNoPolisi" class="form-control form-control-sm"></div>
+        </div>
+      </div>
+      <div class="modal-footer" style="border:none">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+        <button class="btn btn-success btn-sm" onclick="simpanStaff()"><i class="bi bi-check-lg"></i> Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PELANGGAN -->
+<div class="modal fade" id="modalPelanggan" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="mb-0"><i class="bi bi-shop"></i> <span id="pelangganModalTitle">Form Pelanggan</span></h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="plEditId">
+        <div class="row g-2">
+          <div class="col-md-3"><label>Kode Pelanggan</label><input type="text" id="plKode" class="form-control form-control-sm" placeholder="CST-001"></div>
+          <div class="col-md-5"><label>Nama Pelanggan *</label><input type="text" id="plNama" class="form-control form-control-sm"></div>
+          <div class="col-md-4"><label>Tipe</label><select id="plTipe" class="form-select form-select-sm"><option>Toko Tani</option><option>Koperasi</option><option>PT/CV</option><option>Peternakan</option><option>Perorangan</option><option>Distributor</option></select></div>
+          <div class="col-md-3"><label>Kontak/HP</label><input type="text" id="plKontak" class="form-control form-control-sm"></div>
+          <div class="col-md-4"><label>Email</label><input type="email" id="plEmail" class="form-control form-control-sm"></div>
+          <div class="col-md-5"><label>NPWP</label><input type="text" id="plNPWP" class="form-control form-control-sm"></div>
+          <div class="col-md-8"><label>Alamat</label><input type="text" id="plAlamat" class="form-control form-control-sm"></div>
+          <div class="col-md-4"><label>Wilayah</label><select id="plWilayah" class="form-select form-select-sm"><option>Karawang</option><option>Purwakarta</option><option>Subang</option></select></div>
+          <div class="col-md-3"><label>Luas Lahan (ha)</label><input type="number" id="plLahan" class="form-control form-control-sm" value="0"></div>
+          <div class="col-md-3"><label>Populasi Ternak</label><input type="number" id="plTernak" class="form-control form-control-sm" value="0"></div>
+          <div class="col-md-3"><label>Omset/Bulan (Rp)</label><input type="number" id="plOmset" class="form-control form-control-sm" value="0"></div>
+          <div class="col-md-3"><label>Limit Kredit (Rp)</label><input type="number" id="plLimit" class="form-control form-control-sm" value="0"></div>
+          <div class="col-md-3"><label>Termin</label><select id="plTermin" class="form-select form-select-sm"><option>Cash</option><option>7 Hari</option><option>14 Hari</option><option>30 Hari</option><option>60 Hari</option></select></div>
+          <div class="col-md-3"><label>Sales PIC</label><select id="plPIC" class="form-select form-select-sm"></select></div>
+          <div class="col-md-3"><label>Status</label><select id="plStatus" class="form-select form-select-sm"><option>Aktif</option><option>Potensial</option><option>Nonaktif</option><option>Blacklist</option></select></div>
+          <div class="col-md-3"><label>Tgl Daftar</label><input type="date" id="plTglDaftar" class="form-control form-control-sm"></div>
+          <div class="col-md-12"><label>Catatan</label><input type="text" id="plCatatan" class="form-control form-control-sm"></div>
+        </div>
+      </div>
+      <div class="modal-footer" style="border:none">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+        <button class="btn btn-success btn-sm" onclick="simpanPelanggan()"><i class="bi bi-check-lg"></i> Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PRODUK -->
+<div class="modal fade" id="modalProduk" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="mb-0"><i class="bi bi-boxes"></i> <span id="produkModalTitle">Form Produk</span></h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="prEditId">
+        <div class="row g-2">
+          <div class="col-md-3"><label>Kode Produk</label><input type="text" id="prKode" class="form-control form-control-sm" placeholder="PRD-001"></div>
+          <div class="col-md-5"><label>Nama Produk *</label><input type="text" id="prNama" class="form-control form-control-sm"></div>
+          <div class="col-md-4"><label>Kategori</label><select id="prKategori" class="form-select form-select-sm"><option>Pupuk</option><option>Pakan Ternak</option><option>Pestisida</option><option>Vitamin/Obat</option><option>Alat Pertanian</option></select></div>
+          <div class="col-md-4"><label>Merek</label><input type="text" id="prMerek" class="form-control form-control-sm"></div>
+          <div class="col-md-4"><label>Pabrikan/Produsen</label><input type="text" id="prPabrik" class="form-control form-control-sm"></div>
+          <div class="col-md-4"><label>Kemasan</label><input type="text" id="prKemasan" class="form-control form-control-sm" placeholder="cth: Sak 50kg"></div>
+          <div class="col-md-3"><label>Berat Bersih</label><input type="text" id="prBerat" class="form-control form-control-sm" placeholder="cth: 50 kg"></div>
+          <div class="col-md-3"><label>Satuan</label><select id="prSatuan" class="form-select form-select-sm"><option>kg</option><option>ton</option><option>sak</option><option>karung</option><option>liter</option><option>botol</option><option>pack</option></select></div>
+          <div class="col-md-3"><label>No. Registrasi/SNI</label><input type="text" id="prSNI" class="form-control form-control-sm"></div>
+          <div class="col-md-3"><label>Tgl Expired</label><input type="date" id="prExpired" class="form-control form-control-sm"></div>
+          <div class="col-md-12"><label>Komposisi/Kandungan</label><input type="text" id="prKomposisi" class="form-control form-control-sm" placeholder="cth: N 16%, P2O5 16%, K2O 16%"></div>
+          <div class="col-md-3"><label>Harga Beli (Rp)</label><input type="number" id="prHargaBeli" class="form-control form-control-sm" value="0" oninput="hitungMargin()"></div>
+          <div class="col-md-3"><label>Harga Jual (Rp)</label><input type="number" id="prHargaJual" class="form-control form-control-sm" value="0" oninput="hitungMargin()"></div>
+          <div class="col-md-3"><label>Margin (%)</label><input type="text" id="prMargin" class="form-control form-control-sm" readonly style="background:#e8f5ee"></div>
+          <div class="col-md-3"><label>Stok Awal</label><input type="number" id="prStok" class="form-control form-control-sm" value="0"></div>
+          <div class="col-md-3"><label>Stok Minimum</label><input type="number" id="prStokMin" class="form-control form-control-sm" value="50"></div>
+          <div class="col-md-3"><label>Lead Time (hari)</label><input type="number" id="prLeadTime" class="form-control form-control-sm" value="7"></div>
+          <div class="col-md-6"><label>Lokasi Gudang</label><input type="text" id="prGudang" class="form-control form-control-sm" placeholder="cth: Gudang Utama Rengasdengklok"></div>
+        </div>
+      </div>
+      <div class="modal-footer" style="border:none">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+        <button class="btn btn-success btn-sm" onclick="simpanProduk()"><i class="bi bi-check-lg"></i> Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL KUNJUNGAN -->
+<div class="modal fade" id="modalKunjungan" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="mb-0"><i class="bi bi-calendar-check"></i> Form Kunjungan</h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-2">
+          <div class="col-md-3"><label>Tanggal</label><input type="date" id="kTanggal" class="form-control form-control-sm"></div>
+          <div class="col-md-3"><label>Jam Check-in</label><input type="time" id="kJamIn" class="form-control form-control-sm"></div>
+          <div class="col-md-3"><label>Jam Check-out</label><input type="time" id="kJamOut" class="form-control form-control-sm"></div>
+          <div class="col-md-3"><label>Durasi (menit)</label><input type="number" id="kDurasi" class="form-control form-control-sm" value="0"></div>
+          <div class="col-md-6"><label>Staff</label><select id="kStaff" class="form-select form-select-sm"></select></div>
+          <div class="col-md-6"><label>Pelanggan</label><input type="text" id="kPelanggan" class="form-control form-control-sm"></div>
+          <div class="col-md-12"><label>Agenda</label><input type="text" id="kAgenda" class="form-control form-control-sm" placeholder="cth: Presentasi produk baru NPK"></div>
+          <div class="col-md-6"><label>Lokasi (Koordinat GPS)</label><input type="text" id="kKoordinat" class="form-control form-control-sm" placeholder="-6.2, 106.8"></div>
+          <div class="col-md-3"><label>Hasil</label><select id="kHasil" class="form-select form-select-sm"><option>Positif</option><option>Netral</option><option>Negatif</option></select></div>
+          <div class="col-md-3"><label>Biaya (Rp)</label><input type="number" id="kBiaya" class="form-control form-control-sm" value="0"></div>
+          <div class="col-md-12"><label>Action Item / Tindak Lanjut</label><input type="text" id="kAction" class="form-control form-control-sm" placeholder="cth: Kirim sampel minggu depan"></div>
+        </div>
+      </div>
+      <div class="modal-footer" style="border:none">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+        <button class="btn btn-info btn-sm" onclick="simpanKunjungan()"><i class="bi bi-check-lg"></i> Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SAMPEL -->
+<div class="modal fade" id="modalSampel" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-white">
+        <h5 class="mb-0"><i class="bi bi-box-seam"></i> Form Sampel</h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-2">
+          <div class="col-md-6"><label>No. SP</label><input type="text" id="sNoSP" class="form-control form-control-sm" placeholder="SP-2025-001"></div>
+          <div class="col-md-6"><label>Tanggal</label><input type="date" id="sTanggal" class="form-control form-control-sm"></div>
+          <div class="col-md-6"><label>Nama Penerima</label><input type="text" id="sNama" class="form-control form-control-sm"></div>
+          <div class="col-md-6"><label>Produk</label><input type="text" id="sProduk" class="form-control form-control-sm"></div>
+          <div class="col-md-6"><label>Jenis</label><select id="sJenis" class="form-select form-select-sm"><option>Pupuk</option><option>Pakan Ternak</option></select></div>
+          <div class="col-md-6"><label>Jumlah Sampel</label><input type="text" id="sJumlah" class="form-control form-control-sm" placeholder="cth: 2 kg"></div>
+          <div class="col-md-6"><label>No. Resi/DO</label><input type="text" id="sResi" class="form-control form-control-sm"></div>
+          <div class="col-md-6"><label>PIC</label><select id="sPIC" class="form-select form-select-sm"></select></div>
+          <div class="col-md-12"><label>Catatan</label><input type="text" id="sCatatan" class="form-control form-control-sm"></div>
+        </div>
+      </div>
+      <div class="modal-footer" style="border:none">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+        <button class="btn btn-warning btn-sm" onclick="simpanSampel()"><i class="bi bi-check-lg"></i> Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL BBM -->
+<div class="modal fade" id="modalBBM" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="mb-0"><i class="bi bi-fuel-pump"></i> Form Rembes BBM</h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-2">
+          <div class="col-md-3"><label>Tanggal</label><input type="date" id="bTanggal" class="form-control form-control-sm"></div>
+          <div class="col-md-3"><label>No. Nota</label><input type="text" id="bNoNota" class="form-control form-control-sm"></div>
+          <div class="col-md-3"><label>Staff</label><select id="bMarketing" class="form-select form-select-sm"></select></div>
+          <div class="col-md-3"><label>Nama SPBU</label><input type="text" id="bSPBU" class="form-control form-control-sm" placeholder="cth: SPBU 34.413.01"></div>
+          <div class="col-md-3"><label>Jenis BBM</label><select id="bJenis" class="form-select form-select-sm"><option>Pertalite</option><option>Pertamax</option><option>Pertamax Turbo</option><option>Solar/Bio Solar</option><option>Dexlite</option></select></div>
+          <div class="col-md-3"><label>Kendaraan</label><input type="text" id="bKendaraan" class="form-control form-control-sm" placeholder="cth: Motor Vario"></div>
+          <div class="col-md-3"><label>No. Polisi</label><input type="text" id="bNoPolisi" class="form-control form-control-sm"></div>
+          <div class="col-md-3"><label>Tujuan</label><input type="text" id="bTujuan" class="form-control form-control-sm"></div>
+          <div class="col-md-3"><label>Odometer Awal</label><input type="number" id="bOdoAwal" class="form-control form-control-sm" value="0"></div>
+          <div class="col-md-3"><label>Odometer Akhir</label><input type="number" id="bOdoAkhir" class="form-control form-control-sm" value="0"></div>
+          <div class="col-md-3"><label>Jarak (km)</label><input type="number" id="bJarak" class="form-control form-control-sm" value="0"></div>
+          <div class="col-md-3"><label>Liter</label><input type="number" id="bLiter" class="form-control form-control-sm" value="0"></div>
+          <div class="col-md-3"><label>Harga/Liter</label><input type="number" id="bHarga" class="form-control form-control-sm" value="0" oninput="hitungTotalBBM()"></div>
+          <div class="col-md-3"><label>Total Biaya</label><input type="number" id="bBiaya" class="form-control form-control-sm fw-bold" readonly style="background:#ffe5e0"></div>
+          <div class="col-md-3"><label>Status</label><select id="bStatus" class="form-select form-select-sm"><option>Pending</option><option>Approved</option><option>Rejected</option></select></div>
+          <div class="col-md-12"><label>Catatan</label><input type="text" id="bCatatan" class="form-control form-control-sm"></div>
+        </div>
+      </div>
+      <div class="modal-footer" style="border:none">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+        <button class="btn btn-danger btn-sm" onclick="simpanBBM()"><i class="bi bi-check-lg"></i> Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL LOGISTIK -->
+<div class="modal fade" id="modalLogistik" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-truck"></i> Form Logistik</h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-2">
+          <div class="col-md-3"><label>No. DO</label><input type="text" id="lNoDO" class="form-control form-control-sm"></div>
+          <div class="col-md-3"><label>Tanggal Kirim</label><input type="date" id="lTanggal" class="form-control form-control-sm"></div>
+          <div class="col-md-3"><label>Produk</label><input type="text" id="lProduk" class="form-control form-control-sm"></div>
+          <div class="col-md-3"><label>Jumlah</label><input type="text" id="lJumlah" class="form-control form-control-sm"></div>
+          <div class="col-md-4"><label>Tujuan / Alamat</label><input type="text" id="lTujuan" class="form-control form-control-sm"></div>
+          <div class="col-md-3"><label>Wilayah</label><select id="lWilayah" class="form-select form-select-sm"><option>Karawang</option><option>Purwakarta</option><option>Subang</option></select></div>
+          <div class="col-md-3"><label>Supir</label><input type="text" id="lSupir" class="form-control form-control-sm"></div>
+          <div class="col-md-2"><label>Kendaraan</label><input type="text" id="lKendaraan" class="form-control form-control-sm"></div>
+          <div class="col-md-2"><label>No. Polisi</label><input type="text" id="lNoPolisi" class="form-control form-control-sm"></div>
+          <div class="col-md-2"><label>Jam Berangkat</label><input type="time" id="lJamBerangkat" class="form-control form-control-sm"></div>
+          <div class="col-md-2"><label>Jam Tiba</label><input type="time" id="lJamTiba" class="form-control form-control-sm"></div>
+          <div class="col-md-2"><label>Jarak (km)</label><input type="number" id="lJarak" class="form-control form-control-sm" value="0"></div>
+          <div class="col-md-2"><label>Biaya (Rp)</label><input type="number" id="lBiaya" class="form-control form-control-sm" value="0"></div>
+          <div class="col-md-3"><label>Penerima</label><input type="text" id="lPenerima" class="form-control form-control-sm"></div>
+          <div class="col-md-3"><label>Status</label><select id="lStatus" class="form-select form-select-sm"><option>Pending</option><option>Dikirim</option><option>Selesai</option><option>Batal</option></select></div>
+          <div class="col-md-6"><label>Catatan</label><input type="text" id="lCatatan" class="form-control form-control-sm"></div>
+        </div>
+      </div>
+      <div class="modal-footer" style="border:none">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+        <button class="btn btn-primary btn-sm" onclick="simpanLogistik()"><i class="bi bi-check-lg"></i> Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// ========== DATA PRODUK ==========
+const produkPupuk = ["Dupan NPK","Fertindo NPK","Pupindo NPK","Phonika NPK","Planta Plus","Cornalet","Halei","Pukalet","Koka","Palmo NPK 14-6-29","DGW TSP","Cropfast NPK 13-26-26","Pak Tani Urea","Pak Tani KCl","Kancil Emas TSP","Kancil Emas NPK","Mahkota NPK 16-16-16","Meroke TSP","Phoenix Pupuk Organik","Tiger NPK","Uniq Pupuk Hayati","Petrokimia Urea","Petrokimia NPK","Pupuk Kujang Urea"];
+const produkPakan = ["HI-PRO Broiler","HI-PRO Layer","BINTANG Pakan","BONAVITE","ROYAL FEED","TURBO FEED","TIJI Pakan","Comfeed Broiler","Comfeed Layer","Benefeed","Malindo Feedmill","Cargill Pakan","New Hope Pakan","Royal De Heus","So Good Pakan","Japfa BR-1","Japfa 511","Charoen 781","Sinta Pakan"];
+const avatarColors = ['a1','a2','a3','a4','a5','a6','a7'];
+
+// ========== DATA STORE ==========
+let dataStaff = [
+  {id:1, nik:"EMP-001", nama:"Andi Wijaya", jabatan:"Marketing Manager", kontak:"0812-1111-2222", email:"andi@elvenium.co.id", wilayah:"Karawang", target:150000000, gaji:12000000, tunjangan:3000000, komisi:2.5, bank:"BCA 1234567890", status:"Aktif", join:"2022-01-15", ktp:"3215012345670001", npwp:"01.234.567.8-901.000", tempatLahir:"Karawang", tglLahir:"1988-05-12", jk:"Laki-laki", pendidikan:"S1", agama:"Islam", atasan:"Direktur", alamat:"Jl. Ahmad Yani No.10, Karawang", bpjsKes:"0001234567890", bpjsTK:"12345678901", sim:"SIM A", noSIM:"A-1234567", kendaraan:"Mobil Avanza L-1234 AB", noPolisi:"L-1234 AB"},
+  {id:2, nik:"EMP-002", nama:"Budi Santoso", jabatan:"Area Sales Manager", kontak:"0813-2222-3333", email:"budi@elvenium.co.id", wilayah:"Purwakarta", target:100000000, gaji:9000000, tunjangan:2500000, komisi:2.0, bank:"Mandiri 0987654321", status:"Aktif", join:"2022-03-10", ktp:"3214012345670002", npwp:"02.345.678.9-012.000", tempatLahir:"Purwakarta", tglLahir:"1990-08-20", jk:"Laki-laki", pendidikan:"S1", agama:"Islam", atasan:"Andi Wijaya", alamat:"Jl. Sudirman No.5, Purwakarta", bpjsKes:"0001234567891", bpjsTK:"12345678902", sim:"SIM A & C", noSIM:"A-2345678", kendaraan:"Motor Vario B-5678 CD", noPolisi:"B-5678 CD"},
+  {id:3, nik:"EMP-003", nama:"Candra Pratama", jabatan:"Sales Supervisor", kontak:"0814-3333-4444", email:"candra@elvenium.co.id", wilayah:"Subang", target:80000000, gaji:7500000, tunjangan:2000000, komisi:1.8, bank:"BNI 1122334455", status:"Aktif", join:"2023-02-20", ktp:"3213012345670003", npwp:"03.456.789.0-123.000", tempatLahir:"Subang", tglLahir:"1992-11-05", jk:"Laki-laki", pendidikan:"S1", agama:"Islam", atasan:"Andi Wijaya", alamat:"Jl. Otista No.15, Subang", bpjsKes:"0001234567892", bpjsTK:"12345678903", sim:"SIM A", noSIM:"A-3456789", kendaraan:"Mobil Pickup D-9012 EF", noPolisi:"D-9012 EF"},
+  {id:4, nik:"EMP-004", nama:"Dewi Lestari", jabatan:"Marketing Executive", kontak:"0815-4444-5555", email:"dewi@elvenium.co.id", wilayah:"Karawang", target:60000000, gaji:6000000, tunjangan:1500000, komisi:1.5, bank:"BCA 5566778899", status:"Aktif", join:"2023-06-01", ktp:"3215012345670004", npwp:"04.567.890.1-234.000", tempatLahir:"Bekasi", tglLahir:"1995-03-18", jk:"Perempuan", pendidikan:"S1", agama:"Islam", atasan:"Andi Wijaya", alamat:"Jl. Tuparev No.20, Karawang", bpjsKes:"0001234567893", bpjsTK:"12345678904", sim:"SIM C", noSIM:"C-4567890", kendaraan:"Motor Beat B-3456 GH", noPolisi:"B-3456 GH"},
+  {id:5, nik:"EMP-005", nama:"Eko Prasetyo", jabatan:"Sales Representative", kontak:"0816-5555-6666", email:"eko@elvenium.co.id", wilayah:"Purwakarta", target:50000000, gaji:5000000, tunjangan:1200000, komisi:1.2, bank:"BRI 7788990011", status:"Cuti", join:"2024-01-10", ktp:"3214012345670005", npwp:"05.678.901.2-345.000", tempatLahir:"Bandung", tglLahir:"1996-07-22", jk:"Laki-laki", pendidikan:"D3", agama:"Islam", atasan:"Budi Santoso", alamat:"Jl. Veteran No.8, Purwakarta", bpjsKes:"0001234567894", bpjsTK:"12345678905", sim:"SIM C", noSIM:"C-5678901", kendaraan:"Motor Supra B-6543 IJ", noPolisi:"B-6543 IJ"}
+];
+
+let dataPelanggan = [
+  {id:1, kode:"CST-001", nama:"Toko Tani Makmur", tipe:"Toko Tani", kontak:"0812-3456-7890", email:"tanimakmur@gmail.com", npwp:"12.345.678.9-012.000", alamat:"Jl. Raya Rengasdengklok No.10, Karawang", wilayah:"Karawang", lahan:0, ternak:0, omset:50000000, limit:30000000, termin:"30 Hari", pic:"Andi Wijaya", status:"Aktif", tglDaftar:"2022-02-01", catatan:"Pelanggan setia sejak 2022"},
+  {id:2, kode:"CST-002", nama:"CV Peternakan Sejahtera", tipe:"PT/CV", kontak:"0856-7890-1234", email:"cvs ejahtera@yahoo.co.id", npwp:"23.456.789.0-123.000", alamat:"Jl. Raya Klari KM 5, Karawang", wilayah:"Karawang", lahan:0, ternak:15000, omset:120000000, limit:50000000, termin:"30 Hari", pic:"Andi Wijaya", status:"Aktif", tglDaftar:"2022-05-15", catatan:"Peternakan ayam broiler skala besar"},
+  {id:3, kode:"CST-003", nama:"Kelompok Tani Subur", tipe:"Koperasi", kontak:"0878-1234-5678", email:"ktsubur@gmail.com", npwp:"34.567.890.1-234.000", alamat:"Jl. Raya Jatiluhur, Purwakarta", wilayah:"Purwakarta", lahan:80, ternak:0, omset:45000000, limit:25000000, termin:"14 Hari", pic:"Budi Santoso", status:"Aktif", tglDaftar:"2022-08-20", catatan:"Koperasi tani dengan 45 anggota"},
+  {id:4, kode:"CST-004", nama:"UD Ayam Kampung", tipe:"Peternakan", kontak:"0813-5678-9012", email:"udayamkampung@gmail.com", npwp:"45.678.901.2-345.000", alamat:"Jl. Raya Pabuaran, Subang", wilayah:"Subang", lahan:0, ternak:8000, omset:80000000, limit:35000000, termin:"30 Hari", pic:"Candra Pratama", status:"Aktif", tglDaftar:"2023-01-10", catatan:"Fokus pakan layer"},
+  {id:5, kode:"CST-005", nama:"Koperasi Tani Jaya", tipe:"Koperasi", kontak:"0821-9012-3456", email:"ktjaya@gmail.com", npwp:"56.789.012.3-456.000", alamat:"Jl. Raya Cikampek, Karawang", wilayah:"Karawang", lahan:120, ternak:0, omset:180000000, limit:75000000, termin:"30 Hari", pic:"Dewi Lestari", status:"Aktif", tglDaftar:"2023-03-15", catatan:"Koperasi terbesar di Cikampek"},
+  {id:6, kode:"CST-006", nama:"Toko Saprotan Subur", tipe:"Toko Tani", kontak:"0819-8765-4321", email:"saprotan.subur@gmail.com", npwp:"67.890.123.4-567.000", alamat:"Jl. Raya Purwakarta, Purwakarta", wilayah:"Purwakarta", lahan:0, ternak:0, omset:35000000, limit:20000000, termin:"7 Hari", pic:"Budi Santoso", status:"Potensial", tglDaftar:"2024-06-01", catatan:"Calon pelanggan baru"}
+];
+
+let dataProduk = [
+  {id:1, kode:"PUP-001", nama:"Dupan NPK", kategori:"Pupuk", merek:"Saraswanti", pabrik:"PT Saraswanti Anugerah Makmur", kemasan:"Sak 50kg", berat:"50 kg", satuan:"sak", sni:"SNI-02-2803", expired:"2026-12-31", komposisi:"N 15%, P2O5 15%, K2O 15%", hargaBeli:170000, hargaJual:195000, stok:250, stokMin:50, leadTime:7, gudang:"Gudang Utama Rengasdengklok"},
+  {id:2, kode:"PUP-002", nama:"Palmo NPK 14-6-29", kategori:"Pupuk", merek:"Wilmar", pabrik:"PT Wilmar Padi Indonesia", kemasan:"Sak 50kg", berat:"50 kg", satuan:"sak", sni:"SNI-02-2803", expired:"2026-11-30", komposisi:"N 14%, P2O5 6%, K2O 29%", hargaBeli:305000, hargaJual:340000, stok:180, stokMin:50, leadTime:10, gudang:"Gudang Utama Rengasdengklok"},
+  {id:3, kode:"PUP-003", nama:"Pak Tani Urea", kategori:"Pupuk", merek:"Saprotan", pabrik:"PT Saprotan Utama", kemasan:"Sak 50kg", berat:"50 kg", satuan:"sak", sni:"SNI-02-2801", expired:"2027-06-30", komposisi:"N 46%", hargaBeli:88000, hargaJual:98000, stok:500, stokMin:100, leadTime:5, gudang:"Gudang Utama Rengasdengklok"},
+  {id:4, kode:"PAK-001", nama:"HI-PRO Broiler", kategori:"Pakan Ternak", merek:"Charoen Pokphand", pabrik:"PT Charoen Pokphand Indonesia", kemasan:"Karung 50kg", berat:"50 kg", satuan:"karung", sni:"SNI-01-4428", expired:"2025-08-31", komposisi:"Protein 21%, Lemak 5%, Serat 5%", hargaBeli:400000, hargaJual:445000, stok:320, stokMin:80, leadTime:7, gudang:"Gudang Utama Rengasdengklok"},
+  {id:5, kode:"PAK-002", nama:"Comfeed Layer", kategori:"Pakan Ternak", merek:"Japfa", pabrik:"PT Japfa Comfeed Indonesia", kemasan:"Karung 50kg", berat:"50 kg", satuan:"karung", sni:"SNI-01-4428", expired:"2025-09-30", komposisi:"Protein 17%, Lemak 4%, Serat 7%", hargaBeli:360000, hargaJual:395000, stok:290, stokMin:80, leadTime:7, gudang:"Gudang Utama Rengasdengklok"}
+];
+
+let dataKunjungan = [
+  {id:1, tanggal:"2025-01-11", jamIn:"09:00", jamOut:"10:30", durasi:90, staff:"Andi Wijaya", pelanggan:"Toko Tani Makmur", agenda:"Presentasi produk NPK baru", koordinat:"-6.3728, 107.2881", hasil:"Positif", biaya:150000, action:"Kirim sampel minggu depan"},
+  {id:2, tanggal:"2025-01-13", jamIn:"13:00", jamOut:"14:00", durasi:60, staff:"Budi Santoso", pelanggan:"CV Peternakan Sejahtera", agenda:"Follow-up order pakan", koordinat:"-6.3601, 107.2950", hasil:"Positif", biaya:200000, action:"Kirim penawaran harga"},
+  {id:3, tanggal:"2025-01-16", jamIn:"10:00", jamOut:"11:30", durasi:90, staff:"Candra Pratama", pelanggan:"Kelompok Tani Subur", agenda:"Demo produk Palmo NPK", koordinat:"-6.5573, 107.4434", hasil:"Netral", biaya:250000, action:"Jadwalkan demo lanjutan"}
+];
+
+let dataPermintaan = [
+  {id:1, nama:"Toko Tani Makmur", kontak:"0812-3456-7890", jenis:"Pupuk", produk:"Dupan NPK", jumlah:"5 ton/bulan", noPO:"PO-2025-001", tanggalOrder:"2025-01-10", hargaSatuan:195000, qty:100, diskon:5, ppn:11, ongkir:500000, nilai:20500000, prioritas:"Tinggi", sumber:"Referral", termin:"30 Hari", alamat:"Jl. Raya Rengasdengklok No.10, Karawang", wilayah:"Karawang", koordinat:"-6.3728, 107.2881", sampel:"Ya", tertarik:"Ya", pic:"Andi Wijaya", followup:"2025-01-25", kompetitor:"Merek X", catatan:"Pelanggan potensial", tanggal:"2025-01-10"},
+  {id:2, nama:"CV Peternakan Sejahtera", kontak:"0856-7890-1234", jenis:"Pakan Ternak", produk:"HI-PRO Broiler", jumlah:"10 ton/bulan", noPO:"PO-2025-002", tanggalOrder:"2025-01-12", hargaSatuan:445000, qty:200, diskon:3, ppn:11, ongkir:800000, nilai:89000000, prioritas:"Tinggi", sumber:"Event", termin:"30 Hari", alamat:"Jl. Raya Klari KM 5, Karawang", wilayah:"Karawang", koordinat:"-6.3601, 107.2950", sampel:"Tidak", tertarik:"Ya", pic:"Budi Santoso", followup:"2025-01-28", kompetitor:"-", catatan:"Order rutin bulanan", tanggal:"2025-01-12"},
+  {id:3, nama:"Kelompok Tani Subur", kontak:"0878-1234-5678", jenis:"Pupuk", produk:"Palmo NPK 14-6-29", jumlah:"3 ton/bulan", noPO:"PO-2025-003", tanggalOrder:"2025-01-15", hargaSatuan:340000, qty:60, diskon:2, ppn:11, ongkir:300000, nilai:20400000, prioritas:"Sedang", sumber:"Walk-in", termin:"14 Hari", alamat:"Jl. Raya Jatiluhur, Purwakarta", wilayah:"Purwakarta", koordinat:"-6.5573, 107.4434", sampel:"Ya", tertarik:"Belum", pic:"Budi Santoso", followup:"2025-02-01", kompetitor:"Merek Y", catatan:"Perlu demo ulang", tanggal:"2025-01-15"},
+  {id:4, nama:"UD Ayam Kampung", kontak:"0813-5678-9012", jenis:"Pakan Ternak", produk:"Comfeed Layer", jumlah:"8 ton/bulan", noPO:"PO-2025-004", tanggalOrder:"2025-01-18", hargaSatuan:395000, qty:160, diskon:3, ppn:11, ongkir:600000, nilai:63200000, prioritas:"Tinggi", sumber:"Online", termin:"30 Hari", alamat:"Jl. Raya Pabuaran, Subang", wilayah:"Subang", koordinat:"-6.5714, 107.7583", sampel:"Ya", tertarik:"Ya", pic:"Candra Pratama", followup:"2025-01-26", kompetitor:"-", catatan:"Fokus pakan layer", tanggal:"2025-01-18"},
+  {id:5, nama:"Koperasi Tani Jaya", kontak:"0821-9012-3456", jenis:"Pupuk", produk:"Pak Tani Urea", jumlah:"20 ton/bulan", noPO:"PO-2025-005", tanggalOrder:"2025-01-20", hargaSatuan:98000, qty:400, diskon:5, ppn:11, ongkir:1200000, nilai:38300000, prioritas:"Tinggi", sumber:"Telemarketing", termin:"30 Hari", alamat:"Jl. Raya Cikampek, Karawang", wilayah:"Karawang", koordinat:"-6.4012, 107.4536", sampel:"Tidak", tertarik:"Ya", pic:"Dewi Lestari", followup:"2025-01-30", kompetitor:"-", catatan:"Koperasi besar", tanggal:"2025-01-20"}
+];
+
+let dataSampel = [
+  {id:1, noSP:"SP-2025-001", tanggal:"2025-01-11", nama:"Toko Tani Makmur", produk:"Dupan NPK", jenis:"Pupuk", jumlah:"2 kg", resi:"JNE-001234", status:"Terkirim", pic:"Andi Wijaya", catatan:"Untuk uji coba"},
+  {id:2, noSP:"SP-2025-002", tanggal:"2025-01-19", nama:"UD Ayam Kampung", produk:"Comfeed Layer", jenis:"Pakan Ternak", jumlah:"5 kg", resi:"JNE-001235", status:"Diproses", pic:"Candra Pratama", catatan:"Sample layer"},
+  {id:3, noSP:"SP-2025-003", tanggal:"2025-01-16", nama:"Kelompok Tani Subur", produk:"Palmo NPK", jenis:"Pupuk", jumlah:"1 kg", resi:"-", status:"Menunggu", pic:"Budi Santoso", catatan:"Untuk demo"}
+];
+
+let dataBBM = [
+  {id:1, tanggal:"2025-01-10", noNota:"BBM-001", kendaraan:"Mobil Avanza", noPolisi:"L-1234 AB", jenis:"Pertalite", spbu:"SPBU 34.413.01 Rengasdengklok", marketing:"Andi Wijaya", tujuan:"Karawang - Rengasdengklok", odometerAwal:45000, odometerAkhir:45120, jarak:120, liter:15, harga:10000, biaya:150000, status:"Approved", catatan:"Kunjungan pelanggan"},
+  {id:2, tanggal:"2025-01-12", noNota:"BBM-002", kendaraan:"Motor Vario", noPolisi:"B-5678 CD", jenis:"Pertalite", spbu:"SPBU 34.411.05 Klari", marketing:"Budi Santoso", tujuan:"Klari - Purwakarta", odometerAwal:22000, odometerAkhir:22085, jarak:85, liter:5, harga:10000, biaya:50000, status:"Approved", catatan:"Kunjungan rutin"},
+  {id:3, tanggal:"2025-01-15", noNota:"BBM-003", kendaraan:"Mobil Pickup", noPolisi:"D-9012 EF", jenis:"Solar/Bio Solar", spbu:"SPBU 34.412.03 Cikampek", marketing:"Candra Pratama", tujuan:"Cikampek - Subang", odometerAwal:68000, odometerAkhir:68200, jarak:200, liter:25, harga:6800, biaya:170000, status:"Pending", catatan:"Menunggu approval"}
+];
+
+let dataLogistik = [
+  {id:1, noDO:"DO-2025-001", tanggal:"2025-01-11", produk:"Dupan NPK 5 ton", jumlah:"5 ton", tujuan:"Toko Tani Makmur, Rengasdengklok", wilayah:"Karawang", supir:"Surya", kendaraan:"Mobil Box", noPolisi:"L-1234 AB", jamBerangkat:"08:00", jamTiba:"09:30", jarak:25, biaya:500000, penerima:"Pak Ahmad", status:"Selesai", catatan:"Pengiriman lancar"},
+  {id:2, noDO:"DO-2025-002", tanggal:"2025-01-13", produk:"HI-PRO Broiler 10 ton", jumlah:"10 ton", tujuan:"CV Peternakan Sejahtera, Klari", wilayah:"Karawang", supir:"Wawan", kendaraan:"Truk Fuso", noPolisi:"B-5678 CD", jamBerangkat:"07:00", jamTiba:"10:00", jarak:35, biaya:800000, penerima:"Bu Siti", status:"Selesai", catatan:"-" },
+  {id:3, noDO:"DO-2025-003", tanggal:"2025-01-16", produk:"Palmo NPK 3 ton", jumlah:"3 ton", tujuan:"Kelompok Tani Subur, Jatiluhur", wilayah:"Purwakarta", supir:"Joko", kendaraan:"Mobil Pickup", noPolisi:"D-9012 EF", jamBerangkat:"06:00", jamTiba:"09:00", jarak:75, biaya:600000, penerima:"Pak Hadi", status:"Dikirim", catatan:"Menuju lokasi"}
+];
+
+// ========== UTIL ==========
+const rupiah = n => 'Rp ' + (n || 0).toLocaleString('id-ID');
+const singkat = n => n >= 1e9 ? 'Rp ' + (n/1e9).toFixed(1) + 'M' : n >= 1e6 ? 'Rp ' + (n/1e6).toFixed(1) + 'jt' : n >= 1e3 ? 'Rp ' + (n/1e3).toFixed(0) + 'K' : rupiah(n);
+const esc = s => String(s || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const badge = (txt, color) => `<span class="badge bg-${color} badge-status">${esc(txt)}</span>`;
+const filterTable = (id, q) => {
+  const rows = document.querySelectorAll('#' + id + ' tbody tr');
+  const term = q.toLowerCase();
+  rows.forEach(r => r.style.display = r.textContent.toLowerCase().includes(term) ? '' : 'none');
+};
+
+// ========== NAVIGASI ==========
+const panelTitles = {
+  dashboard:'Dashboard ERP Marketing', permintaan:'Panel Permintaan', sampel:'Panel Sampel',
+  kunjungan:'Log Kunjungan', bbm:'Panel Rembes BBM', logistik:'Panel Logistik',
+  staff:'Staff Marketing', pelanggan:'Database Pelanggan', produk:'Master Produk & Stok',
+  wilayah:'Cakupan Wilayah Distribusi', kpi:'Target & KPI', laporan:'Laporan', pengaturan:'Pengaturan'
+};
+
+document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
+    this.classList.add('active');
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    const panel = this.dataset.panel;
+    document.getElementById('panel-' + panel).classList.add('active');
+    document.getElementById('pageTitle').textContent = panelTitles[panel];
+    if (panel === 'dashboard') setTimeout(renderDashboardCharts, 50);
+    if (panel === 'laporan') renderLaporan();
+    if (panel === 'kpi') setTimeout(renderKPI, 50);
+    if (panel === 'wilayah') setTimeout(renderWilayah, 50);
+    window.scrollTo(0, 0);
+  });
+});
+
+// ========== HITUNG ==========
+function hitungTotal() {
+  const hs = +document.getElementById('pHargaSatuan').value || 0;
+  const q = +document.getElementById('pQty').value || 0;
+  const disc = +document.getElementById('pDiskon').value || 0;
+  const ppn = +document.getElementById('pPPN').value || 0;
+  const ongkir = +document.getElementById('pOngkir').value || 0;
+  const subtotal = hs * q;
+  const afterDisc = subtotal * (1 - disc/100);
+  const ppnVal = afterDisc * (ppn/100);
+  const total = afterDisc + ppnVal + ongkir;
+  document.getElementById('pTotal').value = Math.round(total).toLocaleString('id-ID');
+  return total;
+}
+
+function hitungTotalBBM() {
+  const liter = +document.getElementById('bLiter').value || 0;
+  const harga = +document.getElementById('bHarga').value || 0;
+  document.getElementById('bBiaya').value = liter * harga;
+}
+
+function hitungMargin() {
+  const beli = +document.getElementById('prHargaBeli').value || 0;
+  const jual = +document.getElementById('prHargaJual').value || 0;
+  const margin = beli > 0 ? ((jual - beli) / beli * 100).toFixed(1) : 0;
+  document.getElementById('prMargin').value = margin + '%';
+}
+
+// ========== RENDER TABEL ==========
+function renderPermintaan() {
+  document.getElementById('permintaanTableBody').innerHTML = dataPermintaan.map((d, i) => {
+    const prC = d.prioritas === 'Tinggi' ? 'danger' : d.prioritas === 'Sedang' ? 'warning' : 'secondary';
+    return `<tr>
+      <td>${i+1}</td><td><small>${d.tanggalOrder || d.tanggal}</small></td><td><code>${esc(d.noPO || '-')}</code></td>
+      <td><b>${esc(d.nama)}</b></td><td><small>${esc(d.kontak)}</small></td>
+      <td><span class="badge ${d.jenis === 'Pupuk' ? 'badge-pupuk' : 'badge-pakan'}">${esc(d.jenis)}</span></td>
+      <td>${esc(d.produk)}</td><td>${esc(d.jumlah)}</td>
+      <td><b>${singkat(d.nilai)}</b></td>
+      <td>${badge(d.prioritas, prC)}</td>
+      <td><small>${esc(d.pic || '-')}</small></td>
+      <td>${d.tertarik === 'Ya' ? badge('Ya','success') : d.tertarik === 'Belum' ? badge('Belum','info') : badge('Tidak','danger')}</td>
+      <td class="no-print">
+        <button class="btn btn-sm btn-outline-warning btn-icon me-1" onclick="editPermintaan(${d.id})" title="Edit"><i class="bi bi-pencil"></i></button>
+        <button class="btn btn-sm btn-danger btn-icon" onclick="hapusData('permintaan',${d.id})"><i class="bi bi-trash"></i></button>
+      </td>
+    </tr>`;
+  }).join('');
+  document.getElementById('statTotalPermintaan').textContent = dataPermintaan.length;
+  const totalNilai = dataPermintaan.reduce((s,d) => s + (d.nilai || 0), 0);
+  document.getElementById('statNilai').textContent = singkat(totalNilai);
+}
+
+function renderStaff() {
+  document.getElementById('staffTableBody').innerHTML = dataStaff.map((d, i) => {
+    const initial = (d.nama || '?').split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+    const av = avatarColors[i % avatarColors.length];
+    const stC = d.status === 'Aktif' ? 'success' : d.status === 'Cuti' ? 'warning' : 'secondary';
+    return `<tr>
+      <td>${i+1}</td>
+      <td><div class="avatar ${av}">${initial}</div></td>
+      <td><code>${esc(d.nik)}</code></td>
+      <td><b>${esc(d.nama)}</b></td>
+      <td><small>${esc(d.jabatan)}</small></td>
+      <td><small>${esc(d.wilayah)}</small></td>
+      <td><small>${esc(d.kontak)}</small></td>
+      <td><small>${esc(d.email)}</small></td>
+      <td><b>${singkat(d.target)}</b></td>
+      <td><small>${singkat(d.gaji || 0)}</small></td>
+      <td><small>${d.komisi || 0}%</small></td>
+      <td>${badge(d.status, stC)}</td>
+      <td class="no-print">
+        <button class="btn btn-sm btn-outline-warning btn-icon me-1" onclick="editStaff(${d.id})"><i class="bi bi-pencil"></i></button>
+        <button class="btn btn-sm btn-danger btn-icon" onclick="hapusData('staff',${d.id})"><i class="bi bi-trash"></i></button>
+      </td>
+    </tr>`;
+  }).join('');
+  document.getElementById('statStaff').textContent = dataStaff.filter(d => d.status === 'Aktif').length;
+}
+
+function renderPelanggan() {
+  document.getElementById('pelangganTableBody').innerHTML = dataPelanggan.map((d, i) => {
+    const stC = d.status === 'Aktif' ? 'success' : d.status === 'Potensial' ? 'info' : 'secondary';
+    return `<tr>
+      <td>${i+1}</td><td><code>${esc(d.kode)}</code></td><td><b>${esc(d.nama)}</b></td>
+      <td><span class="badge bg-primary badge-status">${esc(d.tipe)}</span></td>
+      <td><small>${esc(d.wilayah)}</small></td>
+      <td><small>${esc(d.kontak)}</small></td>
+      <td><small>${esc(d.npwp || '-')}</small></td>
+      <td><small>${singkat(d.limit || 0)}</small></td>
+      <td><small>${esc(d.termin)}</small></td>
+      <td><small>${esc(d.pic)}</small></td>
+      <td>${badge(d.status, stC)}</td>
+      <td class="no-print">
+        <button class="btn btn-sm btn-outline-warning btn-icon me-1" onclick="editPelanggan(${d.id})"><i class="bi bi-pencil"></i></button>
+        <button class="btn btn-sm btn-danger btn-icon" onclick="hapusData('pelanggan',${d.id})"><i class="bi bi-trash"></i></button>
+      </td>
+    </tr>`;
+  }).join('');
+  document.getElementById('statPelanggan').textContent = dataPelanggan.length;
+}
+
+function renderProduk() {
+  document.getElementById('produkTableBody').innerHTML = dataProduk.map((d, i) => {
+    const stokC = d.stok < d.stokMin ? 'danger' : d.stok < d.stokMin*2 ? 'warning' : 'success';
+    const margin = d.hargaBeli > 0 ? ((d.hargaJual - d.hargaBeli)/d.hargaBeli*100).toFixed(1) : 0;
+    return `<tr>
+      <td>${i+1}</td><td><code>${esc(d.kode)}</code></td><td><b>${esc(d.nama)}</b></td>
+      <td><span class="badge ${d.kategori === 'Pupuk' ? 'badge-pupuk' : 'badge-pakan'}">${esc(d.kategori)}</span></td>
+      <td><small>${esc(d.merek)}</small></td>
+      <td><small>${esc(d.kemasan)}</small></td>
+      <td><small>${esc(d.berat)}</small></td>
+      <td><small>${rupiah(d.hargaBeli)}</small></td>
+      <td><b>${rupiah(d.hargaJual)}</b></td>
+      <td><small>${margin}%</small></td>
+      <td>${badge(d.stok, stokC)}</td>
+      <td>${badge(d.stok > 0 ? 'Tersedia' : 'Kosong', d.stok > 0 ? 'success' : 'danger')}</td>
+      <td class="no-print">
+        <button class="btn btn-sm btn-outline-warning btn-icon me-1" onclick="editProduk(${d.id})"><i class="bi bi-pencil"></i></button>
+        <button class="btn btn-sm btn-danger btn-icon" onclick="hapusData('produk',${d.id})"><i class="bi bi-trash"></i></button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderKunjungan() {
+  document.getElementById('kunjunganTableBody').innerHTML = dataKunjungan.map((d, i) => {
+    const hC = d.hasil === 'Positif' ? 'success' : d.hasil === 'Netral' ? 'warning' : 'danger';
+    return `<tr>
+      <td>${i+1}</td><td>${d.tanggal}</td><td><b>${esc(d.staff)}</b></td><td>${esc(d.pelanggan)}</td>
+      <td><small>${esc(d.agenda)}</small></td><td><small>${d.durasi || 0} mnt</small></td>
+      <td>${badge(d.hasil, hC)}</td>
+      <td><small>${esc(d.action || '-')}</small></td>
+      <td>${rupiah(d.biaya)}</td>
+      <td class="no-print"><button class="btn btn-sm btn-danger btn-icon" onclick="hapusData('kunjungan',${d.id})"><i class="bi bi-trash"></i></button></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('statKunjungan').textContent = dataKunjungan.length;
+}
+
+function renderSampel() {
+  document.getElementById('sampelTableBody').innerHTML = dataSampel.map((d, i) => `
+    <tr><td>${i+1}</td><td><code>${esc(d.noSP || '-')}</code></td><td>${d.tanggal}</td><td><b>${esc(d.nama)}</b></td><td>${esc(d.produk)}</td><td>${esc(d.jenis)}</td><td>${esc(d.jumlah)}</td>
+    <td><small>${esc(d.resi || '-')}</small></td>
+    <td>${badge(d.status, d.status === 'Terkirim' ? 'success' : d.status === 'Diproses' ? 'warning' : 'secondary')}</td>
+    <td><small>${esc(d.pic || '-')}</small></td>
+    <td class="no-print"><button class="btn btn-sm btn-danger btn-icon" onclick="hapusData('sampel',${d.id})"><i class="bi bi-trash"></i></button></td></tr>
+  `).join('');
+  document.getElementById('statSampel').textContent = dataSampel.length;
+}
+
+function renderBBM() {
+  document.getElementById('bbmTableBody').innerHTML = dataBBM.map((d, i) => `
+    <tr><td>${i+1}</td><td>${d.tanggal}</td><td><code>${esc(d.noNota || '-')}</code></td><td><small>${esc(d.marketing)}</small></td><td>${esc(d.kendaraan)}</td><td><code>${esc(d.noPolisi || '-')}</code></td>
+    <td><small>${esc(d.spbu || '-')}</small></td><td><small>${esc(d.jenis || '-')}</small></td><td>${d.liter} L</td>
+    <td><small>${d.odometerAwal || 0} → ${d.odometerAkhir || 0}</small></td>
+    <td><b>${rupiah(d.biaya)}</b></td>
+    <td>${badge(d.status, d.status === 'Approved' ? 'success' : d.status === 'Rejected' ? 'danger' : 'warning')}</td>
+    <td class="no-print"><button class="btn btn-sm btn-danger btn-icon" onclick="hapusData('bbm',${d.id})"><i class="bi bi-trash"></i></button></td></tr>
+  `).join('');
+  const total = dataBBM.reduce((s, d) => s + d.biaya, 0);
+  document.getElementById('statBBM').textContent = singkat(total);
+}
+
+function renderLogistik() {
+  document.getElementById('logistikTableBody').innerHTML = dataLogistik.map((d, i) => `
+    <tr><td>${i+1}</td><td><code>${esc(d.noDO)}</code></td><td>${d.tanggal}</td><td>${esc(d.produk)}</td><td>${esc(d.jumlah)}</td>
+    <td><small>${esc(d.tujuan)}</small></td><td>${esc(d.supir || '-')}</td><td>${esc(d.kendaraan)}</td>
+    <td><code>${esc(d.noPolisi || '-')}</code></td>
+    <td><small>${d.jamBerangkat || '-'}</small></td><td><small>${d.jamTiba || '-'}</small></td>
+    <td>${rupiah(d.biaya || 0)}</td>
+    <td>${badge(d.status, d.status === 'Selesai' ? 'success' : d.status === 'Dikirim' ? 'primary' : d.status === 'Batal' ? 'danger' : 'warning')}</td>
+    <td class="no-print"><button class="btn btn-sm btn-danger btn-icon" onclick="hapusData('logistik',${d.id})"><i class="bi bi-trash"></i></button></td></tr>
+  `).join('');
+  document.getElementById('statLogistik').textContent = dataLogistik.filter(d => d.status === 'Dikirim' || d.status === 'Pending').length;
+}
+
+// ========== DROPDOWN ==========
+function refreshDropdowns() {
+  const opts = dataStaff.filter(s => s.status === 'Aktif').map(s => `<option value="${esc(s.nama)}">${esc(s.nama)} (${esc(s.wilayah)})</option>`).join('');
+  ['pPIC','bMarketing','kStaff','sPIC','plPIC'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = opts;
+  });
+}
+
+// ========== FORM RESET ==========
+function resetPermintaanForm() {
+  document.getElementById('permintaanModalTitle').textContent = 'Form Permintaan';
+  document.getElementById('pEditId').value = '';
+  ['pNama','pKontak','pAlamat','pKoordinat','pNoPO','pTanggalOrder','pJumlah','pHargaSatuan','pQty','pDiskon','pOngkir','pTotal','pFollowup','pKompetitor','pCatatan'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('pPPN').value = 11;
+  document.getElementById('pPrioritas').value = 'Sedang';
+  document.getElementById('pSumber').value = 'Referral';
+  document.getElementById('pTermin').value = '30 Hari';
+  document.getElementById('pSampel').value = 'Tidak';
+  document.getElementById('pTertarik').value = 'Belum';
+}
+
+function resetStaffForm() {
+  document.getElementById('staffModalTitle').textContent = 'Form Staff Marketing';
+  document.getElementById('stEditId').value = '';
+  document.querySelectorAll('#modalStaff input, #modalStaff select').forEach(el => {
+    if (el.type === 'number') el.value = '0';
+    else if (el.tagName === 'SELECT') el.selectedIndex = 0;
+    else el.value = '';
+  });
+}
+
+function resetPelangganForm() {
+  document.getElementById('pelangganModalTitle').textContent = 'Form Pelanggan';
+  document.getElementById('plEditId').value = '';
+  document.querySelectorAll('#modalPelanggan input, #modalPelanggan select').forEach(el => {
+    if (el.type === 'number') el.value = '0';
+    else if (el.tagName === 'SELECT') el.selectedIndex = 0;
+    else el.value = '';
+  });
+}
+
+function resetProdukForm() {
+  document.getElementById('produkModalTitle').textContent = 'Form Produk';
+  document.getElementById('prEditId').value = '';
+  document.querySelectorAll('#modalProduk input, #modalProduk select').forEach(el => {
+    if (el.type === 'number') el.value = '0';
+    else if (el.tagName === 'SELECT') el.selectedIndex = 0;
+    else el.value = '';
+  });
+}
+
+// ========== SIMPAN ==========
+function simpanPermintaan() {
+  const id = +document.getElementById('pEditId').value;
+  const nama = document.getElementById('pNama').value.trim();
+  if (!nama) { alert('Nama wajib diisi'); return; }
+  const total = hitungTotal();
+  const payload = {
+    nama, kontak: document.getElementById('pKontak').value,
+    jenis: document.getElementById('pJenis').value,
+    produk: document.getElementById('pProduk').value,
+    jumlah: document.getElementById('pJumlah').value,
+    noPO: document.getElementById('pNoPO').value,
+    tanggalOrder: document.getElementById('pTanggalOrder').value,
+    hargaSatuan: +document.getElementById('pHargaSatuan').value || 0,
+    qty: +document.getElementById('pQty').value || 0,
+    diskon: +document.getElementById('pDiskon').value || 0,
+    ppn: +document.getElementById('pPPN').value || 0,
+    ongkir: +document.getElementById('pOngkir').value || 0,
+    nilai: total,
+    prioritas: document.getElementById('pPrioritas').value,
+    sumber: document.getElementById('pSumber').value,
+    termin: document.getElementById('pTermin').value,
+    alamat: document.getElementById('pAlamat').value,
+    wilayah: document.getElementById('pWilayah').value,
+    koordinat: document.getElementById('pKoordinat').value || '-6.2, 106.8',
+    pic: document.getElementById('pPIC').value,
+    followup: document.getElementById('pFollowup').value,
+    kompetitor: document.getElementById('pKompetitor').value,
+    sampel: document.getElementById('pSampel').value,
+    tertarik: document.getElementById('pTertarik').value,
+    catatan: document.getElementById('pCatatan').value
+  };
+  if (id) {
+    const idx = dataPermintaan.findIndex(x => x.id === id);
+    dataPermintaan[idx] = {...dataPermintaan[idx], ...payload};
+  } else {
+    dataPermintaan.push({id: Date.now(), tanggal: new Date().toISOString().slice(0,10), ...payload});
+  }
+  closeModal('modalPermintaan'); renderAll();
+}
+
+function editPermintaan(id) {
+  const d = dataPermintaan.find(x => x.id === id);
+  if (!d) return;
+  document.getElementById('permintaanModalTitle').textContent = 'Edit Permintaan';
+  document.getElementById('pEditId').value = d.id;
+  document.getElementById('pNama').value = d.nama;
+  document.getElementById('pKontak').value = d.kontak;
+  document.getElementById('pAlamat').value = d.alamat;
+  document.getElementById('pWilayah').value = d.wilayah || 'Karawang';
+  document.getElementById('pKoordinat').value = d.koordinat;
+  document.getElementById('pNoPO').value = d.noPO || '';
+  document.getElementById('pTanggalOrder').value = d.tanggalOrder || '';
+  document.getElementById('pJenis').value = d.jenis;
+  updateProdukDropdown();
+  document.getElementById('pProduk').value = d.produk;
+  document.getElementById('pJumlah').value = d.jumlah;
+  document.getElementById('pHargaSatuan').value = d.hargaSatuan || 0;
+  document.getElementById('pQty').value = d.qty || 0;
+  document.getElementById('pDiskon').value = d.diskon || 0;
+  document.getElementById('pPPN').value = d.ppn || 11;
+  document.getElementById('pOngkir').value = d.ongkir || 0;
+  document.getElementById('pTotal').value = (d.nilai || 0).toLocaleString('id-ID');
+  document.getElementById('pPrioritas').value = d.prioritas || 'Sedang';
+  document.getElementById('pSumber').value = d.sumber || 'Referral';
+  document.getElementById('pTermin').value = d.termin || '30 Hari';
+  document.getElementById('pPIC').value = d.pic || '';
+  document.getElementById('pFollowup').value = d.followup || '';
+  document.getElementById('pKompetitor').value = d.kompetitor || '';
+  document.getElementById('pSampel').value = d.sampel;
+  document.getElementById('pTertarik').value = d.tertarik;
+  document.getElementById('pCatatan').value = d.catatan || '';
+  new bootstrap.Modal(document.getElementById('modalPermintaan')).show();
+}
+
+function simpanStaff() {
+  const id = +document.getElementById('stEditId').value;
+  const nama = document.getElementById('stNama').value.trim();
+  if (!nama) { alert('Nama wajib diisi'); return; }
+  const payload = {
+    nik: document.getElementById('stNIK').value || 'EMP-' + Date.now().toString().slice(-4),
+    nama, jabatan: document.getElementById('stJabatan').value,
+    kontak: document.getElementById('stKontak').value,
+    email: document.getElementById('stEmail').value,
+    wilayah: document.getElementById('stWilayah').value,
+    target: +document.getElementById('stTarget').value || 0,
+    gaji: +document.getElementById('stGaji').value || 0,
+    tunjangan: +document.getElementById('stTunjangan').value || 0,
+    komisi: +document.getElementById('stKomisi').value || 0,
+    bank: document.getElementById('stBank').value,
+    status: document.getElementById('stStatus').value,
+    join: document.getElementById('stJoin').value,
+    ktp: document.getElementById('stKTP').value,
+    npwp: document.getElementById('stNPWP').value,
+    tempatLahir: document.getElementById('stTempatLahir').value,
+    tglLahir: document.getElementById('stTglLahir').value,
+    jk: document.getElementById('stJK').value,
+    pendidikan: document.getElementById('stPendidikan').value,
+    agama: document.getElementById('stAgama').value,
+    atasan: document.getElementById('stAtasan').value,
+    alamat: document.getElementById('stAlamat').value,
+    bpjsKes: document.getElementById('stBPJSKes').value,
+    bpjsTK: document.getElementById('stBPJSTK').value,
+    sim: document.getElementById('stSIM').value,
+    noSIM: document.getElementById('stNoSIM').value,
+    kendaraan: document.getElementById('stKendaraan').value,
+    noPolisi: document.getElementById('stNoPolisi').value
+  };
+  if (id) {
+    const idx = dataStaff.findIndex(x => x.id === id);
+    dataStaff[idx] = {...dataStaff[idx], ...payload};
+  } else {
+    dataStaff.push({id: Date.now(), ...payload});
+  }
+  closeModal('modalStaff'); refreshDropdowns(); renderAll();
+}
+
+function editStaff(id) {
+  const d = dataStaff.find(x => x.id === id);
+  if (!d) return;
+  document.getElementById('staffModalTitle').textContent = 'Edit Staff Marketing';
+  document.getElementById('stEditId').value = d.id;
+  const map = {stNIK:'nik', stNama:'nama', stKTP:'ktp', stNPWP:'npwp', stTempatLahir:'tempatLahir', stTglLahir:'tglLahir', stJK:'jk', stPendidikan:'pendidikan', stAgama:'agama', stJabatan:'jabatan', stWilayah:'wilayah', stStatus:'status', stJoin:'join', stAtasan:'atasan', stKontak:'kontak', stEmail:'email', stAlamat:'alamat', stGaji:'gaji', stTunjangan:'tunjangan', stKomisi:'komisi', stTarget:'target', stBank:'bank', stBPJSKes:'bpjsKes', stBPJSTK:'bpjsTK', stSIM:'sim', stNoSIM:'noSIM', stKendaraan:'kendaraan', stNoPolisi:'noPolisi'};
+  Object.entries(map).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = d[key] || '';
+  });
+  new bootstrap.Modal(document.getElementById('modalStaff')).show();
+}
+
+function simpanPelanggan() {
+  const id = +document.getElementById('plEditId').value;
+  const nama = document.getElementById('plNama').value.trim();
+  if (!nama) { alert('Nama wajib diisi'); return; }
+  const payload = {
+    kode: document.getElementById('plKode').value || 'CST-' + Date.now().toString().slice(-4),
+    nama, tipe: document.getElementById('plTipe').value,
+    kontak: document.getElementById('plKontak').value,
+    email: document.getElementById('plEmail').value,
+    npwp: document.getElementById('plNPWP').value,
+    alamat: document.getElementById('plAlamat').value,
+    wilayah: document.getElementById('plWilayah').value,
+    lahan: +document.getElementById('plLahan').value || 0,
+    ternak: +document.getElementById('plTernak').value || 0,
+    omset: +document.getElementById('plOmset').value || 0,
+    limit: +document.getElementById('plLimit').value || 0,
+    termin: document.getElementById('plTermin').value,
+    pic: document.getElementById('plPIC').value,
+    status: document.getElementById('plStatus').value,
+    tglDaftar: document.getElementById('plTglDaftar').value,
+    catatan: document.getElementById('plCatatan').value
+  };
+  if (id) {
+    const idx = dataPelanggan.findIndex(x => x.id === id);
+    dataPelanggan[idx] = {...dataPelanggan[idx], ...payload};
+  } else {
+    dataPelanggan.push({id: Date.now(), ...payload});
+  }
+  closeModal('modalPelanggan'); renderAll();
+}
+
+function editPelanggan(id) {
+  const d = dataPelanggan.find(x => x.id === id);
+  if (!d) return;
+  document.getElementById('pelangganModalTitle').textContent = 'Edit Pelanggan';
+  document.getElementById('plEditId').value = d.id;
+  const map = {plKode:'kode', plNama:'nama', plTipe:'tipe', plKontak:'kontak', plEmail:'email', plNPWP:'npwp', plAlamat:'alamat', plWilayah:'wilayah', plLahan:'lahan', plTernak:'ternak', plOmset:'omset', plLimit:'limit', plTermin:'termin', plPIC:'pic', plStatus:'status', plTglDaftar:'tglDaftar', plCatatan:'catatan'};
+  Object.entries(map).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = d[key] || '';
+  });
+  new bootstrap.Modal(document.getElementById('modalPelanggan')).show();
+}
+
+function simpanProduk() {
+  const id = +document.getElementById('prEditId').value;
+  const nama = document.getElementById('prNama').value.trim();
+  if (!nama) { alert('Nama wajib diisi'); return; }
+  const payload = {
+    kode: document.getElementById('prKode').value || 'PRD-' + Date.now().toString().slice(-4),
+    nama, kategori: document.getElementById('prKategori').value,
+    merek: document.getElementById('prMerek').value,
+    pabrik: document.getElementById('prPabrik').value,
+    kemasan: document.getElementById('prKemasan').value,
+    berat: document.getElementById('prBerat').value,
+    satuan: document.getElementById('prSatuan').value,
+    sni: document.getElementById('prSNI').value,
+    expired: document.getElementById('prExpired').value,
+    komposisi: document.getElementById('prKomposisi').value,
+    hargaBeli: +document.getElementById('prHargaBeli').value || 0,
+    hargaJual: +document.getElementById('prHargaJual').value || 0,
+    stok: +document.getElementById('prStok').value || 0,
+    stokMin: +document.getElementById('prStokMin').value || 50,
+    leadTime: +document.getElementById('prLeadTime').value || 7,
+    gudang: document.getElementById('prGudang').value
+  };
+  if (id) {
+    const idx = dataProduk.findIndex(x => x.id === id);
+    dataProduk[idx] = {...dataProduk[idx], ...payload};
+  } else {
+    dataProduk.push({id: Date.now(), ...payload});
+  }
+  closeModal('modalProduk'); renderAll();
+}
+
+function editProduk(id) {
+  const d = dataProduk.find(x => x.id === id);
+  if (!d) return;
+  document.getElementById('produkModalTitle').textContent = 'Edit Produk';
+  document.getElementById('prEditId').value = d.id;
+  const map = {prKode:'kode', prNama:'nama', prKategori:'kategori', prMerek:'merek', prPabrik:'pabrik', prKemasan:'kemasan', prBerat:'berat', prSatuan:'satuan', prSNI:'sni', prExpired:'expired', prKomposisi:'komposisi', prHargaBeli:'hargaBeli', prHargaJual:'hargaJual', prStok:'stok', prStokMin:'stokMin', prLeadTime:'leadTime', prGudang:'gudang'};
+  Object.entries(map).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = d[key] || '';
+  });
+  hitungMargin();
+  new bootstrap.Modal(document.getElementById('modalProduk')).show();
+}
+
+function simpanKunjungan() {
+  const staff = document.getElementById('kStaff').value;
+  const pelanggan = document.getElementById('kPelanggan').value.trim();
+  if (!staff || !pelanggan) { alert('Staff dan Pelanggan wajib diisi'); return; }
+  dataKunjungan.push({
+    id: Date.now(),
+    tanggal: document.getElementById('kTanggal').value || new Date().toISOString().slice(0,10),
+    jamIn: document.getElementById('kJamIn').value,
+    jamOut: document.getElementById('kJamOut').value,
+    durasi: +document.getElementById('kDurasi').value || 0,
+    staff, pelanggan,
+    agenda: document.getElementById('kAgenda').value,
+    koordinat: document.getElementById('kKoordinat').value,
+    hasil: document.getElementById('kHasil').value,
+    biaya: +document.getElementById('kBiaya').value || 0,
+    action: document.getElementById('kAction').value
+  });
+  closeModal('modalKunjungan'); renderAll();
+}
+
+function simpanSampel() {
+  const nama = document.getElementById('sNama').value.trim();
+  if (!nama) { alert('Nama wajib diisi'); return; }
+  dataSampel.push({
+    id: Date.now(),
+    noSP: document.getElementById('sNoSP').value,
+    tanggal: document.getElementById('sTanggal').value || new Date().toISOString().slice(0,10),
+    nama,
+    produk: document.getElementById('sProduk').value,
+    jenis: document.getElementById('sJenis').value,
+    jumlah: document.getElementById('sJumlah').value,
+    resi: document.getElementById('sResi').value,
+    status: 'Menunggu',
+    pic: document.getElementById('sPIC').value,
+    catatan: document.getElementById('sCatatan').value
+  });
+  closeModal('modalSampel'); renderAll();
+}
+
+function simpanBBM() {
+  const kendaraan = document.getElementById('bKendaraan').value.trim();
+  if (!kendaraan) { alert('Kendaraan wajib diisi'); return; }
+  dataBBM.push({
+    id: Date.now(),
+    tanggal: document.getElementById('bTanggal').value || new Date().toISOString().slice(0,10),
+    noNota: document.getElementById('bNoNota').value,
+    kendaraan,
+    noPolisi: document.getElementById('bNoPolisi').value,
+    jenis: document.getElementById('bJenis').value,
+    spbu: document.getElementById('bSPBU').value,
+    marketing: document.getElementById('bMarketing').value,
+    tujuan: document.getElementById('bTujuan').value,
+    odometerAwal: +document.getElementById('bOdoAwal').value || 0,
+    odometerAkhir: +document.getElementById('bOdoAkhir').value || 0,
+    jarak: +document.getElementById('bJarak').value || 0,
+    liter: +document.getElementById('bLiter').value || 0,
+    harga: +document.getElementById('bHarga').value || 0,
+    biaya: +document.getElementById('bBiaya').value || 0,
+    status: document.getElementById('bStatus').value,
+    catatan: document.getElementById('bCatatan').value
+  });
+  closeModal('modalBBM'); renderAll();
+}
+
+function simpanLogistik() {
+  const noDO = document.getElementById('lNoDO').value.trim();
+  if (!noDO) { alert('No. DO wajib diisi'); return; }
+  dataLogistik.push({
+    id: Date.now(),
+    noDO,
+    tanggal: document.getElementById('lTanggal').value || new Date().toISOString().slice(0,10),
+    produk: document.getElementById('lProduk').value,
+    jumlah: document.getElementById('lJumlah').value,
+    tujuan: document.getElementById('lTujuan').value,
+    wilayah: document.getElementById('lWilayah').value,
+    supir: document.getElementById('lSupir').value,
+    kendaraan: document.getElementById('lKendaraan').value,
+    noPolisi: document.getElementById('lNoPolisi').value,
+    jamBerangkat: document.getElementById('lJamBerangkat').value,
+    jamTiba: document.getElementById('lJamTiba').value,
+    jarak: +document.getElementById('lJarak').value || 0,
+    biaya: +document.getElementById('lBiaya').value || 0,
+    penerima: document.getElementById('lPenerima').value,
+    status: document.getElementById('lStatus').value,
+    catatan: document.getElementById('lCatatan').value
+  });
+  closeModal('modalLogistik'); renderAll();
+}
+
+function closeModal(id) {
+  const m = bootstrap.Modal.getInstance(document.getElementById(id));
+  if (m) m.hide();
+  document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+  document.body.classList.remove('modal-open');
+  document.body.style.overflow = '';
+}
+
+function hapusData(tipe, id) {
+  if (!confirm('Hapus data ini?')) return;
+  const map = {permintaan:'dataPermintaan', staff:'dataStaff', pelanggan:'dataPelanggan', produk:'dataProduk', sampel:'dataSampel', bbm:'dataBBM', logistik:'dataLogistik', kunjungan:'dataKunjungan'};
+  window[map[tipe]] = window[map[tipe]].filter(d => d.id !== id);
+  renderAll();
+}
+
+function updateProdukDropdown() {
+  const j = document.getElementById('pJenis').value;
+  document.getElementById('pProduk').innerHTML = (j === 'Pupuk' ? produkPupuk : produkPakan).map(p => `<option>${p}</option>`).join('');
+}
+
+// ========== CHART ==========
+let chartTren, chartKategori, chartWilayah, chartTertarik, chartLogistik, chartTopProduk, chartTopPelanggan, chartKPI, chartPerWilayah;
+Chart.defaults.font.family = "'Segoe UI', sans-serif";
+Chart.defaults.color = '#4a5d52';
+
+function createGradient(ctx, c1, c2, h = 300) {
+  const g = ctx.createLinearGradient(0, 0, 0, h);
+  g.addColorStop(0, c1); g.addColorStop(1, c2);
+  return g;
+}
+
+function renderDashboardCharts() {
+  [chartTren, chartKategori, chartWilayah, chartTertarik, chartLogistik, chartTopProduk, chartTopPelanggan].forEach(c => c && c.destroy());
+  const pupukCount = dataPermintaan.filter(d => d.jenis === 'Pupuk').length;
+  const pakanCount = dataPermintaan.filter(d => d.jenis === 'Pakan Ternak').length;
+
+  const ctx1 = document.getElementById('chartTren').getContext('2d');
+  chartTren = new Chart(ctx1, {
+    type: 'line',
+    data: {
+      labels: ['Agu','Sep','Okt','Nov','Des','Jan'],
+      datasets: [
+        { label:'Pupuk (unit)', data:[12,18,15,22,25,pupukCount+25], borderColor:'#2d6a4f', backgroundColor: createGradient(ctx1,'rgba(45,106,79,0.4)','rgba(45,106,79,0.02)'), fill:true, tension:0.4, borderWidth:3, pointBackgroundColor:'#2d6a4f', pointBorderColor:'#fff', pointBorderWidth:2, pointRadius:5, yAxisID:'y' },
+        { label:'Pakan (unit)', data:[8,14,12,18,20,pakanCount+20], borderColor:'#e76f51', backgroundColor: createGradient(ctx1,'rgba(231,111,81,0.35)','rgba(231,111,81,0.02)'), fill:true, tension:0.4, borderWidth:3, pointBackgroundColor:'#e76f51', pointBorderColor:'#fff', pointBorderWidth:2, pointRadius:5, yAxisID:'y' },
+        { label:'Nilai (juta Rp)', data:[50,80,70,120,150,Math.round(dataPermintaan.reduce((s,d)=>s+(d.nilai||0),0)/1e6)], borderColor:'#f4a261', backgroundColor:'transparent', fill:false, tension:0.4, borderWidth:2, borderDash:[5,5], pointRadius:4, yAxisID:'y1' }
+      ]
+    },
+    options: { responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false}, plugins:{ legend:{position:'top', labels:{usePointStyle:true, padding:12, font:{size:10, weight:'600'}}}, tooltip:{backgroundColor:'#1b4332', padding:12, cornerRadius:10} }, scales:{ y:{beginAtZero:true, position:'left', grid:{color:'rgba(0,0,0,0.05)'}}, y1:{beginAtZero:true, position:'right', grid:{display:false}}, x:{grid:{display:false}} } }
+  });
+
+  const ctx2 = document.getElementById('chartKategori').getContext('2d');
+  chartKategori = new Chart(ctx2, {
+    type: 'doughnut',
+    data: { labels:['Pupuk','Pakan Ternak'], datasets:[{ data:[pupukCount, pakanCount], backgroundColor:[createGradient(ctx2,'#52b788','#1b4332',200), createGradient(ctx2,'#f4a261','#e76f51',200)], borderWidth:0, hoverOffset:12 }] },
+    options: { responsive:true, maintainAspectRatio:false, cutout:'65%', plugins:{ legend:{position:'bottom', labels:{usePointStyle:true, padding:12, font:{weight:'600'}}}, tooltip:{backgroundColor:'#1b4332', padding:12, cornerRadius:10} } }
+  });
+
+  // Wilayah
+  const wilData = {Karawang:0, Purwakarta:0, Subang:0};
+  dataPermintaan.forEach(d => { if (wilData[d.wilayah] !== undefined) wilData[d.wilayah]++; });
+  const ctxW = document.getElementById('chartWilayah').getContext('2d');
+  chartWilayah = new Chart(ctxW, {
+    type: 'doughnut',
+    data: { labels:Object.keys(wilData), datasets:[{ data:Object.values(wilData), backgroundColor:[createGradient(ctxW,'#52b788','#1b4332',200), createGradient(ctxW,'#f4a261','#e76f51',200), createGradient(ctxW,'#9d4edd','#5a189a',200)], borderWidth:0, hoverOffset:10 }] },
+    options: { responsive:true, maintainAspectRatio:false, cutout:'60%', plugins:{ legend:{position:'bottom', labels:{usePointStyle:true, padding:10, font:{size:10, weight:'600'}}} } }
+  });
+
+  const ya = dataPermintaan.filter(d => d.tertarik === 'Ya').length;
+  const belum = dataPermintaan.filter(d => d.tertarik === 'Belum').length;
+  const tidak = dataPermintaan.filter(d => d.tertarik === 'Tidak').length;
+  const ctx4 = document.getElementById('chartTertarik').getContext('2d');
+  chartTertarik = new Chart(ctx4, {
+    type: 'polarArea',
+    data: { labels:['Ya','Belum','Tidak'], datasets:[{ data:[ya||1, belum||1, tidak||0.5], backgroundColor:['rgba(82,183,136,0.75)','rgba(244,162,97,0.75)','rgba(231,111,81,0.75)'], borderWidth:2, borderColor:'#fff' }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'bottom', labels:{usePointStyle:true, padding:10, font:{size:10, weight:'600'}}} }, scales:{ r:{ ticks:{display:false}, grid:{color:'rgba(0,0,0,0.06)'} } } }
+  });
+
+  const selesai = dataLogistik.filter(d => d.status === 'Selesai').length;
+  const dikirim = dataLogistik.filter(d => d.status === 'Dikirim').length;
+  const pending = dataLogistik.filter(d => d.status === 'Pending').length;
+  const ctx5 = document.getElementById('chartLogistik').getContext('2d');
+  chartLogistik = new Chart(ctx5, {
+    type: 'bar',
+    data: { labels:['Selesai','Dikirim','Pending'], datasets:[{ data:[selesai, dikirim, pending], backgroundColor:[createGradient(ctx5,'#74c69d','#2d6a4f',200), createGradient(ctx5,'#457b9d','#1d3557',200), createGradient(ctx5,'#f4a261','#e76f51',200)], borderRadius:8, borderSkipped:false, barThickness:35 }] },
+    options: { responsive:true, maintainAspectRatio:false, indexAxis:'y', plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#1b4332', padding:10, cornerRadius:10} }, scales:{ x:{beginAtZero:true, grid:{color:'rgba(0,0,0,0.05)'}}, y:{grid:{display:false}, ticks:{font:{weight:'600', size:10}}} } }
+  });
+
+  // Top 5 Produk
+  const prodCount = {};
+  dataPermintaan.forEach(d => { prodCount[d.produk] = (prodCount[d.produk] || 0) + 1; });
+  const topProd = Object.entries(prodCount).sort((a,b) => b[1]-a[1]).slice(0,5);
+  const ctxTP = document.getElementById('chartTopProduk').getContext('2d');
+  chartTopProduk = new Chart(ctxTP, {
+    type: 'bar',
+    data: { labels: topProd.map(p => p[0].length > 20 ? p[0].substring(0,18)+'…' : p[0]), datasets:[{ label:'Jumlah Permintaan', data: topProd.map(p => p[1]), backgroundColor: createGradient(ctxTP,'#74c69d','#1b4332',200), borderRadius:6, barThickness:18 }] },
+    options: { responsive:true, maintainAspectRatio:false, indexAxis:'y', plugins:{ legend:{display:false} }, scales:{ x:{beginAtZero:true, grid:{color:'rgba(0,0,0,0.05)'}}, y:{grid:{display:false}, ticks:{font:{size:9}}} } }
+  });
+
+  // Top 5 Pelanggan
+  const custValue = {};
+  dataPermintaan.forEach(d => { custValue[d.nama] = (custValue[d.nama] || 0) + (d.nilai || 0); });
+  const topCust = Object.entries(custValue).sort((a,b) => b[1]-a[1]).slice(0,5);
+  const ctxTC = document.getElementById('chartTopPelanggan').getContext('2d');
+  chartTopPelanggan = new Chart(ctxTC, {
+    type: 'bar',
+    data: { labels: topCust.map(p => p[0].length > 20 ? p[0].substring(0,18)+'…' : p[0]), datasets:[{ label:'Nilai (Rp)', data: topCust.map(p => p[1]), backgroundColor: createGradient(ctxTC,'#f4a261','#e76f51',200), borderRadius:6, barThickness:18 }] },
+    options: { responsive:true, maintainAspectRatio:false, indexAxis:'y', plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c => rupiah(c.parsed.x)}} }, scales:{ x:{beginAtZero:true, grid:{color:'rgba(0,0,0,0.05)'}, ticks:{callback:v => singkat(v), font:{size:9}}}, y:{grid:{display:false}, ticks:{font:{size:9}}} } }
+  });
+}
+
+// ========== WILAYAH ==========
+function renderWilayah() {
+  ['Karawang','Purwakarta','Subang'].forEach(w => {
+    const count = dataPelanggan.filter(p => p.wilayah === w).length;
+    const potensi = dataPermintaan.filter(p => p.wilayah === w).reduce((s,d) => s + (d.nilai || 0), 0);
+    const el1 = document.getElementById('wil' + w);
+    const el2 = document.getElementById('pot' + w);
+    if (el1) el1.textContent = count;
+    if (el2) el2.textContent = singkat(potensi);
+  });
+
+  if (chartPerWilayah) chartPerWilayah.destroy();
+  const ctx = document.getElementById('chartPerWilayah').getContext('2d');
+  const wilayahArr = ['Karawang','Purwakarta','Subang'];
+  const nilaiArr = wilayahArr.map(w => dataPermintaan.filter(p => p.wilayah === w).reduce((s,d) => s + (d.nilai || 0), 0));
+  const custArr = wilayahArr.map(w => dataPelanggan.filter(p => p.wilayah === w).length);
+  chartPerWilayah = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: wilayahArr,
+      datasets: [
+        { label:'Nilai Permintaan (Rp)', data: nilaiArr, backgroundColor: createGradient(ctx,'#74c69d','#1b4332',250), borderRadius:8, barThickness:50, yAxisID:'y' },
+        { label:'Jumlah Pelanggan', data: custArr, backgroundColor: createGradient(ctx,'#f4a261','#e76f51',250), borderRadius:8, barThickness:50, yAxisID:'y1' }
+      ]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'top', labels:{usePointStyle:true, padding:15, font:{weight:'600'}}}, tooltip:{callbacks:{label:c => c.dataset.label + ': ' + (c.datasetIndex === 0 ? rupiah(c.parsed.y) : c.parsed.y)}} }, scales:{ y:{beginAtZero:true, position:'left', ticks:{callback:v => singkat(v)}, grid:{color:'rgba(0,0,0,0.05)'}}, y1:{beginAtZero:true, position:'right', grid:{display:false}, ticks:{stepSize:2}}, x:{grid:{display:false}} } }
+  });
+}
+
+// ========== KPI ==========
+function renderKPI() {
+  const staffAktif = dataStaff.filter(s => s.status === 'Aktif');
+  let html = '', labels = [], targetArr = [], realArr = [];
+  staffAktif.forEach((s, i) => {
+    const real = dataPermintaan.filter(p => p.pic === s.nama).reduce((sum, p) => sum + (p.nilai || 0), 0);
+    const pct = s.target > 0 ? Math.min((real / s.target) * 100, 100) : 0;
+    const pctFmt = pct.toFixed(1);
+    const clr = pct >= 80 ? 'linear-gradient(135deg,#52b788,#1b4332)' : pct >= 50 ? 'linear-gradient(135deg,#f4a261,#e76f51)' : 'linear-gradient(135deg,#c9184a,#ff4d6d)';
+    const initial = s.nama.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+    const av = avatarColors[i % avatarColors.length];
+    html += `<div class="mb-3 pb-3" style="border-bottom:1px solid #eee">
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <div class="avatar ${av}">${initial}</div>
+        <div class="flex-grow-1">
+          <div><b>${esc(s.nama)}</b> <small class="text-muted">— ${esc(s.wilayah)}</small></div>
+          <small class="text-muted">${esc(s.jabatan)}</small>
+        </div>
+        <div class="text-end"><b style="color:#1b4332">${pctFmt}%</b><br><small class="text-muted">${singkat(real)} / ${singkat(s.target)}</small></div>
+      </div>
+      <div class="kpi-bar"><div class="kpi-fill" style="width:${pct}%;background:${clr}"></div></div>
+    </div>`;
+    labels.push(s.nama.split(' ')[0]); targetArr.push(s.target); realArr.push(real);
+  });
+  document.getElementById('kpiList').innerHTML = html || '<p class="text-muted">Belum ada staff aktif</p>';
+
+  if (chartKPI) chartKPI.destroy();
+  const ctx = document.getElementById('chartKPI').getContext('2d');
+  chartKPI = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label:'Target', data:targetArr, backgroundColor: createGradient(ctx,'#74c69d','#1b4332',200), borderRadius:6, barThickness:22 },
+        { label:'Realisasi', data:realArr, backgroundColor: createGradient(ctx,'#f4a261','#e76f51',200), borderRadius:6, barThickness:22 }
+      ]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'top', labels:{usePointStyle:true, padding:12, font:{weight:'600'}}}, tooltip:{callbacks:{ label:c => c.dataset.label + ': ' + singkat(c.parsed.y) }} }, scales:{ y:{beginAtZero:true, grid:{color:'rgba(0,0,0,0.05)'}, ticks:{callback:v => singkat(v)}}, x:{grid:{display:false}} } }
+  });
+}
+
+// ========== LAPORAN ==========
+function renderLaporan() {
+  const filter = document.getElementById('filterLaporan')?.value || 'semua';
+  document.getElementById('laporanPeriode').textContent = new Date().toLocaleDateString('id-ID', {year:'numeric', month:'long'});
+  document.getElementById('laporanCetak').textContent = new Date().toLocaleString('id-ID');
+  let html = '';
+
+  const secPermintaan = () => {
+    let h = `<h6 class="fw-bold mb-2" style="color:#1b4332;font-size:0.85rem"><i class="bi bi-clipboard-data-fill"></i> A. Data Permintaan</h6>
+      <table class="table table-bordered table-sm"><thead><tr><th>No</th><th>Tgl</th><th>No.PO</th><th>Nama</th><th>Wilayah</th><th>Jenis</th><th>Produk</th><th>Jumlah</th><th>Nilai (Rp)</th><th>PIC</th><th>Status</th></tr></thead><tbody>`;
+    dataPermintaan.forEach((d, i) => { h += `<tr><td>${i+1}</td><td>${d.tanggalOrder || d.tanggal}</td><td>${esc(d.noPO||'-')}</td><td>${esc(d.nama)}</td><td>${esc(d.wilayah||'-')}</td><td>${esc(d.jenis)}</td><td>${esc(d.produk)}</td><td>${esc(d.jumlah)}</td><td>${rupiah(d.nilai)}</td><td>${esc(d.pic||'-')}</td><td>${esc(d.tertarik)}</td></tr>`; });
+    const total = dataPermintaan.reduce((s,d) => s + (d.nilai || 0), 0);
+    h += `<tr style="background:#e8f5ee"><td colspan="8" class="text-end fw-bold">TOTAL NILAI</td><td class="fw-bold">${rupiah(total)}</td><td colspan="2"></td></tr></tbody></table>`;
+    return h;
+  };
+  const secStaff = () => {
+    let h = `<h6 class="fw-bold mb-2 mt-4" style="color:#1b4332;font-size:0.85rem"><i class="bi bi-people-fill"></i> B. Staff Marketing</h6>
+      <table class="table table-bordered table-sm"><thead><tr><th>No</th><th>NIK</th><th>Nama</th><th>Jabatan</th><th>Wilayah</th><th>Kontak</th><th>Email</th><th>Gaji</th><th>Target</th><th>Status</th></tr></thead><tbody>`;
+    dataStaff.forEach((d, i) => { h += `<tr><td>${i+1}</td><td>${esc(d.nik)}</td><td>${esc(d.nama)}</td><td>${esc(d.jabatan)}</td><td>${esc(d.wilayah)}</td><td>${esc(d.kontak)}</td><td>${esc(d.email)}</td><td>${rupiah(d.gaji||0)}</td><td>${rupiah(d.target)}</td><td>${esc(d.status)}</td></tr>`; });
+    h += `</tbody></table>`;
+    return h;
+  };
+  const secPelanggan = () => {
+    let h = `<h6 class="fw-bold mb-2 mt-4" style="color:#1b4332;font-size:0.85rem"><i class="bi bi-shop"></i> C. Database Pelanggan</h6>
+      <table class="table table-bordered table-sm"><thead><tr><th>No</th><th>Kode</th><th>Nama</th><th>Tipe</th><th>Wilayah</th><th>Kontak</th><th>Limit Kredit</th><th>Termin</th><th>PIC</th><th>Status</th></tr></thead><tbody>`;
+    dataPelanggan.forEach((d, i) => { h += `<tr><td>${i+1}</td><td>${esc(d.kode)}</td><td>${esc(d.nama)}</td><td>${esc(d.tipe)}</td><td>${esc(d.wilayah)}</td><td>${esc(d.kontak)}</td><td>${rupiah(d.limit||0)}</td><td>${esc(d.termin)}</td><td>${esc(d.pic)}</td><td>${esc(d.status)}</td></tr>`; });
+    h += `</tbody></table>`;
+    return h;
+  };
+  const secProduk = () => {
+    let h = `<h6 class="fw-bold mb-2 mt-4" style="color:#1b4332;font-size:0.85rem"><i class="bi bi-boxes"></i> D. Master Produk & Stok</h6>
+      <table class="table table-bordered table-sm"><thead><tr><th>No</th><th>Kode</th><th>Nama</th><th>Kategori</th><th>Merek</th><th>Kemasan</th><th>Harga Beli</th><th>Harga Jual</th><th>Margin</th><th>Stok</th></tr></thead><tbody>`;
+    dataProduk.forEach((d, i) => { const m = d.hargaBeli > 0 ? ((d.hargaJual-d.hargaBeli)/d.hargaBeli*100).toFixed(1) : 0; h += `<tr><td>${i+1}</td><td>${esc(d.kode)}</td><td>${esc(d.nama)}</td><td>${esc(d.kategori)}</td><td>${esc(d.merek)}</td><td>${esc(d.kemasan)}</td><td>${rupiah(d.hargaBeli)}</td><td>${rupiah(d.hargaJual)}</td><td>${m}%</td><td>${d.stok}</td></tr>`; });
+    h += `</tbody></table>`;
+    return h;
+  };
+  const secKunjungan = () => {
+    let h = `<h6 class="fw-bold mb-2 mt-4" style="color:#1b4332;font-size:0.85rem"><i class="bi bi-calendar-check-fill"></i> E. Log Kunjungan</h6>
+      <table class="table table-bordered table-sm"><thead><tr><th>No</th><th>Tgl</th><th>Staff</th><th>Pelanggan</th><th>Agenda</th><th>Durasi</th><th>Hasil</th><th>Action</th><th>Biaya</th></tr></thead><tbody>`;
+    dataKunjungan.forEach((d, i) => { h += `<tr><td>${i+1}</td><td>${d.tanggal}</td><td>${esc(d.staff)}</td><td>${esc(d.pelanggan)}</td><td>${esc(d.agenda)}</td><td>${d.durasi||0}m</td><td>${esc(d.hasil)}</td><td>${esc(d.action||'-')}</td><td>${rupiah(d.biaya)}</td></tr>`; });
+    h += `</tbody></table>`;
+    return h;
+  };
+  const secSampel = () => {
+    let h = `<h6 class="fw-bold mb-2 mt-4" style="color:#1b4332;font-size:0.85rem"><i class="bi bi-box-seam-fill"></i> F. Permintaan Sampel</h6>
+      <table class="table table-bordered table-sm"><thead><tr><th>No</th><th>No.SP</th><th>Tgl</th><th>Nama</th><th>Produk</th><th>Jenis</th><th>Jumlah</th><th>Resi</th><th>Status</th><th>PIC</th></tr></thead><tbody>`;
+    dataSampel.forEach((d, i) => { h += `<tr><td>${i+1}</td><td>${esc(d.noSP||'-')}</td><td>${d.tanggal}</td><td>${esc(d.nama)}</td><td>${esc(d.produk)}</td><td>${esc(d.jenis)}</td><td>${esc(d.jumlah)}</td><td>${esc(d.resi||'-')}</td><td>${esc(d.status)}</td><td>${esc(d.pic||'-')}</td></tr>`; });
+    h += `</tbody></table>`;
+    return h;
+  };
+  const secBBM = () => {
+    let h = `<h6 class="fw-bold mb-2 mt-4" style="color:#1b4332;font-size:0.85rem"><i class="bi bi-fuel-pump-fill"></i> G. Rembes BBM</h6>
+      <table class="table table-bordered table-sm"><thead><tr><th>No</th><th>Tgl</th><th>No.Nota</th><th>Staff</th><th>Kendaraan</th><th>No.Pol</th><th>Jenis</th><th>Liter</th><th>Biaya</th><th>Status</th></tr></thead><tbody>`;
+    dataBBM.forEach((d, i) => { h += `<tr><td>${i+1}</td><td>${d.tanggal}</td><td>${esc(d.noNota||'-')}</td><td>${esc(d.marketing)}</td><td>${esc(d.kendaraan)}</td><td>${esc(d.noPolisi||'-')}</td><td>${esc(d.jenis||'-')}</td><td>${d.liter} L</td><td>${rupiah(d.biaya)}</td><td>${esc(d.status)}</td></tr>`; });
+    const total = dataBBM.reduce((s, d) => s + d.biaya, 0);
+    h += `<tr style="background:#e8f5ee"><td colspan="8" class="text-end fw-bold">TOTAL</td><td class="fw-bold">${rupiah(total)}</td><td></td></tr></tbody></table>`;
+    return h;
+  };
+  const secLogistik = () => {
+    let h = `<h6 class="fw-bold mb-2 mt-4" style="color:#1b4332;font-size:0.85rem"><i class="bi bi-truck"></i> H. Logistik & Pengiriman</h6>
+      <table class="table table-bordered table-sm"><thead><tr><th>No</th><th>No.DO</th><th>Tgl</th><th>Produk</th><th>Jumlah</th><th>Tujuan</th><th>Wilayah</th><th>Supir</th><th>Kendaraan</th><th>Biaya</th><th>Status</th></tr></thead><tbody>`;
+    dataLogistik.forEach((d, i) => { h += `<tr><td>${i+1}</td><td>${esc(d.noDO)}</td><td>${d.tanggal}</td><td>${esc(d.produk)}</td><td>${esc(d.jumlah)}</td><td>${esc(d.tujuan)}</td><td>${esc(d.wilayah||'-')}</td><td>${esc(d.supir||'-')}</td><td>${esc(d.kendaraan)}</td><td>${rupiah(d.biaya||0)}</td><td>${esc(d.status)}</td></tr>`; });
+    h += `</tbody></table>`;
+    return h;
+  };
+
+  if (filter === 'semua') html = secPermintaan() + secStaff() + secPelanggan() + secProduk() + secKunjungan() + secSampel() + secBBM() + secLogistik();
+  else if (filter === 'permintaan') html = secPermintaan();
+  else if (filter === 'staff') html = secStaff();
+  else if (filter === 'pelanggan') html = secPelanggan();
+  else if (filter === 'produk') html = secProduk();
+  else if (filter === 'kunjungan') html = secKunjungan();
+  else if (filter === 'sampel') html = secSampel();
+  else if (filter === 'bbm') html = secBBM();
+  else if (filter === 'logistik') html = secLogistik();
+
+  html += `<div class="mt-5 d-flex justify-content-between">
+    <div><p class="text-muted small mb-0">Dicetak pada: ${new Date().toLocaleString('id-ID')}</p>
+      <p class="text-muted small mb-0"><b>PT Elvenium Agro Inovasi</b></p>
+      <p class="text-muted small mb-0">Jl. Raya Rengasdengklok No.55, Kalangsari, Karawang</p>
+      <p class="text-muted small">Wilayah Distribusi: Karawang, Purwakarta, Subang</p></div>
+    <div class="text-center"><p class="mb-5">Karawang, ${new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}</p>
+      <p class="mb-0 fw-bold">Manager Marketing</p>
+      <p class="mb-0" style="border-top:1px solid #333;padding-top:4px;min-width:180px">(_________________)</p></div>
+  </div>`;
+  document.getElementById('laporanBody').innerHTML = html;
+}
+
+// ========== EXPORT & BACKUP ==========
+function exportCSV(tipe) {
+  const map = {permintaan:dataPermintaan, staff:dataStaff, pelanggan:dataPelanggan, produk:dataProduk, kunjungan:dataKunjungan, sampel:dataSampel, bbm:dataBBM, logistik:dataLogistik};
+  const data = map[tipe] || [];
+  if (!data.length) { alert('Tidak ada data'); return; }
+  const headers = Object.keys(data[0]).filter(k => k !== 'id');
+  const csv = [headers.join(','), ...data.map(d => headers.map(h => `"${String(d[h] || '').replace(/"/g,'""')}"`).join(','))].join('\n');
+  const blob = new Blob(['\ufeff' + csv], {type: 'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `elvenium-${tipe}-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+function backupData() {
+  const backup = {timestamp: new Date().toISOString(), version: '3.1', data: {dataStaff, dataPelanggan, dataProduk, dataKunjungan, dataPermintaan, dataSampel, dataBBM, dataLogistik}};
+  const blob = new Blob([JSON.stringify(backup, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `elvenium-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+
+function restoreData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const d = JSON.parse(ev.target.result);
+      if (d.data) {
+        Object.entries(d.data).forEach(([k, v]) => { if (Array.isArray(v)) window[k] = v; });
+        refreshDropdowns();
+        renderAll();
+        alert('Data berhasil direstore!');
+      }
+    } catch (err) { alert('File tidak valid'); }
+  };
+  reader.readAsText(file);
+}
+
+// ========== RENDER ALL ==========
+function renderAll() {
+  renderPermintaan(); renderStaff(); renderPelanggan(); renderProduk();
+  renderKunjungan(); renderSampel(); renderBBM(); renderLogistik(); renderLaporan();
+  if (document.getElementById('panel-dashboard').classList.contains('active')) renderDashboardCharts();
+  if (document.getElementById('panel-kpi').classList.contains('active')) renderKPI();
+  if (document.getElementById('panel-wilayah').classList.contains('active')) renderWilayah();
+}
+
+// ========== INIT ==========
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('pJenis').addEventListener('change', updateProdukDropdown);
+  updateProdukDropdown();
+  refreshDropdowns();
+  document.getElementById('filterLaporan').addEventListener('change', renderLaporan);
+  renderAll();
+  setTimeout(renderDashboardCharts, 100);
+});
+</script>
+</body>
+</html>
