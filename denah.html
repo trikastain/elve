@@ -1,0 +1,1891 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Denah Pabrik — PT Elveniun Agro Inovasi | Perhitungan Luas Detail</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI', system-ui, -apple-system, sans-serif; background:#f5f5f5; color:#212121; line-height:1.6; }
+  .container { max-width:1600px; margin:0 auto; padding:0 20px; }
+
+  /* HEADER */
+  header { background: linear-gradient(135deg, #0d3b13 0%, #2e7d32 100%); color:#fff; padding:40px 20px 70px; position:relative; overflow:hidden; }
+  header::before { content:''; position:absolute; right:-100px; top:-100px; width:360px; height:360px; background:rgba(255,255,255,.06); border-radius:50%; }
+  header::after { content:''; position:absolute; left:-50px; bottom:-150px; width:300px; height:300px; background:rgba(255,255,255,.04); border-radius:50%; }
+  .container-header { max-width:1600px; margin:0 auto; position:relative; z-index:2; }
+  .badge { display:inline-block; background:rgba(255,255,255,.2); padding:5px 14px; border-radius:20px; font-size:.75rem; font-weight:600; letter-spacing:1px; margin-bottom:12px; }
+  header h1 { font-size:clamp(1.4rem, 3vw, 2rem); font-weight:700; }
+  header p { opacity:.88; margin-top:4px; font-size:.95rem; }
+
+  /* STATS */
+  .stats { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:16px; margin:-40px auto 32px; padding:0 20px; max-width:1600px; position:relative; z-index:3; }
+  .stat { background:#fff; border-radius:12px; padding:18px 20px; box-shadow:0 4px 20px rgba(0,0,0,.12); border-left:4px solid #4caf50; }
+  .stat-label { font-size:.68rem; color:#757575; text-transform:uppercase; letter-spacing:.5px; font-weight:600; }
+  .stat-value { font-size:1.4rem; font-weight:700; color:#1b5e20; margin-top:2px; }
+  .stat-value small { font-size:.68rem; font-weight:500; color:#757575; }
+
+  /* MAP + SIDE */
+  .map-section { display:grid; grid-template-columns:1fr 380px; gap:24px; margin-bottom:36px; }
+  @media (max-width:1100px) { .map-section { grid-template-columns:1fr; } .side-panel-col { position:static !important; } }
+
+  .map-card { background:#fff; border-radius:14px; padding:16px; box-shadow:0 2px 12px rgba(0,0,0,.08); }
+  .factory-svg { width:100%; height:auto; display:block; border-radius:8px; }
+
+  .side-panel-col { position:sticky; top:20px; height:fit-content; }
+  .panel { background:#fff; border-radius:12px; padding:20px; box-shadow:0 2px 12px rgba(0,0,0,.08); margin-bottom:16px; }
+  .panel h2 { font-size:1rem; color:#1b5e20; padding-bottom:10px; margin-bottom:14px; border-bottom:2px solid #c8e6c9; }
+  .placeholder { font-size:.88rem; color:#757575; }
+  .zone-title { font-size:1.15rem; font-weight:700; color:#1b5e20; }
+  .zone-dim-badge { display:inline-block; background:#fff3e0; color:#e65100; padding:3px 10px; border-radius:12px; font-size:.72rem; font-weight:700; margin-top:6px; margin-right:4px; }
+  .zone-area-badge { display:inline-block; background:#e8f5e9; color:#2e7d32; padding:3px 10px; border-radius:12px; font-size:.72rem; font-weight:700; margin-top:6px; margin-right:4px; }
+  .zone-pct-badge { display:inline-block; background:#1b5e20; color:#fff; padding:3px 10px; border-radius:12px; font-size:.72rem; font-weight:700; margin-top:6px; }
+  .zone-desc { font-size:.86rem; color:#616161; margin-top:10px; }
+  .zone-details { margin-top:12px; }
+  .zone-details li { font-size:.83rem; margin-left:18px; margin-bottom:4px; color:#616161; }
+  .zone-details li::marker { color:#4caf50; }
+
+  .legend h3 { font-size:.85rem; text-transform:uppercase; letter-spacing:.5px; color:#1b5e20; margin-bottom:10px; }
+  .legend-item { display:flex; align-items:center; gap:10px; font-size:.82rem; color:#616161; margin-bottom:7px; }
+  .legend-swatch { width:18px; height:18px; border-radius:4px; flex-shrink:0; border:1px solid rgba(0,0,0,.1); }
+
+  /* SECTION TITLE */
+  .section-title { font-size:1.3rem; font-weight:700; color:#1b5e20; margin:40px 0 20px; padding-bottom:8px; border-bottom:3px solid #4caf50; display:inline-block; }
+
+  /* ZONE CARDS */
+  .zones-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(270px, 1fr)); gap:16px; }
+  .zone-card { background:#fff; border-radius:10px; padding:16px 18px; box-shadow:0 2px 8px rgba(0,0,0,.06); border-top:4px solid; cursor:pointer; transition:.2s; }
+  .zone-card:hover { transform:translateY(-3px); box-shadow:0 4px 16px rgba(0,0,0,.12); }
+  .zone-card.active { transform:translateY(-3px); box-shadow:0 4px 16px rgba(0,0,0,.15); }
+  .zone-card h3 { font-size:.95rem; margin-bottom:6px; }
+  .zone-card .card-dims { font-size:.72rem; color:#e65100; font-weight:600; margin-bottom:6px; }
+  .zone-card .card-area { font-size:1.3rem; font-weight:700; color:#2e7d32; }
+  .zone-card .card-area small { font-size:.72rem; color:#757575; font-weight:500; }
+  .zone-card .card-pct { font-size:.75rem; color:#1b5e20; font-weight:700; background:#e8f5e9; display:inline-block; padding:2px 8px; border-radius:10px; margin-top:6px; }
+
+  /* TABLE */
+  .table-card { background:#fff; border-radius:14px; padding:24px; box-shadow:0 2px 12px rgba(0,0,0,.08); overflow-x:auto; margin-bottom:30px; }
+  .data-table { width:100%; border-collapse:collapse; font-size:.85rem; min-width:720px; }
+  .data-table thead { background:#1b5e20; color:#fff; }
+  .data-table th { padding:12px 14px; text-align:left; font-weight:600; font-size:.8rem; letter-spacing:.3px; }
+  .data-table td { padding:10px 14px; border-bottom:1px solid #eee; }
+  .data-table tbody tr:hover td { background:#f9f9f9; }
+  .data-table tr.group-row td { background:#c8e6c9; font-weight:700; color:#1b5e20; border-top:2px solid #4caf50; border-bottom:2px solid #4caf50; }
+  .data-table tr.total-row td { background:#1b5e20; color:#fff; font-weight:700; font-size:.95rem; }
+  .data-table td.num { text-align:right; font-variant-numeric:tabular-nums; }
+  .pct-bar-inline { display:inline-block; height:7px; background:linear-gradient(90deg, #66bb6a, #2e7d32); border-radius:4px; margin-left:8px; vertical-align:middle; min-width:2px; }
+  .data-table td.checkmark { color:#2e7d32; font-weight:700; }
+
+  /* DONUT CHART */
+  .chart-card { background:#fff; border-radius:14px; padding:24px; box-shadow:0 2px 12px rgba(0,0,0,.08); margin-bottom:30px; }
+  .chart-grid { display:grid; grid-template-columns:320px 1fr; gap:32px; align-items:center; }
+  @media (max-width:700px) { .chart-grid { grid-template-columns:1fr; } }
+  .donut-wrap { position:relative; }
+  .donut-svg { width:100%; max-width:300px; height:auto; display:block; margin:0 auto; }
+  .donut-center { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); text-align:center; }
+  .donut-center .total-label { font-size:.7rem; color:#757575; text-transform:uppercase; letter-spacing:.5px; font-weight:600; }
+  .donut-center .total-value { font-size:1.2rem; font-weight:700; color:#1b5e20; }
+  .chart-legend-item { display:flex; align-items:center; gap:12px; padding:10px 14px; background:#f9f9f9; border-radius:8px; margin-bottom:8px; font-size:.88rem; }
+  .chart-legend-swatch { width:16px; height:16px; border-radius:4px; flex-shrink:0; }
+  .chart-legend-name { font-weight:600; color:#212121; }
+  .chart-legend-value { margin-left:auto; font-weight:700; color:#1b5e20; }
+  .chart-legend-pct { font-size:.75rem; color:#757575; margin-left:6px; }
+
+  /* FLOW */
+  .flow-card { background:#fff; border-radius:14px; padding:28px 24px; box-shadow:0 2px 12px rgba(0,0,0,.08); margin-bottom:40px; }
+  .flow-steps { display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:center; }
+  .flow-step { background:#e8f5e9; border:2px solid #c8e6c9; border-radius:8px; padding:12px 16px; font-size:.82rem; font-weight:600; color:#1b5e20; text-align:center; min-width:110px; }
+  .flow-step small { display:block; font-weight:400; font-size:.7rem; color:#616161; margin-top:2px; }
+  .flow-arrow { color:#4caf50; font-size:1.4rem; font-weight:700; }
+
+  footer { background:#1b5e20; color:rgba(255,255,255,.85); padding:24px 0; text-align:center; font-size:.82rem; }
+  footer small { display:block; color:rgba(255,255,255,.55); font-size:.72rem; margin-top:4px; }
+
+  /* SVG interactions */
+  .zone { cursor:pointer; transition:filter .15s; }
+  .zone:hover { filter:brightness(.9) drop-shadow(0 2px 6px rgba(0,0,0,.25)); }
+  .zone.active { filter:brightness(.8) drop-shadow(0 0 8px rgba(0,0,0,.5)); }
+  .zone text { pointer-events:none; user-select:none; }
+
+  @media (max-width:600px) {
+    .flow-arrow { transform:rotate(90deg); }
+    .flow-steps { flex-direction:column; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container-header">
+    <span class="badge">DENAH TEKNIS · PERHITUNGAN LUAS</span>
+    <h1>PT Elveniun Agro Inovasi</h1>
+    <p>Pabrik Pelet Biomassa 1 Hektar — Tata Letak, Dimensi & Persentase Penggunaan Lahan</p>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ==================== STATS ==================== -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">Luas Total Lahan</div>
+      <div class="stat-value">10.000 <small>m² (1 ha)</small></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Bangunan Gedung</div>
+      <div class="stat-value">45,54 <small>%</small></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Area Terbuka</div>
+      <div class="stat-value">15,28 <small>%</small></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Ruang Hijau (RTH)</div>
+      <div class="stat-value">6,00 <small>%</small></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Jalan & Sirkulasi</div>
+      <div class="stat-value">33,18 <small>%</small></div>
+    </div>
+  </div>
+
+  <!-- ==================== MAP + SIDE PANEL ==================== -->
+  <div class="map-section">
+    <div class="map-card">
+      <svg viewBox="0 0 2000 2000" class="factory-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Denah pabrik dengan dimensi dan persentase lahan">
+
+        <!-- ============ DEFS ============ -->
+        <defs>
+          <!-- Directional arrows -->
+          <marker id="dimArrowEnd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,5 L10,0 L10,10 Z" fill="#e65100"/>
+          </marker>
+          <marker id="dimArrowStart" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M10,5 L0,0 L0,10 Z" fill="#e65100"/>
+          </marker>
+          <marker id="flowArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#ff6f00"/>
+          </marker>
+
+          <!-- Grass texture -->
+          <pattern id="grass" patternUnits="userSpaceOnUse" width="20" height="20">
+            <rect width="20" height="20" fill="#dcedc8"/>
+            <path d="M3,17 L4,11 M7,18 L8,12 M12,17 L13,11 M16,18 L17,12" stroke="#9ccc65" stroke-width="1.2" stroke-linecap="round"/>
+            <circle cx="6" cy="6" r=".9" fill="#aed581"/>
+            <circle cx="15" cy="9" r=".9" fill="#aed581"/>
+          </pattern>
+
+          <!-- Concrete texture -->
+          <pattern id="concrete" patternUnits="userSpaceOnUse" width="28" height="28">
+            <rect width="28" height="28" fill="#e0e0e0"/>
+            <line x1="0" y1="14" x2="28" y2="14" stroke="#bdbdbd" stroke-width=".6"/>
+            <line x1="14" y1="0" x2="14" y2="28" stroke="#bdbdbd" stroke-width=".6"/>
+            <circle cx="5" cy="5" r=".7" fill="#9e9e9e"/>
+            <circle cx="21" cy="21" r=".7" fill="#9e9e9e"/>
+            <circle cx="18" cy="8" r=".5" fill="#9e9e9e"/>
+          </pattern>
+
+          <!-- Wood chip pattern -->
+          <pattern id="woodchip" patternUnits="userSpaceOnUse" width="16" height="16">
+            <rect width="16" height="16" fill="#d7ccc8"/>
+            <ellipse cx="3" cy="3" rx="2.8" ry="1.1" fill="#a1887f" transform="rotate(30 3 3)"/>
+            <ellipse cx="10" cy="9" rx="2.8" ry="1.1" fill="#8d6e63" transform="rotate(-25 10 9)"/>
+            <ellipse cx="5" cy="12" rx="2.2" ry=".9" fill="#bcaaa4" transform="rotate(50 5 12)"/>
+            <ellipse cx="13" cy="2" rx="2" ry=".9" fill="#a1887f" transform="rotate(-40 13 2)"/>
+          </pattern>
+
+          <!-- Pellet pattern -->
+          <pattern id="pellets" patternUnits="userSpaceOnUse" width="12" height="12">
+            <rect width="12" height="12" fill="#c5a880"/>
+            <ellipse cx="3" cy="3" rx="1.8" ry="1.1" fill="#a67c52" transform="rotate(20 3 3)"/>
+            <ellipse cx="8" cy="7" rx="1.8" ry="1.1" fill="#8b6340" transform="rotate(-30 8 7)"/>
+            <ellipse cx="5" cy="10" rx="1.6" ry="1" fill="#d4b896" transform="rotate(60 5 10)"/>
+            <ellipse cx="10" cy="1" rx="1.6" ry="1" fill="#a67c52" transform="rotate(-15 10 1)"/>
+          </pattern>
+
+          <!-- Roof gradients -->
+          <linearGradient id="roofBrown" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#a1887f"/>
+            <stop offset="1" stop-color="#6d4c41"/>
+          </linearGradient>
+          <linearGradient id="roofBlue" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#81d4fa"/>
+            <stop offset="1" stop-color="#0277bd"/>
+          </linearGradient>
+          <linearGradient id="roofGreen" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#81c784"/>
+            <stop offset="1" stop-color="#2e7d32"/>
+          </linearGradient>
+          <linearGradient id="roofGray" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#b0bec5"/>
+            <stop offset="1" stop-color="#546e7a"/>
+          </linearGradient>
+          <linearGradient id="roofPurple" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ce93d8"/>
+            <stop offset="1" stop-color="#7b1fa2"/>
+          </linearGradient>
+          <linearGradient id="roofYellow" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#fff59d"/>
+            <stop offset="1" stop-color="#f9a825"/>
+          </linearGradient>
+
+          <!-- Steel gradient -->
+          <linearGradient id="steel" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#78909c"/>
+            <stop offset=".35" stop-color="#cfd8dc"/>
+            <stop offset=".65" stop-color="#b0bec5"/>
+            <stop offset="1" stop-color="#546e7a"/>
+          </linearGradient>
+          <linearGradient id="steelVert" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#cfd8dc"/>
+            <stop offset=".5" stop-color="#90a4ae"/>
+            <stop offset="1" stop-color="#546e7a"/>
+          </linearGradient>
+          <radialGradient id="siloTop" cx=".4" cy=".35" r=".7">
+            <stop offset="0" stop-color="#eceff1"/>
+            <stop offset="1" stop-color="#78909c"/>
+          </radialGradient>
+
+          <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="2" dy="3" stdDeviation="2.5" flood-opacity=".25"/>
+          </filter>
+        </defs>
+
+        <!-- ============ BACKGROUND ============ -->
+        <rect width="2000" height="2000" fill="url(#grass)"/>
+
+        <!-- Site boundary -->
+        <rect x="20" y="20" width="1960" height="1960" fill="none" stroke="#33691e" stroke-width="3" stroke-dasharray="16 8"/>
+
+        <!-- Buffer vegetation (RTH around site) -->
+        <g opacity=".6">
+          <!-- Corner trees -->
+          <circle cx="50" cy="50" r="12" fill="#2e7d32"/>
+          <circle cx="45" cy="45" r="8" fill="#43a047"/>
+          <circle cx="58" cy="47" r="7" fill="#388e3c"/>
+          
+          <circle cx="1950" cy="50" r="12" fill="#2e7d32"/>
+          <circle cx="1945" cy="45" r="8" fill="#43a047"/>
+          <circle cx="1958" cy="47" r="7" fill="#388e3c"/>
+          
+          <circle cx="50" cy="1950" r="12" fill="#2e7d32"/>
+          <circle cx="45" cy="1945" r="8" fill="#43a047"/>
+          
+          <circle cx="1950" cy="1950" r="12" fill="#2e7d32"/>
+          <circle cx="1945" cy="1945" r="8" fill="#43a047"/>
+        </g>
+
+        <!-- ============ PERIMETER ROAD ============ -->
+        <rect x="40" y="40" width="1920" height="1920" fill="none" stroke="#546e7a" stroke-width="120"/>
+        <rect x="40" y="40" width="1920" height="1920" fill="none" stroke="#607d8b" stroke-width="120" opacity=".5"/>
+        <!-- Center dash line -->
+        <rect x="40" y="40" width="1920" height="1920" fill="none" stroke="#ffeb3b" stroke-width="2.5" stroke-dasharray="20 16" opacity=".85"/>
+        <!-- Inner/outer edge white lines -->
+        <rect x="40" y="40" width="1920" height="1920" fill="none" stroke="#fff" stroke-width="2" opacity=".7"/>
+
+        <!-- Gate driveways -->
+        <rect x="0" y="920" width="40" height="160" fill="#607d8b"/>
+        <rect x="1960" y="1180" width="40" height="160" fill="#607d8b"/>
+
+        <!-- West gate (MASUK) -->
+        <g>
+          <rect x="10" y="916" width="24" height="168" fill="#37474f" rx="3"/>
+          <rect x="14" y="920" width="16" height="160" fill="#455a64" rx="2"/>
+          <text x="22" y="1000" text-anchor="middle" fill="#ffeb3b" font-size="14" font-weight="700" transform="rotate(-90 22 1000)">MASUK →</text>
+          <rect x="40" y="960" width="60" height="5" fill="#ef5350"/>
+          <rect x="40" y="960" width="60" height="5" fill="#fff" stroke="#ef5350" stroke-width=".5"/>
+          <g fill="#fff">
+            <rect x="130" y="926" width="6" height="22"/>
+            <rect x="130" y="956" width="6" height="22"/>
+            <rect x="130" y="986" width="6" height="22"/>
+            <rect x="130" y="1016" width="6" height="22"/>
+            <rect x="130" y="1046" width="6" height="22"/>
+          </g>
+        </g>
+
+        <!-- East gate (KELUAR) -->
+        <g>
+          <rect x="1966" y="1176" width="24" height="168" fill="#37474f" rx="3"/>
+          <rect x="1970" y="1180" width="16" height="160" fill="#455a64" rx="2"/>
+          <text x="1978" y="1260" text-anchor="middle" fill="#ffeb3b" font-size="14" font-weight="700" transform="rotate(90 1978 1260)">← KELUAR</text>
+          <rect x="1900" y="1220" width="60" height="5" fill="#ef5350"/>
+          <rect x="1900" y="1220" width="60" height="5" fill="#fff" stroke="#ef5350" stroke-width=".5"/>
+          <g fill="#fff">
+            <rect x="1864" y="1186" width="6" height="22"/>
+            <rect x="1864" y="1216" width="6" height="22"/>
+            <rect x="1864" y="1246" width="6" height="22"/>
+            <rect x="1864" y="1276" width="6" height="22"/>
+            <rect x="1864" y="1306" width="6" height="22"/>
+          </g>
+        </g>
+
+        <!-- Direction arrows on road -->
+        <g fill="#fff" opacity=".9">
+          <polygon points="500,50 540,70 500,90"/>
+          <polygon points="900,50 940,70 900,90"/>
+          <polygon points="1400,50 1440,70 1400,90"/>
+          <polygon points="1900,450 1920,490 1940,450"/>
+          <polygon points="1900,900 1920,940 1940,900"/>
+          <polygon points="1900,1500 1920,1540 1940,1500"/>
+          <polygon points="1500,1950 1460,1930 1500,1910"/>
+          <polygon points="900,1950 860,1930 900,1910"/>
+          <polygon points="400,1950 360,1930 400,1910"/>
+          <polygon points="60,1500 40,1460 80,1460"/>
+          <polygon points="60,900 40,860 80,860"/>
+        </g>
+
+        <!-- =========================================== -->
+        <!-- =========== ZONA BANGUNAN GEDUNG =========== -->
+        <!-- =========================================== -->
+
+        <!-- ======= KANTOR UTAMA (22×12m) ======= -->
+        <g class="zone" data-zone="kantor" data-title="Kantor Utama" data-dims="22 × 12 m" data-area="264" data-pct="2.64"
+           data-desc="Pusat administrasi, manajemen, dan penerimaan tamu pabrik."
+           data-details="Ruang Direksi|Ruang Administrasi|Ruang Rapat|Ruang Tamu|Area Arsip">
+          <rect x="204" y="204" width="440" height="240" fill="#000" opacity=".15" rx="4"/>
+          <rect x="200" y="200" width="440" height="240" fill="#e1bee7" stroke="#6a1b9a" stroke-width="2" rx="3"/>
+          <!-- Roof -->
+          <path d="M200,200 L420,168 L640,200 L640,215 L200,215 Z" fill="url(#roofPurple)" stroke="#4a148c" stroke-width="1.2"/>
+          <line x1="420" y1="168" x2="420" y2="215" stroke="#4a148c" stroke-width=".8" opacity=".5"/>
+          <!-- Windows row 1 -->
+          <g fill="#b3e5fc" stroke="#0277bd" stroke-width="1">
+            <rect x="225" y="235" width="35" height="28"/>
+            <rect x="280" y="235" width="35" height="28"/>
+            <rect x="335" y="235" width="35" height="28"/>
+            <rect x="390" y="235" width="35" height="28"/>
+            <rect x="445" y="235" width="35" height="28"/>
+            <rect x="500" y="235" width="35" height="28"/>
+            <rect x="555" y="235" width="35" height="28"/>
+            <rect x="610" y="235" width="20" height="28"/>
+          </g>
+          <!-- Windows row 2 -->
+          <g fill="#b3e5fc" stroke="#0277bd" stroke-width="1">
+            <rect x="225" y="290" width="35" height="28"/>
+            <rect x="280" y="290" width="35" height="28"/>
+            <rect x="335" y="290" width="35" height="28"/>
+            <rect x="390" y="290" width="35" height="28"/>
+            <rect x="445" y="290" width="35" height="28"/>
+            <rect x="500" y="290" width="35" height="28"/>
+            <rect x="555" y="290" width="35" height="28"/>
+            <rect x="610" y="290" width="20" height="28"/>
+          </g>
+          <!-- Entrance -->
+          <rect x="380" y="360" width="80" height="80" fill="#5d4037" stroke="#3e2723" stroke-width="1.5"/>
+          <line x1="420" y1="360" x2="420" y2="440" stroke="#3e2723" stroke-width="1"/>
+          <circle cx="410" cy="400" r="3" fill="#ffd54f"/>
+          <circle cx="430" cy="400" r="3" fill="#ffd54f"/>
+          <!-- Sign board -->
+          <rect x="240" y="172" width="360" height="20" fill="#ffd54f" stroke="#f57f17" stroke-width="1"/>
+          <text x="420" y="187" text-anchor="middle" font-size="14" font-weight="700" fill="#4a148c" font-family="Segoe UI">KANTOR UTAMA</text>
+          <!-- Area label -->
+          <rect x="240" y="404" width="120" height="26" fill="#1b5e20" rx="13"/>
+          <text x="300" y="422" text-anchor="middle" font-size="12" fill="#fff" font-weight="700">264 m² · 2,64%</text>
+        </g>
+
+        <!-- ======= LABORATORIUM (8×10m) ======= -->
+        <g class="zone" data-zone="lab" data-title="Laboratorium" data-dims="8 × 10 m" data-area="80" data-pct="0.80"
+           data-desc="Pengujian kualitas bahan baku dan produk akhir pelet."
+           data-details="Uji Kadar Air|Uji Nilai Kalori|Uji Densitas|Uji Durabilitas">
+          <rect x="684" y="204" width="160" height="200" fill="#000" opacity=".15" rx="4"/>
+          <rect x="680" y="200" width="160" height="200" fill="#f3e5f5" stroke="#6a1b9a" stroke-width="2" rx="3"/>
+          <path d="M680,200 L760,176 L840,200 L840,212 L680,212 Z" fill="url(#roofPurple)" stroke="#4a148c" stroke-width="1"/>
+          <!-- Lab equipment icons -->
+          <rect x="700" y="235" width="40" height="50" fill="#b3e5fc" stroke="#0277bd" stroke-width="1"/>
+          <rect x="700" y="235" width="40" height="12" fill="#455a64"/>
+          <line x1="705" y1="242" x2="735" y2="242" stroke="#b0bec5" stroke-width=".6"/>
+          <line x1="705" y1="248" x2="735" y2="248" stroke="#b0bec5" stroke-width=".6"/>
+          <!-- Bunsen burner -->
+          <circle cx="780" cy="260" r="6" fill="#78909c"/>
+          <path d="M780,250 L778,240 L782,240 Z" fill="#ff5722"/>
+          <!-- Windows -->
+          <g fill="#b3e5fc" stroke="#0277bd" stroke-width=".8">
+            <rect x="700" y="300" width="30" height="22"/>
+            <rect x="740" y="300" width="30" height="22"/>
+            <rect x="780" y="300" width="30" height="22"/>
+          </g>
+          <rect x="745" y="355" width="30" height="45" fill="#5d4037" stroke="#3e2723" stroke-width="1"/>
+          <text x="760" y="372" text-anchor="middle" font-size="13" font-weight="700" fill="#4a148c">LAB</text>
+          <rect x="700" y="378" width="100" height="18" fill="#1b5e20" rx="9"/>
+          <text x="750" y="391" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">80 m² · 0,80%</text>
+        </g>
+
+        <!-- ======= FASILITAS KARYAWAN (16×10m) ======= -->
+        <g class="zone" data-zone="fasilitas" data-title="Fasilitas Karyawan" data-dims="16 × 10 m" data-area="160" data-pct="1.60"
+           data-desc="Sarana penunjang kesejahteraan dan kenyamanan karyawan."
+           data-details="Kantin|Ruang Ganti|Toilet Pria/Wanita|Mushola|Ruang Istirahat">
+          <rect x="884" y="204" width="320" height="200" fill="#000" opacity=".15" rx="4"/>
+          <rect x="880" y="200" width="320" height="200" fill="#f3e5f5" stroke="#6a1b9a" stroke-width="2" rx="3"/>
+          <path d="M880,200 L1040,176 L1200,200 L1200,212 L880,212 Z" fill="url(#roofPurple)" stroke="#4a148c" stroke-width="1"/>
+          <!-- Windows -->
+          <g fill="#b3e5fc" stroke="#0277bd" stroke-width="1">
+            <rect x="900" y="235" width="30" height="25"/>
+            <rect x="945" y="235" width="30" height="25"/>
+            <rect x="990" y="235" width="30" height="25"/>
+            <rect x="1035" y="235" width="30" height="25"/>
+            <rect x="1080" y="235" width="30" height="25"/>
+            <rect x="1125" y="235" width="30" height="25"/>
+            <rect x="900" y="275" width="30" height="25"/>
+            <rect x="945" y="275" width="30" height="25"/>
+            <rect x="990" y="275" width="30" height="25"/>
+            <rect x="1035" y="275" width="30" height="25"/>
+            <rect x="1080" y="275" width="30" height="25"/>
+            <rect x="1125" y="275" width="30" height="25"/>
+          </g>
+          <rect x="990" y="340" width="100" height="60" fill="#5d4037" stroke="#3e2723" stroke-width="1.5"/>
+          <text x="1040" y="360" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">FASILITAS</text>
+          <text x="1040" y="378" text-anchor="middle" font-size="10" fill="#fff">KARYAWAN</text>
+          <rect x="960" y="390" width="160" height="18" fill="#1b5e20" rx="9"/>
+          <text x="1040" y="403" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">160 m² · 1,60%</text>
+        </g>
+
+        <!-- ======= UTILITAS (14×10m) ======= -->
+        <g class="zone" data-zone="utilitas" data-title="Utilitas & Energi" data-dims="14 × 10 m" data-area="140" data-pct="1.40"
+           data-desc="Pusat kelistrikan dan sistem pendukung operasional pabrik."
+           data-details="Genset Cadangan 500 kVA|Panel Listrik Utama|Pompa Air|Kompresor">
+          <rect x="1244" y="204" width="280" height="200" fill="#000" opacity=".15" rx="4"/>
+          <rect x="1240" y="200" width="280" height="200" fill="#eceff1" stroke="#546e7a" stroke-width="2" rx="3"/>
+          <path d="M1240,200 L1380,180 L1520,200 L1520,212 L1240,212 Z" fill="url(#roofGray)" stroke="#37474f" stroke-width="1"/>
+          <!-- Genset unit -->
+          <rect x="1260" y="235" width="100" height="60" fill="#90a4ae" stroke="#455a64" stroke-width="1.5"/>
+          <rect x="1260" y="235" width="100" height="14" fill="#37474f"/>
+          <circle cx="1310" cy="272" r="14" fill="#455a64"/>
+          <circle cx="1310" cy="272" r="5" fill="#b0bec5"/>
+          <!-- Exhaust stack -->
+          <rect x="1370" y="222" width="16" height="60" fill="#78909c" stroke="#37474f" stroke-width="1"/>
+          <ellipse cx="1378" cy="222" rx="8" ry="3" fill="#37474f"/>
+          <!-- Panel listrik -->
+          <rect x="1395" y="235" width="28" height="55" fill="#546e7a" stroke="#263238" stroke-width="1"/>
+          <line x1="1400" y1="245" x2="1418" y2="245" stroke="#ffeb3b" stroke-width="1.5"/>
+          <line x1="1400" y1="253" x2="1418" y2="253" stroke="#ffeb3b" stroke-width="1.5"/>
+          <line x1="1400" y1="261" x2="1418" y2="261" stroke="#4caf50" stroke-width="1.5"/>
+          <line x1="1400" y1="269" x2="1418" y2="269" stroke="#4caf50" stroke-width="1.5"/>
+          <line x1="1400" y1="277" x2="1418" y2="277" stroke="#f44336" stroke-width="1.5"/>
+          <!-- Menara listrik -->
+          <g stroke="#455a64" stroke-width="1.5" fill="none">
+            <line x1="1445" y1="225" x2="1445" y2="290"/>
+            <line x1="1465" y1="225" x2="1465" y2="290"/>
+            <line x1="1440" y1="240" x2="1470" y2="240"/>
+            <line x1="1440" y1="258" x2="1470" y2="258"/>
+            <line x1="1440" y1="276" x2="1470" y2="276"/>
+            <line x1="1445" y1="225" x2="1465" y2="290"/>
+            <line x1="1465" y1="225" x2="1445" y2="290"/>
+          </g>
+          <rect x="1280" y="368" width="200" height="20" fill="#1b5e20" rx="10"/>
+          <text x="1380" y="382" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">140 m² · 1,40%</text>
+        </g>
+
+        <!-- ======= BENGKEL (14×10m) ======= -->
+        <g class="zone" data-zone="bengkel" data-title="Bengkel & Gudang Sparepart" data-dims="14 × 10 m" data-area="140" data-pct="1.40"
+           data-desc="Perawatan mesin dan penyimpanan suku cadang produksi."
+           data-details="Workshop|Gudang Sparepart|Alat Berat|Ruang Tool">
+          <rect x="1564" y="204" width="280" height="200" fill="#000" opacity=".15" rx="4"/>
+          <rect x="1560" y="200" width="280" height="200" fill="#cfd8dc" stroke="#546e7a" stroke-width="2" rx="3"/>
+          <path d="M1560,200 L1700,180 L1840,200 L1840,212 L1560,212 Z" fill="url(#roofGray)" stroke="#37474f" stroke-width="1"/>
+          <!-- Garage door -->
+          <rect x="1585" y="290" width="120" height="95" fill="#78909c" stroke="#37474f" stroke-width="2"/>
+          <g stroke="#546e7a" stroke-width="1">
+            <line x1="1585" y1="310" x2="1705" y2="310"/>
+            <line x1="1585" y1="330" x2="1705" y2="330"/>
+            <line x1="1585" y1="350" x2="1705" y2="350"/>
+            <line x1="1585" y1="370" x2="1705" y2="370"/>
+          </g>
+          <rect x="1725" y="305" width="60" height="80" fill="#455a64" stroke="#263238" stroke-width="1.5"/>
+          <!-- Windows -->
+          <g fill="#b3e5fc" stroke="#0277bd" stroke-width=".8">
+            <rect x="1585" y="235" width="30" height="22"/>
+            <rect x="1630" y="235" width="30" height="22"/>
+            <rect x="1675" y="235" width="30" height="22"/>
+            <rect x="1740" y="235" width="30" height="22"/>
+          </g>
+          <rect x="1620" y="388" width="160" height="18" fill="#1b5e20" rx="9"/>
+          <text x="1700" y="401" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">140 m² · 1,40%</text>
+        </g>
+
+        <!-- ======= PARKIR (24×16m) ======= -->
+        <g class="zone" data-zone="parkir" data-title="Area Parkir" data-dims="24 × 16 m" data-area="384" data-pct="3.84"
+           data-desc="Parkir karyawan dan tamu, terpisah dari jalur truk berat."
+           data-details="6 Slot Mobil|10 Slot Motor|Parkir Tamu|Pos Satpam">
+          <rect x="200" y="440" width="480" height="320" fill="url(#concrete)" stroke="#9e9e9e" stroke-width="2" rx="3"/>
+          <!-- Parking lines - cars -->
+          <g stroke="#fff" stroke-width="2">
+            <line x1="220" y1="460" x2="220" y2="580"/>
+            <line x1="280" y1="460" x2="280" y2="580"/>
+            <line x1="340" y1="460" x2="340" y2="580"/>
+            <line x1="400" y1="460" x2="400" y2="580"/>
+            <line x1="460" y1="460" x2="460" y2="580"/>
+            <line x1="520" y1="460" x2="520" y2="580"/>
+            <line x1="580" y1="460" x2="580" y2="580"/>
+            <line x1="640" y1="460" x2="640" y2="580"/>
+            <line x1="220" y1="580" x2="660" y2="580"/>
+          </g>
+          <!-- Cars -->
+          <g>
+            <rect x="228" y="475" width="42" height="90" fill="#e53935" rx="4"/>
+            <rect x="233" y="485" width="32" height="18" fill="#b3e5fc" rx="2"/>
+            <rect x="233" y="517" width="32" height="18" fill="#b3e5fc" rx="2"/>
+
+            <rect x="288" y="475" width="42" height="90" fill="#1e88e5" rx="4"/>
+            <rect x="293" y="485" width="32" height="18" fill="#b3e5fc" rx="2"/>
+            <rect x="293" y="517" width="32" height="18" fill="#b3e5fc" rx="2"/>
+
+            <rect x="348" y="475" width="42" height="90" fill="#fdd835" rx="4"/>
+            <rect x="353" y="485" width="32" height="18" fill="#b3e5fc" rx="2"/>
+            <rect x="353" y="517" width="32" height="18" fill="#b3e5fc" rx="2"/>
+
+            <rect x="408" y="475" width="42" height="90" fill="#43a047" rx="4"/>
+            <rect x="413" y="485" width="32" height="18" fill="#b3e5fc" rx="2"/>
+            <rect x="413" y="517" width="32" height="18" fill="#b3e5fc" rx="2"/>
+
+            <rect x="468" y="475" width="42" height="90" fill="#757575" rx="4"/>
+            <rect x="473" y="485" width="32" height="18" fill="#b3e5fc" rx="2"/>
+            <rect x="473" y="517" width="32" height="18" fill="#b3e5fc" rx="2"/>
+
+            <rect x="528" y="475" width="42" height="90" fill="#ff7043" rx="4"/>
+            <rect x="533" y="485" width="32" height="18" fill="#b3e5fc" rx="2"/>
+            <rect x="533" y="517" width="32" height="18" fill="#b3e5fc" rx="2"/>
+          </g>
+          <!-- Motorcycle row -->
+          <g>
+            <rect x="220" y="620" width="440" height="22" fill="#cfd8dc" opacity=".7"/>
+            <g fill="#455a64">
+              <rect x="230" y="626" width="22" height="10" rx="2"/>
+              <rect x="270" y="626" width="22" height="10" rx="2"/>
+              <rect x="310" y="626" width="22" height="10" rx="2"/>
+              <rect x="350" y="626" width="22" height="10" rx="2"/>
+              <rect x="390" y="626" width="22" height="10" rx="2"/>
+              <rect x="430" y="626" width="22" height="10" rx="2"/>
+              <rect x="470" y="626" width="22" height="10" rx="2"/>
+              <rect x="510" y="626" width="22" height="10" rx="2"/>
+              <rect x="550" y="626" width="22" height="10" rx="2"/>
+              <rect x="590" y="626" width="22" height="10" rx="2"/>
+            </g>
+          </g>
+          <!-- Parking sign -->
+          <rect x="230" y="680" width="200" height="30" fill="#1b5e20" rx="15"/>
+          <text x="330" y="700" text-anchor="middle" font-size="13" fill="#fff" font-weight="700">384 m² · 3,84%</text>
+        </g>
+
+        <!-- ======= INLOADING (24×16m) ======= -->
+        <g class="zone" data-zone="inloading" data-title="Inloading & Jembatan Timbang" data-dims="24 × 16 m" data-area="384" data-pct="3.84"
+           data-desc="Penerimaan bahan baku dari truk, penimbangan, dan penurunan ke hopper."
+           data-details="Jembatan Timbang 60 ton|Hopper Penerimaan|Pos Keamanan|Ruang Timbang">
+          <!-- Platform -->
+          <rect x="720" y="440" width="480" height="320" fill="#455a64" stroke="#263238" stroke-width="3" rx="3"/>
+          <rect x="736" y="456" width="448" height="288" fill="url(#concrete)" stroke="#37474f" stroke-width="2"/>
+          <!-- Platform lines -->
+          <g stroke="#fff" stroke-width="2" opacity=".7">
+            <line x1="736" y1="530" x2="1184" y2="530"/>
+            <line x1="736" y1="670" x2="1184" y2="670"/>
+          </g>
+          <!-- Truck on weighbridge -->
+          <g>
+            <!-- Container -->
+            <rect x="750" y="475" width="260" height="140" fill="#efebe9" stroke="#5d4037" stroke-width="2.5" rx="3"/>
+            <g stroke="#bcaaa4" stroke-width="1">
+              <line x1="770" y1="480" x2="770" y2="610"/>
+              <line x1="795" y1="480" x2="795" y2="610"/>
+              <line x1="820" y1="480" x2="820" y2="610"/>
+              <line x1="845" y1="480" x2="845" y2="610"/>
+              <line x1="870" y1="480" x2="870" y2="610"/>
+              <line x1="895" y1="480" x2="895" y2="610"/>
+              <line x1="920" y1="480" x2="920" y2="610"/>
+              <line x1="945" y1="480" x2="945" y2="610"/>
+              <line x1="970" y1="480" x2="970" y2="610"/>
+              <line x1="995" y1="480" x2="995" y2="610"/>
+            </g>
+            <!-- Material load (wood chip) -->
+            <ellipse cx="880" cy="485" rx="115" ry="15" fill="url(#woodchip)" opacity=".9" stroke="#6d4c41" stroke-width="1"/>
+            <!-- Cab -->
+            <rect x="1010" y="485" width="100" height="125" fill="#1565c0" stroke="#0d47a1" stroke-width="2" rx="4"/>
+            <rect x="1025" y="495" width="70" height="30" fill="#b3e5fc" stroke="#0d47a1" stroke-width="1"/>
+            <rect x="1025" y="540" width="70" height="25" fill="#0d47a1" opacity=".4"/>
+            <!-- Wheels -->
+            <circle cx="800" cy="618" r="16" fill="#212121" stroke="#000" stroke-width="2"/>
+            <circle cx="880" cy="618" r="16" fill="#212121" stroke="#000" stroke-width="2"/>
+            <circle cx="1060" cy="618" r="16" fill="#212121" stroke="#000" stroke-width="2"/>
+            <circle cx="800" cy="618" r="6" fill="#616161"/>
+            <circle cx="880" cy="618" r="6" fill="#616161"/>
+            <circle cx="1060" cy="618" r="6" fill="#616161"/>
+          </g>
+          <!-- Hopper reception -->
+          <g>
+            <path d="M 1210,475 L 1270,475 L 1310,580 L 1170,580 Z" fill="#78909c" stroke="#37474f" stroke-width="2"/>
+            <path d="M 1210,475 L 1270,475 L 1255,495 L 1225,495 Z" fill="#546e7a"/>
+            <rect x="1160" y="580" width="160" height="14" fill="#455a64" stroke="#263238" stroke-width="1"/>
+          </g>
+          <!-- Scale display -->
+          <rect x="900" y="680" width="180" height="40" fill="#263238" rx="4"/>
+          <text x="990" y="705" text-anchor="middle" font-size="18" fill="#4caf50" font-weight="700" font-family="Consolas, monospace">25.450 kg</text>
+          <!-- Area badge -->
+          <rect x="870" y="735" width="200" height="22" fill="#1b5e20" rx="11"/>
+          <text x="970" y="750" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">384 m² · 3,84%</text>
+        </g>
+
+        <!-- ======= AREA PERSIAPAN (20×16m) ======= -->
+        <g class="zone" data-zone="persiapan" data-title="Area Persiapan" data-dims="20 × 16 m" data-area="320" data-pct="3.20"
+           data-desc="Pengecilan ukuran bahan baku menjadi serbuk halus sebelum pengeringan."
+           data-details="Wood Chipper|Hammer Mill 1|Hammer Mill 2|Dust Collector|Konveyor">
+          <rect x="1244" y="444" width="400" height="320" fill="#000" opacity=".15" rx="4"/>
+          <rect x="1240" y="440" width="400" height="320" fill="#fff3e0" stroke="#ef6c00" stroke-width="2.5" rx="3"/>
+          <path d="M1240,440 L1440,410 L1640,440 L1640,455 L1240,455 Z" fill="url(#roofYellow)" stroke="#ef6c00" stroke-width="1.2"/>
+
+          <!-- WOOD CHIPPER -->
+          <g>
+            <rect x="1270" y="485" width="90" height="60" fill="url(#steel)" stroke="#37474f" stroke-width="1.5"/>
+            <path d="M1280,462 L1350,462 L1365,485 L1265,485 Z" fill="#546e7a" stroke="#263238" stroke-width="1.2"/>
+            <path d="M1355,502 L1400,510 L1400,525 L1355,518 Z" fill="#78909c" stroke="#37474f" stroke-width="1"/>
+            <rect x="1280" y="545" width="20" height="15" fill="#455a64"/>
+            <circle cx="1290" cy="552" r="4" fill="#b0bec5"/>
+            <text x="1315" y="565" text-anchor="middle" font-size="9" font-weight="700" fill="#1a237e">CHIPPER</text>
+          </g>
+
+          <!-- HAMMER MILL 1 -->
+          <g>
+            <circle cx="1440" cy="500" r="35" fill="url(#steelVert)" stroke="#37474f" stroke-width="1.5"/>
+            <circle cx="1440" cy="500" r="25" fill="none" stroke="#546e7a" stroke-width="1"/>
+            <circle cx="1440" cy="500" r="10" fill="#455a64"/>
+            <circle cx="1434" cy="494" r="3" fill="#cfd8dc"/>
+            <circle cx="1446" cy="494" r="3" fill="#cfd8dc"/>
+            <circle cx="1434" cy="506" r="3" fill="#cfd8dc"/>
+            <circle cx="1446" cy="506" r="3" fill="#cfd8dc"/>
+            <rect x="1420" y="458" width="40" height="14" fill="#78909c" stroke="#37474f" stroke-width="1"/>
+            <rect x="1478" y="492" width="20" height="18" fill="#455a64"/>
+            <text x="1440" y="555" text-anchor="middle" font-size="9" font-weight="700" fill="#1a237e">HAMMER 1</text>
+          </g>
+
+          <!-- HAMMER MILL 2 -->
+          <g>
+            <circle cx="1550" cy="500" r="35" fill="url(#steelVert)" stroke="#37474f" stroke-width="1.5"/>
+            <circle cx="1550" cy="500" r="25" fill="none" stroke="#546e7a" stroke-width="1"/>
+            <circle cx="1550" cy="500" r="10" fill="#455a64"/>
+            <circle cx="1544" cy="494" r="3" fill="#cfd8dc"/>
+            <circle cx="1556" cy="494" r="3" fill="#cfd8dc"/>
+            <circle cx="1544" cy="506" r="3" fill="#cfd8dc"/>
+            <circle cx="1556" cy="506" r="3" fill="#cfd8dc"/>
+            <rect x="1530" y="458" width="40" height="14" fill="#78909c" stroke="#37474f" stroke-width="1"/>
+            <rect x="1588" y="492" width="20" height="18" fill="#455a64"/>
+            <text x="1550" y="555" text-anchor="middle" font-size="9" font-weight="700" fill="#1a237e">HAMMER 2</text>
+          </g>
+
+          <!-- DUST COLLECTOR -->
+          <g>
+            <circle cx="1290" cy="650" r="28" fill="url(#steelVert)" stroke="#37474f" stroke-width="1.5"/>
+            <circle cx="1290" cy="650" r="18" fill="none" stroke="#78909c" stroke-width="1"/>
+            <line x1="1290" y1="622" x2="1290" y2="600" stroke="#37474f" stroke-width="2.5"/>
+            <rect x="1283" y="588" width="14" height="14" fill="#455a64"/>
+            <rect x="1315" y="638" width="7" height="25" fill="#90a4ae"/>
+            <text x="1290" y="695" text-anchor="middle" font-size="8" font-weight="700" fill="#37474f">DUST</text>
+          </g>
+
+          <!-- KONVEYOR -->
+          <g>
+            <rect x="1365" y="628" width="220" height="18" fill="#455a64" stroke="#263238" stroke-width="1.5"/>
+            <line x1="1375" y1="637" x2="1575" y2="637" stroke="#ffeb3b" stroke-width="1.5" stroke-dasharray="6 4"/>
+            <circle cx="1380" cy="650" r="3" fill="#263238"/>
+            <circle cx="1420" cy="650" r="3" fill="#263238"/>
+            <circle cx="1460" cy="650" r="3" fill="#263238"/>
+            <circle cx="1500" cy="650" r="3" fill="#263238"/>
+            <circle cx="1540" cy="650" r="3" fill="#263238"/>
+            <circle cx="1575" cy="650" r="3" fill="#263238"/>
+          </g>
+
+          <rect x="1340" y="718" width="200" height="22" fill="#1b5e20" rx="11"/>
+          <text x="1440" y="733" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">320 m² · 3,20%</text>
+        </g>
+
+        <!-- ======= GUDANG BAHAN BAKU (30×20m) ======= -->
+        <g class="zone" data-zone="gudang-bb" data-title="Gudang Bahan Baku" data-dims="30 × 20 m" data-area="600" data-pct="6.00"
+           data-desc="Penyimpanan bahan baku kering untuk 7–14 hari produksi."
+           data-details="Luas 600 m²|Kapasitas ±500 ton|Lantai beton cor|Ventilasi silang|Akses Wheel Loader">
+          <rect x="204" y="804" width="600" height="400" fill="#000" opacity=".18" rx="4"/>
+          <rect x="200" y="800" width="600" height="400" fill="#efebe9" stroke="#5d4037" stroke-width="2.5" rx="3"/>
+          <path d="M200,800 L500,755 L800,800 L800,825 L200,825 Z" fill="url(#roofBrown)" stroke="#4e342e" stroke-width="1.5"/>
+          <line x1="500" y1="755" x2="500" y2="825" stroke="#3e2723" stroke-width="1.2" opacity=".6"/>
+          <!-- Roof vents -->
+          <g fill="#78909c" stroke="#455a64" stroke-width="1">
+            <rect x="270" y="778" width="30" height="16"/>
+            <rect x="360" y="765" width="30" height="16"/>
+            <rect x="610" y="765" width="30" height="16"/>
+            <rect x="700" y="778" width="30" height="16"/>
+          </g>
+          <!-- Sliding doors -->
+          <rect x="240" y="1100" width="140" height="90" fill="#795548" stroke="#3e2723" stroke-width="2"/>
+          <rect x="390" y="1100" width="140" height="90" fill="#795548" stroke="#3e2723" stroke-width="2"/>
+          <line x1="310" y1="1100" x2="310" y2="1190" stroke="#3e2723" stroke-width="1.5"/>
+          <line x1="460" y1="1100" x2="460" y2="1190" stroke="#3e2723" stroke-width="1.5"/>
+          <!-- Wood chip piles -->
+          <ellipse cx="300" cy="900" rx="70" ry="32" fill="#a1887f" opacity=".5"/>
+          <ellipse cx="300" cy="893" rx="66" ry="28" fill="url(#woodchip)" stroke="#6d4c41" stroke-width="1.5"/>
+
+          <ellipse cx="470" cy="910" rx="80" ry="38" fill="#a1887f" opacity=".5"/>
+          <ellipse cx="470" cy="902" rx="76" ry="34" fill="url(#woodchip)" stroke="#6d4c41" stroke-width="1.5"/>
+
+          <ellipse cx="640" cy="895" rx="75" ry="34" fill="#a1887f" opacity=".5"/>
+          <ellipse cx="640" cy="888" rx="71" ry="30" fill="url(#woodchip)" stroke="#6d4c41" stroke-width="1.5"/>
+
+          <ellipse cx="540" cy="1020" rx="110" ry="44" fill="#a1887f" opacity=".5"/>
+          <ellipse cx="540" cy="1010" rx="106" ry="40" fill="url(#woodchip)" stroke="#6d4c41" stroke-width="1.5"/>
+          <!-- Wheel loader -->
+          <g transform="translate(700, 1040)">
+            <rect x="0" y="0" width="70" height="42" fill="#fdd835" stroke="#f57f17" stroke-width="1.5" rx="3"/>
+            <rect x="65" y="6" width="20" height="30" fill="#ffb300" stroke="#f57f17" stroke-width="1"/>
+            <path d="M 82,6 L 110,0 L 110,15 L 82,22 Z" fill="#795548" stroke="#3e2723" stroke-width="1"/>
+            <rect x="6" y="-14" width="30" height="18" fill="#455a64" stroke="#263238" stroke-width="1"/>
+            <rect x="12" y="-10" width="18" height="10" fill="#b3e5fc"/>
+            <circle cx="18" cy="44" r="9" fill="#212121"/>
+            <circle cx="55" cy="44" r="9" fill="#212121"/>
+            <circle cx="18" cy="44" r="3" fill="#616161"/>
+            <circle cx="55" cy="44" r="3" fill="#616161"/>
+          </g>
+          <!-- Label -->
+          <text x="500" y="855" text-anchor="middle" font-size="20" font-weight="700" fill="#3e2723">GUDANG BAHAN BAKU</text>
+          <rect x="380" y="1135" width="240" height="28" fill="#1b5e20" rx="14"/>
+          <text x="500" y="1155" text-anchor="middle" font-size="13" fill="#fff" font-weight="700">600 m² · 6,00%</text>
+        </g>
+
+        <!-- ======= ROTARY DRYER (22×14m) ======= -->
+        <g class="zone" data-zone="dryer" data-title="Rotary Drum Dryer" data-dims="22 × 14 m" data-area="308" data-pct="3.08"
+           data-desc="Pengeringan mekanis untuk kadar air konsisten 10–15%."
+           data-details="Drum 3 × 24 m|Tungku Biomassa|Siklon Pemisah|Konveyor|Kapasitas 9–12 TPH">
+          <rect x="844" y="804" width="440" height="280" fill="#000" opacity=".15" rx="4"/>
+          <rect x="840" y="800" width="440" height="280" fill="#fffde7" stroke="#f9a825" stroke-width="2.5" rx="3"/>
+          <path d="M840,800 L1060,772 L1280,800 L1280,818 L840,818 Z" fill="url(#roofYellow)" stroke="#f57f17" stroke-width="1.2"/>
+          <!-- Drum body -->
+          <rect x="870" y="850" width="280" height="70" fill="url(#steel)" stroke="#37474f" stroke-width="2" rx="3"/>
+          <!-- Ring reinforcement -->
+          <g stroke="#546e7a" stroke-width="2">
+            <line x1="920" y1="850" x2="920" y2="920"/>
+            <line x1="980" y1="850" x2="980" y2="920"/>
+            <line x1="1040" y1="850" x2="1040" y2="920"/>
+            <line x1="1100" y1="850" x2="1100" y2="920"/>
+          </g>
+          <!-- Support rollers -->
+          <rect x="970" y="920" width="18" height="18" fill="#455a64"/>
+          <rect x="1080" y="920" width="18" height="18" fill="#455a64"/>
+          <!-- Burner with flame -->
+          <rect x="850" y="855" width="20" height="60" fill="#455a64" stroke="#263238" stroke-width="1"/>
+          <path d="M858,880 L850,890 L858,900 Z" fill="#ff5722"/>
+          <path d="M858,884 L853,890 L858,896 Z" fill="#ffeb3b"/>
+          <!-- Discharge -->
+          <rect x="1150" y="850" width="20" height="70" fill="#546e7a"/>
+          <!-- Cyclone separator -->
+          <g>
+            <path d="M1190,820 L1230,820 L1240,850 L1220,875 L1220,915 L1200,915 L1200,875 L1180,850 Z"
+                  fill="url(#steelVert)" stroke="#37474f" stroke-width="1.5"/>
+            <ellipse cx="1210" cy="820" rx="20" ry="5" fill="#b0bec5" stroke="#37474f" stroke-width="1"/>
+            <rect x="1204" y="795" width="12" height="25" fill="#78909c" stroke="#37474f" stroke-width="1"/>
+            <path d="M 1175,855 L 1180,855" stroke="#37474f" stroke-width="4"/>
+          </g>
+          <!-- Tungku biomassa -->
+          <g>
+            <rect x="870" y="965" width="80" height="55" fill="#8d6e63" stroke="#4e342e" stroke-width="1.5"/>
+            <rect x="870" y="965" width="80" height="14" fill="#5d4037"/>
+            <circle cx="900" cy="995" r="9" fill="#ff5722"/>
+            <circle cx="900" cy="995" r="4" fill="#ffeb3b"/>
+            <rect x="940" y="950" width="10" height="40" fill="#455a64"/>
+            <ellipse cx="945" cy="950" rx="5" ry="2" fill="#37474f"/>
+          </g>
+          <rect x="930" y="1045" width="260" height="22" fill="#1b5e20" rx="11"/>
+          <text x="1060" y="1060" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">308 m² · 3,08%</text>
+        </g>
+
+        <!-- ======= GUDANG PRODUKSI UTAMA (26×20m) ======= -->
+        <g class="zone" data-zone="produksi" data-title="Gudang Produksi Utama" data-dims="26 × 20 m" data-area="520" data-pct="5.20"
+           data-desc="Jantung pabrik: peletisasi, pendinginan, penyaringan, penyimpanan produk antara."
+           data-details="3 unit Pellet Mill XGJ850|Pellet Cooler|Vibrating Screener|2 Silo Penyimpanan|Dust Collector">
+          <rect x="1324" y="804" width="520" height="400" fill="#000" opacity=".18" rx="4"/>
+          <rect x="1320" y="800" width="520" height="400" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2.5" rx="3"/>
+          <path d="M1320,800 L1580,760 L1840,800 L1840,830 L1320,830 Z" fill="url(#roofGreen)" stroke="#1b5e20" stroke-width="1.5"/>
+          <line x1="1580" y1="760" x2="1580" y2="830" stroke="#1b5e20" stroke-width="1" opacity=".5"/>
+
+          <!-- Pellet Mill 1 -->
+          <g>
+            <circle cx="1380" cy="875" r="32" fill="url(#steelVert)" stroke="#37474f" stroke-width="1.5"/>
+            <circle cx="1380" cy="875" r="22" fill="none" stroke="#546e7a" stroke-width="1.2" stroke-dasharray="3 2"/>
+            <circle cx="1380" cy="875" r="12" fill="#455a64"/>
+            <circle cx="1374" cy="869" r="3" fill="#cfd8dc"/>
+            <circle cx="1386" cy="869" r="3" fill="#cfd8dc"/>
+            <circle cx="1374" cy="881" r="3" fill="#cfd8dc"/>
+            <circle cx="1386" cy="881" r="3" fill="#cfd8dc"/>
+            <rect x="1360" y="833" width="40" height="14" fill="#78909c" stroke="#37474f" stroke-width="1"/>
+            <text x="1380" y="930" text-anchor="middle" font-size="10" font-weight="700" fill="#1b5e20">PM 1</text>
+          </g>
+
+          <!-- Pellet Mill 2 -->
+          <g>
+            <circle cx="1380" cy="975" r="32" fill="url(#steelVert)" stroke="#37474f" stroke-width="1.5"/>
+            <circle cx="1380" cy="975" r="22" fill="none" stroke="#546e7a" stroke-width="1.2" stroke-dasharray="3 2"/>
+            <circle cx="1380" cy="975" r="12" fill="#455a64"/>
+            <circle cx="1374" cy="969" r="3" fill="#cfd8dc"/>
+            <circle cx="1386" cy="969" r="3" fill="#cfd8dc"/>
+            <circle cx="1374" cy="981" r="3" fill="#cfd8dc"/>
+            <circle cx="1386" cy="981" r="3" fill="#cfd8dc"/>
+            <rect x="1360" y="933" width="40" height="14" fill="#78909c" stroke="#37474f" stroke-width="1"/>
+            <text x="1380" y="1030" text-anchor="middle" font-size="10" font-weight="700" fill="#1b5e20">PM 2</text>
+          </g>
+
+          <!-- Pellet Mill 3 -->
+          <g>
+            <circle cx="1380" cy="1075" r="32" fill="url(#steelVert)" stroke="#37474f" stroke-width="1.5"/>
+            <circle cx="1380" cy="1075" r="22" fill="none" stroke="#546e7a" stroke-width="1.2" stroke-dasharray="3 2"/>
+            <circle cx="1380" cy="1075" r="12" fill="#455a64"/>
+            <circle cx="1374" cy="1069" r="3" fill="#cfd8dc"/>
+            <circle cx="1386" cy="1069" r="3" fill="#cfd8dc"/>
+            <circle cx="1374" cy="1081" r="3" fill="#cfd8dc"/>
+            <circle cx="1386" cy="1081" r="3" fill="#cfd8dc"/>
+            <rect x="1360" y="1033" width="40" height="14" fill="#78909c" stroke="#37474f" stroke-width="1"/>
+            <text x="1380" y="1130" text-anchor="middle" font-size="10" font-weight="700" fill="#1b5e20">PM 3</text>
+          </g>
+
+          <!-- Feed distributor -->
+          <rect x="1345" y="845" width="20" height="260" fill="#78909c" stroke="#37474f" stroke-width="1.2"/>
+          <line x1="1365" y1="875" x2="1370" y2="875" stroke="#37474f" stroke-width="3"/>
+          <line x1="1365" y1="975" x2="1370" y2="975" stroke="#37474f" stroke-width="3"/>
+          <line x1="1365" y1="1075" x2="1370" y2="1075" stroke="#37474f" stroke-width="3"/>
+
+          <!-- Pellet Cooler -->
+          <g>
+            <rect x="1450" y="845" width="100" height="100" fill="url(#steel)" stroke="#37474f" stroke-width="2" rx="3"/>
+            <rect x="1450" y="845" width="100" height="18" fill="#546e7a"/>
+            <circle cx="1500" cy="864" r="14" fill="#37474f" stroke="#263238" stroke-width="1"/>
+            <g stroke="#b0bec5" stroke-width="2" fill="none">
+              <line x1="1492" y1="856" x2="1508" y2="872"/>
+              <line x1="1508" y1="856" x2="1492" y2="872"/>
+            </g>
+            <rect x="1470" y="825" width="60" height="22" fill="#78909c" stroke="#37474f" stroke-width="1"/>
+            <rect x="1470" y="945" width="60" height="20" fill="#78909c" stroke="#37474f" stroke-width="1"/>
+            <text x="1500" y="912" text-anchor="middle" font-size="11" font-weight="700" fill="#1b5e20">COOLER</text>
+          </g>
+
+          <!-- Vibrating Screener -->
+          <g>
+            <rect x="1450" y="975" width="100" height="80" fill="url(#steel)" stroke="#37474f" stroke-width="2" rx="3"/>
+            <g stroke="#546e7a" stroke-width="1">
+              <line x1="1460" y1="990" x2="1540" y2="990"/>
+              <line x1="1460" y1="1002" x2="1540" y2="1002"/>
+              <line x1="1460" y1="1014" x2="1540" y2="1014"/>
+              <line x1="1460" y1="1026" x2="1540" y2="1026"/>
+              <line x1="1460" y1="1038" x2="1540" y2="1038"/>
+            </g>
+            <g stroke="#fdd835" stroke-width="4" fill="none">
+              <path d="M1455,1055 L1465,1047 L1455,1039"/>
+              <path d="M1545,1055 L1535,1047 L1545,1039"/>
+            </g>
+            <rect x="1465" y="1058" width="25" height="12" fill="#455a64"/>
+            <text x="1500" y="1042" text-anchor="middle" font-size="10" font-weight="700" fill="#1b5e20">SCREENER</text>
+          </g>
+
+          <!-- Silo 1 -->
+          <g>
+            <ellipse cx="1620" cy="925" rx="42" ry="12" fill="#455a64" opacity=".3"/>
+            <rect x="1578" y="865" width="84" height="65" fill="url(#steel)" stroke="#37474f" stroke-width="1.8"/>
+            <ellipse cx="1620" cy="865" rx="42" ry="10" fill="url(#siloTop)" stroke="#37474f" stroke-width="1.2"/>
+            <ellipse cx="1620" cy="930" rx="42" ry="10" fill="#546e7a" stroke="#37474f" stroke-width="1.2"/>
+            <ellipse cx="1620" cy="915" rx="28" ry="7" fill="none" stroke="#78909c" stroke-width="1"/>
+            <ellipse cx="1620" cy="915" rx="14" ry="4" fill="none" stroke="#78909c" stroke-width="1"/>
+            <!-- Ladder -->
+            <g stroke="#37474f" stroke-width="1.5">
+              <line x1="1574" y1="870" x2="1574" y2="925"/>
+              <line x1="1666" y1="870" x2="1666" y2="925"/>
+              <line x1="1574" y1="880" x2="1666" y2="880" stroke-width=".8"/>
+              <line x1="1574" y1="892" x2="1666" y2="892" stroke-width=".8"/>
+              <line x1="1574" y1="904" x2="1666" y2="904" stroke-width=".8"/>
+              <line x1="1574" y1="916" x2="1666" y2="916" stroke-width=".8"/>
+            </g>
+            <rect x="1610" y="840" width="20" height="26" fill="#78909c" stroke="#37474f" stroke-width="1"/>
+            <text x="1620" y="952" text-anchor="middle" font-size="10" font-weight="700" fill="#1b5e20">SILO 1</text>
+          </g>
+
+          <!-- Silo 2 -->
+          <g>
+            <ellipse cx="1740" cy="925" rx="42" ry="12" fill="#455a64" opacity=".3"/>
+            <rect x="1698" y="865" width="84" height="65" fill="url(#steel)" stroke="#37474f" stroke-width="1.8"/>
+            <ellipse cx="1740" cy="865" rx="42" ry="10" fill="url(#siloTop)" stroke="#37474f" stroke-width="1.2"/>
+            <ellipse cx="1740" cy="930" rx="42" ry="10" fill="#546e7a" stroke="#37474f" stroke-width="1.2"/>
+            <ellipse cx="1740" cy="915" rx="28" ry="7" fill="none" stroke="#78909c" stroke-width="1"/>
+            <ellipse cx="1740" cy="915" rx="14" ry="4" fill="none" stroke="#78909c" stroke-width="1"/>
+            <g stroke="#37474f" stroke-width="1.5">
+              <line x1="1694" y1="870" x2="1694" y2="925"/>
+              <line x1="1786" y1="870" x2="1786" y2="925"/>
+              <line x1="1694" y1="880" x2="1786" y2="880" stroke-width=".8"/>
+              <line x1="1694" y1="892" x2="1786" y2="892" stroke-width=".8"/>
+              <line x1="1694" y1="904" x2="1786" y2="904" stroke-width=".8"/>
+              <line x1="1694" y1="916" x2="1786" y2="916" stroke-width=".8"/>
+            </g>
+            <rect x="1730" y="840" width="20" height="26" fill="#78909c" stroke="#37474f" stroke-width="1"/>
+            <text x="1740" y="952" text-anchor="middle" font-size="10" font-weight="700" fill="#1b5e20">SILO 2</text>
+          </g>
+
+          <!-- Connector pipes -->
+          <g fill="none" stroke="#f57c00" stroke-width="3" stroke-dasharray="8 5">
+            <path d="M 1283,875 Q 1310,875 1345,875"/>
+            <path d="M 1420,875 Q 1435,875 1450,875"/>
+            <path d="M 1550,880 Q 1565,880 1578,880"/>
+            <path d="M 1662,880 Q 1680,880 1698,880"/>
+          </g>
+
+          <text x="1580" y="785" text-anchor="middle" font-size="20" font-weight="700" fill="#1b5e20">GUDANG PRODUKSI UTAMA</text>
+          <rect x="1450" y="1160" width="260" height="28" fill="#1b5e20" rx="14"/>
+          <text x="1580" y="1180" text-anchor="middle" font-size="13" fill="#fff" font-weight="700">520 m² · 5,20%</text>
+        </g>
+
+        <!-- ======= LANTAI JEMUR (32×22m) ======= -->
+        <g class="zone" data-zone="jemur" data-title="Lantai Jemur" data-dims="32 × 22 m" data-area="704" data-pct="7.04"
+           data-desc="Pengeringan alami dengan sinar matahari untuk menurunkan kadar air bahan baku."
+           data-details="Luas 704 m²|Beton cor|Drainase keliling|Akses Wheel Loader|Kanopi opsional">
+          <rect x="200" y="1240" width="640" height="440" fill="#fff8e1" stroke="#f9a825" stroke-width="3" rx="4"/>
+          <!-- Concrete grid -->
+          <g stroke="#ffe082" stroke-width="1" opacity=".6">
+            <line x1="200" y1="1320" x2="840" y2="1320"/>
+            <line x1="200" y1="1400" x2="840" y2="1400"/>
+            <line x1="200" y1="1480" x2="840" y2="1480"/>
+            <line x1="200" y1="1560" x2="840" y2="1560"/>
+            <line x1="360" y1="1240" x2="360" y2="1680"/>
+            <line x1="520" y1="1240" x2="520" y2="1680"/>
+            <line x1="680" y1="1240" x2="680" y2="1680"/>
+          </g>
+          <!-- Drainase keliling -->
+          <rect x="190" y="1230" width="660" height="460" fill="none" stroke="#8d6e63" stroke-width="5" stroke-dasharray="8 6"/>
+          <!-- Material piles -->
+          <g>
+            <ellipse cx="300" cy="1350" rx="70" ry="28" fill="#bcaaa4" opacity=".5"/>
+            <ellipse cx="300" cy="1343" rx="66" ry="24" fill="url(#woodchip)" stroke="#6d4c41" stroke-width="1.5"/>
+
+            <ellipse cx="500" cy="1365" rx="80" ry="32" fill="#bcaaa4" opacity=".5"/>
+            <ellipse cx="500" cy="1357" rx="76" ry="28" fill="url(#woodchip)" stroke="#6d4c41" stroke-width="1.5"/>
+
+            <ellipse cx="700" cy="1340" rx="70" ry="28" fill="#bcaaa4" opacity=".5"/>
+            <ellipse cx="700" cy="1333" rx="66" ry="24" fill="url(#woodchip)" stroke="#6d4c41" stroke-width="1.5"/>
+
+            <ellipse cx="350" cy="1500" rx="85" ry="32" fill="#bcaaa4" opacity=".5"/>
+            <ellipse cx="350" cy="1493" rx="81" ry="28" fill="url(#woodchip)" stroke="#6d4c41" stroke-width="1.5"/>
+
+            <ellipse cx="620" cy="1510" rx="85" ry="32" fill="#bcaaa4" opacity=".5"/>
+            <ellipse cx="620" cy="1503" rx="81" ry="28" fill="url(#woodchip)" stroke="#6d4c41" stroke-width="1.5"/>
+
+            <ellipse cx="500" cy="1600" rx="100" ry="35" fill="#bcaaa4" opacity=".5"/>
+            <ellipse cx="500" cy="1593" rx="96" ry="31" fill="url(#woodchip)" stroke="#6d4c41" stroke-width="1.5"/>
+          </g>
+          <!-- Wheel loader -->
+          <g transform="translate(400, 1450)">
+            <rect x="0" y="0" width="70" height="42" fill="#fdd835" stroke="#f57f17" stroke-width="1.5" rx="3"/>
+            <rect x="65" y="6" width="20" height="30" fill="#ffb300" stroke="#f57f17" stroke-width="1"/>
+            <path d="M 82,6 L 110,0 L 110,15 L 82,22 Z" fill="#795548" stroke="#3e2723" stroke-width="1"/>
+            <rect x="6" y="-14" width="30" height="18" fill="#455a64" stroke="#263238" stroke-width="1"/>
+            <rect x="12" y="-10" width="18" height="10" fill="#b3e5fc"/>
+            <circle cx="18" cy="44" r="9" fill="#212121"/>
+            <circle cx="55" cy="44" r="9" fill="#212121"/>
+          </g>
+          <!-- Sun icon -->
+          <g transform="translate(760, 1290)">
+            <circle r="24" fill="#ffeb3b" stroke="#fbc02d" stroke-width="2"/>
+            <g stroke="#fbc02d" stroke-width="3">
+              <line x1="0" y1="-32" x2="0" y2="-38"/>
+              <line x1="0" y1="32" x2="0" y2="38"/>
+              <line x1="-32" y1="0" x2="-38" y2="0"/>
+              <line x1="32" y1="0" x2="38" y2="0"/>
+              <line x1="-23" y1="-23" x2="-27" y2="-27"/>
+              <line x1="23" y1="-23" x2="27" y2="-27"/>
+              <line x1="-23" y1="23" x2="-27" y2="27"/>
+              <line x1="23" y1="23" x2="27" y2="27"/>
+            </g>
+            <circle r="12" fill="#fff59d"/>
+          </g>
+          <text x="520" y="1300" text-anchor="middle" font-size="22" font-weight="700" fill="#f57f17">LANTAI JEMUR</text>
+          <rect x="400" y="1615" width="240" height="28" fill="#1b5e20" rx="14"/>
+          <text x="520" y="1635" text-anchor="middle" font-size="13" fill="#fff" font-weight="700">704 m² · 7,04%</text>
+        </g>
+
+        <!-- ======= STASIUN PENGEMASAN (22×14m) ======= -->
+        <g class="zone" data-zone="pengemasan" data-title="Stasiun Pengemasan" data-dims="22 × 14 m" data-area="308" data-pct="3.08"
+           data-desc="Pengemasan pelet jadi ke dalam jumbo bag dan karung konsumen."
+           data-details="Jumbo Bag 1 ton|Karung 25–50 kg|Mesin Jahit|Timbangan Digital|Palletizer">
+          <rect x="884" y="1244" width="440" height="280" fill="#000" opacity=".15" rx="4"/>
+          <rect x="880" y="1240" width="440" height="280" fill="#e3f2fd" stroke="#1565c0" stroke-width="2.5" rx="3"/>
+          <path d="M880,1240 L1100,1212 L1320,1240 L1320,1258 L880,1258 Z" fill="url(#roofBlue)" stroke="#0d47a1" stroke-width="1.2"/>
+
+          <!-- Incoming conveyor -->
+          <rect x="865" y="1300" width="45" height="18" fill="#455a64"/>
+          <line x1="875" y1="1309" x2="905" y2="1309" stroke="#ffeb3b" stroke-width="2" stroke-dasharray="5 3"/>
+
+          <!-- Timbangan digital -->
+          <g>
+            <rect x="930" y="1290" width="60" height="40" fill="#cfd8dc" stroke="#37474f" stroke-width="1.5"/>
+            <rect x="936" y="1296" width="48" height="16" fill="#263238"/>
+            <text x="960" y="1308" text-anchor="middle" font-size="10" fill="#4caf50" font-weight="700" font-family="Consolas, monospace">25.0 kg</text>
+            <rect x="930" y="1330" width="60" height="8" fill="#455a64"/>
+          </g>
+
+          <!-- Mesin jahit -->
+          <g>
+            <rect x="1010" y="1290" width="50" height="40" fill="#90a4ae" stroke="#37474f" stroke-width="1.5"/>
+            <rect x="1016" y="1275" width="16" height="16" fill="#455a64"/>
+            <circle cx="1024" cy="1283" r="4" fill="#b0bec5"/>
+            <path d="M 1030,1290 L 1050,1312" stroke="#37474f" stroke-width="2.5"/>
+          </g>
+
+          <!-- Karung terisi -->
+          <g>
+            <path d="M 1080,1300 L 1080,1350 L 1120,1358 L 1120,1308 Z" fill="#d7ccc8" stroke="#6d4c41" stroke-width="1.5"/>
+            <path d="M 1080,1300 Q 1100,1290 1120,1308" fill="#bcaaa4" stroke="#6d4c41" stroke-width="1.5"/>
+            <text x="1100" y="1330" text-anchor="middle" font-size="8" fill="#3e2723" font-weight="700" transform="rotate(90 1100 1330)">PELLET 25kg</text>
+          </g>
+
+          <!-- Jumbo bag -->
+          <g>
+            <path d="M 1150,1285 L 1150,1390 L 1215,1390 L 1215,1285 Z" fill="#c5a880" stroke="#795548" stroke-width="2"/>
+            <line x1="1150" y1="1305" x2="1215" y2="1305" stroke="#795548" stroke-width="1"/>
+            <line x1="1150" y1="1370" x2="1215" y2="1370" stroke="#795548" stroke-width="1"/>
+            <path d="M 1158,1285 Q 1182,1260 1208,1285" fill="none" stroke="#455a64" stroke-width="3"/>
+            <text x="1182" y="1340" text-anchor="middle" font-size="12" fill="#3e2723" font-weight="700">JUMBO</text>
+            <text x="1182" y="1358" text-anchor="middle" font-size="14" fill="#3e2723" font-weight="700">1 TON</text>
+          </g>
+
+          <!-- Pallet stacks -->
+          <g>
+            <rect x="930" y="1420" width="260" height="35" fill="#a1887f" stroke="#5d4037" stroke-width="1.5"/>
+            <g stroke="#5d4037" stroke-width="1">
+              <line x1="930" y1="1430" x2="1190" y2="1430"/>
+              <line x1="930" y1="1442" x2="1190" y2="1442"/>
+            </g>
+            <rect x="930" y="1400" width="60" height="22" fill="#c5a880" stroke="#795548" stroke-width="1"/>
+            <rect x="1000" y="1400" width="60" height="22" fill="#c5a880" stroke="#795548" stroke-width="1"/>
+            <rect x="1070" y="1400" width="60" height="22" fill="#c5a880" stroke="#795548" stroke-width="1"/>
+            <rect x="1140" y="1400" width="50" height="22" fill="#c5a880" stroke="#795548" stroke-width="1"/>
+          </g>
+
+          <text x="1100" y="1240" text-anchor="middle" font-size="16" font-weight="700" fill="#0d47a1">STASIUN PENGEMASAN</text>
+          <rect x="1000" y="1475" width="200" height="22" fill="#1b5e20" rx="11"/>
+          <text x="1100" y="1490" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">308 m² · 3,08%</text>
+        </g>
+
+        <!-- ======= GUDANG PRODUK JADI (24×14m) ======= -->
+        <g class="zone" data-zone="gudang-pj" data-title="Gudang Produk Jadi" data-dims="24 × 14 m" data-area="336" data-pct="3.36"
+           data-desc="Penyimpanan pelet siap kirim untuk 3–5 hari produksi."
+           data-details="Luas 336 m²|Kapasitas ±300 ton|Rak Pallet|Kontrol Kelembapan">
+          <rect x="1364" y="1244" width="480" height="280" fill="#000" opacity=".15" rx="4"/>
+          <rect x="1360" y="1240" width="480" height="280" fill="#e1f5fe" stroke="#0277bd" stroke-width="2.5" rx="3"/>
+          <path d="M1360,1240 L1600,1212 L1840,1240 L1840,1258 L1360,1258 Z" fill="url(#roofBlue)" stroke="#01579b" stroke-width="1.2"/>
+
+          <!-- Pallet stacks (racks) -->
+          <g>
+            <!-- Row 1 -->
+            <rect x="1380" y="1290" width="90" height="60" fill="#a1887f" stroke="#5d4037" stroke-width="1.5"/>
+            <g stroke="#5d4037" stroke-width="1">
+              <line x1="1380" y1="1310" x2="1470" y2="1310"/>
+              <line x1="1380" y1="1330" x2="1470" y2="1330"/>
+            </g>
+            <g fill="#c5a880" stroke="#795548" stroke-width="1">
+              <rect x="1385" y="1285" width="25" height="15"/>
+              <rect x="1415" y="1285" width="25" height="15"/>
+              <rect x="1445" y="1285" width="25" height="15"/>
+              <rect x="1385" y="1300" width="25" height="15"/>
+              <rect x="1415" y="1300" width="25" height="15"/>
+              <rect x="1445" y="1300" width="25" height="15"/>
+            </g>
+
+            <!-- Row 2 -->
+            <rect x="1490" y="1290" width="90" height="60" fill="#a1887f" stroke="#5d4037" stroke-width="1.5"/>
+            <g stroke="#5d4037" stroke-width="1">
+              <line x1="1490" y1="1310" x2="1580" y2="1310"/>
+              <line x1="1490" y1="1330" x2="1580" y2="1330"/>
+            </g>
+            <g fill="#c5a880" stroke="#795548" stroke-width="1">
+              <rect x="1495" y="1285" width="25" height="15"/>
+              <rect x="1525" y="1285" width="25" height="15"/>
+              <rect x="1555" y="1285" width="25" height="15"/>
+              <rect x="1495" y="1300" width="25" height="15"/>
+              <rect x="1525" y="1300" width="25" height="15"/>
+              <rect x="1555" y="1300" width="25" height="15"/>
+            </g>
+
+            <!-- Row 3 -->
+            <rect x="1600" y="1290" width="90" height="60" fill="#a1887f" stroke="#5d4037" stroke-width="1.5"/>
+            <g stroke="#5d4037" stroke-width="1">
+              <line x1="1600" y1="1310" x2="1690" y2="1310"/>
+              <line x1="1600" y1="1330" x2="1690" y2="1330"/>
+            </g>
+            <g fill="#c5a880" stroke="#795548" stroke-width="1">
+              <rect x="1605" y="1285" width="25" height="15"/>
+              <rect x="1635" y="1285" width="25" height="15"/>
+              <rect x="1665" y="1285" width="25" height="15"/>
+              <rect x="1605" y="1300" width="25" height="15"/>
+              <rect x="1635" y="1300" width="25" height="15"/>
+              <rect x="1665" y="1300" width="25" height="15"/>
+            </g>
+
+            <!-- Row 4 -->
+            <rect x="1710" y="1290" width="90" height="60" fill="#a1887f" stroke="#5d4037" stroke-width="1.5"/>
+            <g stroke="#5d4037" stroke-width="1">
+              <line x1="1710" y1="1310" x2="1800" y2="1310"/>
+              <line x1="1710" y1="1330" x2="1800" y2="1330"/>
+            </g>
+            <g fill="#c5a880" stroke="#795548" stroke-width="1">
+              <rect x="1715" y="1285" width="25" height="15"/>
+              <rect x="1745" y="1285" width="25" height="15"/>
+              <rect x="1775" y="1285" width="25" height="15"/>
+              <rect x="1715" y="1300" width="25" height="15"/>
+              <rect x="1745" y="1300" width="25" height="15"/>
+              <rect x="1775" y="1300" width="25" height="15"/>
+            </g>
+
+            <!-- Row 5 -->
+            <rect x="1380" y="1380" width="180" height="60" fill="#a1887f" stroke="#5d4037" stroke-width="1.5"/>
+            <g fill="#c5a880" stroke="#795548" stroke-width="1">
+              <rect x="1385" y="1375" width="25" height="15"/>
+              <rect x="1415" y="1375" width="25" height="15"/>
+              <rect x="1445" y="1375" width="25" height="15"/>
+              <rect x="1475" y="1375" width="25" height="15"/>
+              <rect x="1505" y="1375" width="25" height="15"/>
+              <rect x="1535" y="1375" width="25" height="15"/>
+            </g>
+
+            <!-- Row 6 -->
+            <rect x="1580" y="1380" width="180" height="60" fill="#a1887f" stroke="#5d4037" stroke-width="1.5"/>
+            <g fill="#c5a880" stroke="#795548" stroke-width="1">
+              <rect x="1585" y="1375" width="25" height="15"/>
+              <rect x="1615" y="1375" width="25" height="15"/>
+              <rect x="1645" y="1375" width="25" height="15"/>
+              <rect x="1675" y="1375" width="25" height="15"/>
+              <rect x="1705" y="1375" width="25" height="15"/>
+              <rect x="1735" y="1375" width="25" height="15"/>
+            </g>
+          </g>
+
+          <!-- Forklift -->
+          <g transform="translate(1740, 1460)">
+            <rect width="40" height="28" fill="#fdd835" stroke="#f57f17" stroke-width="1.5" rx="2"/>
+            <rect x="36" y="3" width="6" height="22" fill="#455a64"/>
+            <rect x="42" y="3" width="18" height="4" fill="#455a64"/>
+            <rect x="42" y="21" width="18" height="4" fill="#455a64"/>
+            <rect x="4" y="-10" width="14" height="12" fill="#455a64" stroke="#263238" stroke-width="1"/>
+            <rect x="7" y="-7" width="8" height="6" fill="#b3e5fc"/>
+            <circle cx="10" cy="29" r="5" fill="#212121"/>
+            <circle cx="30" cy="29" r="5" fill="#212121"/>
+          </g>
+
+          <text x="1600" y="1240" text-anchor="middle" font-size="18" font-weight="700" fill="#01579b">GUDANG PRODUK JADI</text>
+          <rect x="1500" y="1475" width="200" height="22" fill="#1b5e20" rx="11"/>
+          <text x="1600" y="1490" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">336 m² · 3,36%</text>
+        </g>
+
+        <!-- ======= OUTLOADING (22×18m) ======= -->
+        <g class="zone" data-zone="outloading" data-title="Outloading Area" data-dims="22 × 18 m" data-area="396" data-pct="3.96"
+           data-desc="Pemuatan produk jadi ke truk untuk distribusi ke pelanggan."
+           data-details="2 Loading Dock|Jalur Truk Keluar|Timbangan Keluar|Area Manuver|Dokumen Ekspedisi">
+          <rect x="884" y="1564" width="440" height="360" fill="#000" opacity=".15" rx="4"/>
+          <rect x="880" y="1560" width="440" height="360" fill="#e0f7fa" stroke="#00838f" stroke-width="2.5" rx="3"/>
+          <path d="M880,1560 L1100,1532 L1320,1560 L1320,1578 L880,1578 Z" fill="#26c6da" stroke="#00695c" stroke-width="1.5"/>
+
+          <!-- Loading dock 1 -->
+          <g>
+            <rect x="910" y="1610" width="180" height="50" fill="#78909c" stroke="#37474f" stroke-width="2"/>
+            <rect x="910" y="1610" width="180" height="10" fill="#ffeb3b" stroke="#f57f17" stroke-width="1" stroke-dasharray="6 4"/>
+            <!-- Truck 1 -->
+            <g>
+              <rect x="920" y="1665" width="160" height="95" fill="#fff" stroke="#455a64" stroke-width="2" rx="3"/>
+              <g stroke="#bdbdbd" stroke-width="1">
+                <line x1="935" y1="1670" x2="935" y2="1755"/>
+                <line x1="955" y1="1670" x2="955" y2="1755"/>
+                <line x1="975" y1="1670" x2="975" y2="1755"/>
+                <line x1="995" y1="1670" x2="995" y2="1755"/>
+                <line x1="1015" y1="1670" x2="1015" y2="1755"/>
+                <line x1="1035" y1="1670" x2="1035" y2="1755"/>
+                <line x1="1055" y1="1670" x2="1055" y2="1755"/>
+              </g>
+              <rect x="1055" y="1675" width="30" height="85" fill="#1565c0" stroke="#0d47a1" stroke-width="1.5"/>
+              <rect x="1060" y="1685" width="20" height="15" fill="#b3e5fc"/>
+              <circle cx="945" cy="1765" r="10" fill="#212121"/>
+              <circle cx="985" cy="1765" r="10" fill="#212121"/>
+              <circle cx="1065" cy="1765" r="10" fill="#212121"/>
+            </g>
+          </g>
+
+          <!-- Loading dock 2 -->
+          <g>
+            <rect x="1120" y="1610" width="180" height="50" fill="#78909c" stroke="#37474f" stroke-width="2"/>
+            <rect x="1120" y="1610" width="180" height="10" fill="#ffeb3b" stroke="#f57f17" stroke-width="1" stroke-dasharray="6 4"/>
+            <!-- Truck 2 -->
+            <g>
+              <rect x="1130" y="1665" width="160" height="95" fill="#fff" stroke="#455a64" stroke-width="2" rx="3"/>
+              <g stroke="#bdbdbd" stroke-width="1">
+                <line x1="1145" y1="1670" x2="1145" y2="1755"/>
+                <line x1="1165" y1="1670" x2="1165" y2="1755"/>
+                <line x1="1185" y1="1670" x2="1185" y2="1755"/>
+                <line x1="1205" y1="1670" x2="1205" y2="1755"/>
+                <line x1="1225" y1="1670" x2="1225" y2="1755"/>
+                <line x1="1245" y1="1670" x2="1245" y2="1755"/>
+                <line x1="1265" y1="1670" x2="1265" y2="1755"/>
+              </g>
+              <rect x="1265" y="1675" width="30" height="85" fill="#1565c0" stroke="#0d47a1" stroke-width="1.5"/>
+              <rect x="1270" y="1685" width="20" height="15" fill="#b3e5fc"/>
+              <circle cx="1155" cy="1765" r="10" fill="#212121"/>
+              <circle cx="1195" cy="1765" r="10" fill="#212121"/>
+              <circle cx="1275" cy="1765" r="10" fill="#212121"/>
+            </g>
+          </g>
+
+          <!-- Timbangan keluar -->
+          <rect x="1000" y="1790" width="200" height="50" fill="#455a64" stroke="#263238" stroke-width="2" rx="3"/>
+          <rect x="1010" y="1798" width="180" height="34" fill="#cfd8dc" stroke="#37474f" stroke-width="1.5"/>
+          <text x="1100" y="1822" text-anchor="middle" font-size="14" fill="#263238" font-weight="700">TIMBANGAN KELUAR</text>
+
+          <!-- Area manuver -->
+          <g fill="none" stroke="#455a64" stroke-width="2.5" stroke-dasharray="8 6">
+            <path d="M 980,1855 Q 980,1875 1010,1875 Q 1040,1875 1040,1855"/>
+            <path d="M 1160,1855 Q 1160,1875 1190,1875 Q 1220,1875 1220,1855"/>
+          </g>
+
+          <text x="1100" y="1580" text-anchor="middle" font-size="18" font-weight="700" fill="#004d40">OUTLOADING AREA</text>
+          <rect x="990" y="1900" width="220" height="22" fill="#1b5e20" rx="11"/>
+          <text x="1100" y="1915" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">396 m² · 3,96%</text>
+        </g>
+
+        <!-- ======= PROTEKSI KEBAKARAN (12×10m) ======= -->
+        <g class="zone" data-zone="kebakaran" data-title="Sistem Proteksi Kebakaran" data-dims="12 × 10 m" data-area="120" data-pct="1.20"
+           data-desc="Fasilitas keselamatan kebakaran untuk melindungi area penyimpanan dan produksi."
+           data-details="Tandon Air 200 m³|Hidran Halaman|Sprinkler Gedung|APAR|Pompa Kebakaran">
+          <rect x="1444" y="1604" width="240" height="200" fill="#000" opacity=".15" rx="4"/>
+          <rect x="1440" y="1600" width="240" height="200" fill="#ffcdd2" stroke="#b71c1c" stroke-width="2.5" rx="3"/>
+
+          <!-- Tandon air -->
+          <g>
+            <ellipse cx="1500" cy="1680" rx="50" ry="14" fill="#455a64" opacity=".35"/>
+            <rect x="1450" y="1625" width="100" height="70" fill="#ef5350" stroke="#b71c1c" stroke-width="2.5"/>
+            <ellipse cx="1500" cy="1625" rx="50" ry="11" fill="#ff7043" stroke="#b71c1c" stroke-width="2"/>
+            <ellipse cx="1500" cy="1695" rx="50" ry="11" fill="#c62828" stroke="#b71c1c" stroke-width="2"/>
+            <rect x="1460" y="1650" width="80" height="22" fill="#fff" opacity=".92"/>
+            <text x="1500" y="1666" text-anchor="middle" font-size="11" font-weight="700" fill="#b71c1c">FIRE WATER</text>
+            <text x="1500" y="1688" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">200 m³</text>
+            <rect x="1495" y="1615" width="10" height="12" fill="#37474f"/>
+            <circle cx="1500" cy="1610" r="8" fill="#455a64" stroke="#263238" stroke-width="1.5"/>
+          </g>
+
+          <!-- Pompa kebakaran -->
+          <g>
+            <rect x="1580" y="1640" width="45" height="35" fill="#e57373" stroke="#b71c1c" stroke-width="1.5"/>
+            <rect x="1585" y="1645" width="35" height="12" fill="#b71c1c"/>
+            <text x="1602" y="1698" text-anchor="middle" font-size="9" fill="#b71c1c" font-weight="700">PUMP</text>
+          </g>
+
+          <!-- APAR boxes around site -->
+          <g fill="#e53935" stroke="#b71c1c" stroke-width="1">
+            <rect x="560" y="480" width="20" height="28" rx="2"/>
+            <rect x="1840" y="320" width="20" height="28" rx="2"/>
+            <rect x="880" y="320" width="20" height="28" rx="2"/>
+            <rect x="880" y="1210" width="20" height="28" rx="2"/>
+            <rect x="1320" y="1555" width="20" height="28" rx="2"/>
+          </g>
+
+          <!-- Hidran halaman -->
+          <g>
+            <circle cx="880" cy="1980" r="10" fill="#e53935" stroke="#b71c1c" stroke-width="1.5"/>
+            <rect x="874" y="1990" width="12" height="16" fill="#b71c1c"/>
+            <rect x="870" y="2006" width="20" height="6" fill="#455a64"/>
+
+            <circle cx="1240" cy="1980" r="10" fill="#e53935" stroke="#b71c1c" stroke-width="1.5"/>
+            <rect x="1234" y="1990" width="12" height="16" fill="#b71c1c"/>
+            <rect x="1230" y="2006" width="20" height="6" fill="#455a64"/>
+          </g>
+
+          <text x="1560" y="1620" text-anchor="middle" font-size="13" font-weight="700" fill="#b71c1c">FIRE PROTECTION</text>
+          <rect x="1460" y="1755" width="200" height="22" fill="#1b5e20" rx="11"/>
+          <text x="1560" y="1770" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">120 m² · 1,20%</text>
+        </g>
+
+        <!-- =========================================== -->
+        <!-- ============ RTH / TAMAN ================== -->
+        <!-- =========================================== -->
+
+        <!-- RTH - bagian dari buffer dan area hijau -->
+        <g class="zone" data-zone="rth" data-title="Taman / RTH" data-dims="Tersebar" data-area="600" data-pct="6.00"
+           data-desc="Ruang terbuka hijau berupa taman, buffer, dan landscaping di sekitar pabrik."
+           data-details="Buffer perimeter|Taman tengah|Pohon peneduh|Area resapan air|Landscaping">
+          <!-- Pohon-pohon di area buffer / taman -->
+          <g opacity=".85">
+            <!-- Buffer utara -->
+            <circle cx="200" cy="70" r="14" fill="#2e7d32"/>
+            <circle cx="194" cy="64" r="10" fill="#43a047"/>
+            <circle cx="207" cy="66" r="9" fill="#388e3c"/>
+            <rect x="197" y="84" width="6" height="14" fill="#5d4037"/>
+
+            <circle cx="500" cy="60" r="14" fill="#2e7d32"/>
+            <circle cx="494" cy="54" r="10" fill="#43a047"/>
+            <circle cx="507" cy="56" r="9" fill="#388e3c"/>
+            <rect x="497" y="74" width="6" height="14" fill="#5d4037"/>
+
+            <circle cx="800" cy="70" r="14" fill="#2e7d32"/>
+            <circle cx="794" cy="64" r="10" fill="#43a047"/>
+            <circle cx="807" cy="66" r="9" fill="#388e3c"/>
+            <rect x="797" y="84" width="6" height="14" fill="#5d4037"/>
+
+            <circle cx="1100" cy="60" r="14" fill="#2e7d32"/>
+            <circle cx="1094" cy="54" r="10" fill="#43a047"/>
+            <circle cx="1107" cy="56" r="9" fill="#388e3c"/>
+            <rect x="1097" y="74" width="6" height="14" fill="#5d4037"/>
+
+            <circle cx="1400" cy="70" r="14" fill="#2e7d32"/>
+            <circle cx="1394" cy="64" r="10" fill="#43a047"/>
+            <circle cx="1407" cy="66" r="9" fill="#388e3c"/>
+            <rect x="1397" y="84" width="6" height="14" fill="#5d4037"/>
+
+            <circle cx="1700" cy="60" r="14" fill="#2e7d32"/>
+            <circle cx="1694" cy="54" r="10" fill="#43a047"/>
+            <circle cx="1707" cy="56" r="9" fill="#388e3c"/>
+            <rect x="1697" y="74" width="6" height="14" fill="#5d4037"/>
+
+            <!-- Buffer timur -->
+            <circle cx="1940" cy="300" r="14" fill="#2e7d32"/>
+            <circle cx="1934" cy="294" r="10" fill="#43a047"/>
+            <circle cx="1947" cy="296" r="9" fill="#388e3c"/>
+
+            <circle cx="1940" cy="700" r="14" fill="#2e7d32"/>
+            <circle cx="1934" cy="694" r="10" fill="#43a047"/>
+            <circle cx="1947" cy="696" r="9" fill="#388e3c"/>
+
+            <circle cx="1940" cy="1500" r="14" fill="#2e7d32"/>
+            <circle cx="1934" cy="1494" r="10" fill="#43a047"/>
+            <circle cx="1947" cy="1496" r="9" fill="#388e3c"/>
+
+            <circle cx="1940" cy="1700" r="14" fill="#2e7d32"/>
+            <circle cx="1934" cy="1694" r="10" fill="#43a047"/>
+            <circle cx="1947" cy="1696" r="9" fill="#388e3c"/>
+
+            <!-- Buffer selatan -->
+            <circle cx="300" cy="1940" r="14" fill="#2e7d32"/>
+            <circle cx="294" cy="1934" r="10" fill="#43a047"/>
+            <circle cx="307" cy="1936" r="9" fill="#388e3c"/>
+
+            <circle cx="600" cy="1940" r="14" fill="#2e7d32"/>
+            <circle cx="594" cy="1934" r="10" fill="#43a047"/>
+            <circle cx="607" cy="1936" r="9" fill="#388e3c"/>
+
+            <circle cx="1400" cy="1940" r="14" fill="#2e7d32"/>
+            <circle cx="1394" cy="1934" r="10" fill="#43a047"/>
+            <circle cx="1407" cy="1936" r="9" fill="#388e3c"/>
+
+            <circle cx="1600" cy="1940" r="14" fill="#2e7d32"/>
+            <circle cx="1594" cy="1934" r="10" fill="#43a047"/>
+            <circle cx="1607" cy="1936" r="9" fill="#388e3c"/>
+
+            <!-- Buffer barat -->
+            <circle cx="60" cy="300" r="14" fill="#2e7d32"/>
+            <circle cx="54" cy="294" r="10" fill="#43a047"/>
+            <circle cx="67" cy="296" r="9" fill="#388e3c"/>
+
+            <circle cx="60" cy="700" r="14" fill="#2e7d32"/>
+            <circle cx="54" cy="694" r="10" fill="#43a047"/>
+            <circle cx="67" cy="696" r="9" fill="#388e3c"/>
+
+            <circle cx="60" cy="1400" r="14" fill="#2e7d32"/>
+            <circle cx="54" cy="1394" r="10" fill="#43a047"/>
+            <circle cx="67" cy="1396" r="9" fill="#388e3c"/>
+          </g>
+
+          <!-- Taman tengah (antara Jemur dan Pengemasan) -->
+          <rect x="860" y="1540" width="60" height="60" fill="url(#grass)" stroke="#7cb342" stroke-width="1.5" stroke-dasharray="4 3" opacity=".8"/>
+          <circle cx="890" cy="1570" r="12" fill="#2e7d32"/>
+          <circle cx="884" cy="1564" r="8" fill="#43a047"/>
+          <circle cx="897" cy="1566" r="7" fill="#388e3c"/>
+
+          <!-- Label RTH -->
+          <rect x="760" y="1912" width="220" height="22" fill="#1b5e20" rx="11"/>
+          <text x="870" y="1927" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">RTH: 600 m² · 6,00%</text>
+        </g>
+
+        <!-- =========================================== -->
+        <!-- ====== DIMENSION LINES (UKURAN) =========== -->
+        <!-- =========================================== -->
+
+        <!-- Kantor - horizontal dimension -->
+        <g>
+          <line x1="200" y1="460" x2="640" y2="460" stroke="#e65100" stroke-width="2" marker-start="url(#dimArrowStart)" marker-end="url(#dimArrowEnd)"/>
+          <line x1="200" y1="452" x2="200" y2="468" stroke="#e65100" stroke-width="2"/>
+          <line x1="640" y1="452" x2="640" y2="468" stroke="#e65100" stroke-width="2"/>
+          <rect x="395" y="452" width="50" height="16" fill="#fff" stroke="#e65100" stroke-width="1"/>
+          <text x="420" y="464" text-anchor="middle" font-size="11" font-weight="700" fill="#e65100">22 m</text>
+        </g>
+
+        <!-- Gudang BB - horizontal dimension -->
+        <g>
+          <line x1="200" y1="1220" x2="800" y2="1220" stroke="#e65100" stroke-width="2" marker-start="url(#dimArrowStart)" marker-end="url(#dimArrowEnd)"/>
+          <line x1="200" y1="1212" x2="200" y2="1228" stroke="#e65100" stroke-width="2"/>
+          <line x1="800" y1="1212" x2="800" y2="1228" stroke="#e65100" stroke-width="2"/>
+          <rect x="475" y="1212" width="50" height="16" fill="#fff" stroke="#e65100" stroke-width="1"/>
+          <text x="500" y="1224" text-anchor="middle" font-size="11" font-weight="700" fill="#e65100">30 m</text>
+        </g>
+
+        <!-- Gudang Produksi - horizontal dimension -->
+        <g>
+          <line x1="1320" y1="1220" x2="1840" y2="1220" stroke="#e65100" stroke-width="2" marker-start="url(#dimArrowStart)" marker-end="url(#dimArrowEnd)"/>
+          <line x1="1320" y1="1212" x2="1320" y2="1228" stroke="#e65100" stroke-width="2"/>
+          <line x1="1840" y1="1212" x2="1840" y2="1228" stroke="#e65100" stroke-width="2"/>
+          <rect x="1555" y="1212" width="50" height="16" fill="#fff" stroke="#e65100" stroke-width="1"/>
+          <text x="1580" y="1224" text-anchor="middle" font-size="11" font-weight="700" fill="#e65100">26 m</text>
+        </g>
+
+        <!-- Lantai Jemur - horizontal dimension -->
+        <g>
+          <line x1="200" y1="1700" x2="840" y2="1700" stroke="#e65100" stroke-width="2" marker-start="url(#dimArrowStart)" marker-end="url(#dimArrowEnd)"/>
+          <line x1="200" y1="1692" x2="200" y2="1708" stroke="#e65100" stroke-width="2"/>
+          <line x1="840" y1="1692" x2="840" y2="1708" stroke="#e65100" stroke-width="2"/>
+          <rect x="495" y="1692" width="50" height="16" fill="#fff" stroke="#e65100" stroke-width="1"/>
+          <text x="520" y="1704" text-anchor="middle" font-size="11" font-weight="700" fill="#e65100">32 m</text>
+        </g>
+
+        <!-- Rotary Dryer - horizontal dimension -->
+        <g>
+          <line x1="840" y1="1100" x2="1280" y2="1100" stroke="#e65100" stroke-width="2" marker-start="url(#dimArrowStart)" marker-end="url(#dimArrowEnd)"/>
+          <line x1="840" y1="1092" x2="840" y2="1108" stroke="#e65100" stroke-width="2"/>
+          <line x1="1280" y1="1092" x2="1280" y2="1108" stroke="#e65100" stroke-width="2"/>
+          <rect x="1035" y="1092" width="50" height="16" fill="#fff" stroke="#e65100" stroke-width="1"/>
+          <text x="1060" y="1104" text-anchor="middle" font-size="11" font-weight="700" fill="#e65100">22 m</text>
+        </g>
+
+        <!-- =========================================== -->
+        <!-- ====== FLOW ARROWS (alur produksi) ======== -->
+        <!-- =========================================== -->
+
+        <g fill="none" stroke="#ff6f00" stroke-width="4" marker-end="url(#flowArrow)">
+          <!-- Inloading → Gudang BB -->
+          <line x1="960" y1="765" x2="960" y2="795" stroke-dasharray="10 5"/>
+          <!-- Gudang BB → Persiapan -->
+          <path d="M 805,955 Q 1000,940 1240,610" stroke-dasharray="10 5"/>
+          <!-- Persiapan → Dryer -->
+          <line x1="1440" y1="765" x2="1060" y2="795" stroke-dasharray="10 5"/>
+          <!-- Dryer → Produksi -->
+          <path d="M 1285,900 Q 1300,900 1320,900" stroke-dasharray="10 5"/>
+          <!-- Produksi → Pengemasan -->
+          <line x1="1580" y1="1205" x2="1100" y2="1235" stroke-dasharray="10 5"/>
+          <!-- Pengemasan → Gudang PJ -->
+          <path d="M 1325,1380 Q 1340,1380 1360,1380" stroke-dasharray="10 5"/>
+          <!-- Gudang PJ → Outloading -->
+          <path d="M 1600,1525 Q 1600,1540 1380,1560" stroke-dasharray="10 5"/>
+        </g>
+
+        <!-- =========================================== -->
+        <!-- ============ COMPASS & SCALE ============== -->
+        <!-- =========================================== -->
+
+        <!-- Compass -->
+        <g transform="translate(1870, 120)">
+          <circle r="45" fill="#fff" opacity=".95" stroke="#33691e" stroke-width="2"/>
+          <path d="M0,-32 L10,0 L0,32 L-10,0 Z" fill="#33691e"/>
+          <text y="-50" text-anchor="middle" font-size="18" font-weight="700" fill="#33691e">U</text>
+          <text y="62" text-anchor="middle" font-size="14" font-weight="600" fill="#33691e">S</text>
+          <text x="-54" y="5" text-anchor="middle" font-size="14" font-weight="600" fill="#33691e">B</text>
+          <text x="54" y="5" text-anchor="middle" font-size="14" font-weight="600" fill="#33691e">T</text>
+        </g>
+
+        <!-- Scale bar -->
+        <g transform="translate(80, 1920)">
+          <rect x="0" y="0" width="200" height="14" fill="#33691e"/>
+          <rect x="0" y="0" width="100" height="14" fill="#fff" stroke="#33691e" stroke-width="1.5"/>
+          <text x="0" y="32" font-size="14" text-anchor="middle" fill="#33691e" font-weight="700">0</text>
+          <text x="100" y="32" font-size="14" text-anchor="middle" fill="#33691e" font-weight="700">5 m</text>
+          <text x="200" y="32" font-size="14" text-anchor="middle" fill="#33691e" font-weight="700">10 m</text>
+        </g>
+
+        <!-- Title cartouche -->
+        <g transform="translate(1000, 1965)">
+          <rect x="-340" y="-25" width="680" height="40" fill="#fff" opacity=".95" stroke="#33691e" stroke-width="2" rx="4"/>
+          <text x="0" y="-8" text-anchor="middle" font-size="14" font-weight="700" fill="#1b5e20">PT ELVENIUN AGRO INOVASI — DENAH PABRIK 1 HEKTAR (SKALA 1:200)</text>
+          <text x="0" y="8" text-anchor="middle" font-size="11" fill="#33691e">Luas Total 10.000 m² · Bangunan 45,54% · Terbuka 15,28% · RTH 6,00% · Sirkulasi 33,18%</text>
+        </g>
+
+      </svg>
+    </div>
+
+    <!-- ==================== SIDE PANEL ==================== -->
+    <div class="side-panel-col">
+      <div class="panel">
+        <h2>Detail Zona</h2>
+        <div id="panel-content" class="placeholder">
+          👆 Klik salah satu zona pada denah untuk melihat detail dimensi, luas, dan persentase penggunaan lahan.
+        </div>
+      </div>
+
+      <div class="panel legend">
+        <h3>Legenda Kategori</h3>
+        <div class="legend-item"><div class="legend-swatch" style="background:#ce93d8"></div>Kantor & Fasilitas</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#bcaaa4"></div>Gudang Bahan Baku</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#ffb74d"></div>Persiapan</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#fff176"></div>Pengeringan</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#81c784"></div>Produksi Inti</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#64b5f6"></div>Pengemasan & Produk Jadi</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#26c6da"></div>Outloading</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#90a4ae"></div>Utilitas</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#e57373"></div>Proteksi Kebakaran</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#b0bec5"></div>Jalan & Sirkulasi</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#c5e1a5"></div>RTH / Taman</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ZONE CARDS ==================== -->
+  <h2 class="section-title">Ringkasan Zona & Luas</h2>
+  <div class="zones-grid" id="zones-grid"></div>
+
+  <!-- ==================== TABLE ==================== -->
+  <h2 class="section-title">Tabel Perhitungan Luas & Persentase Lahan</h2>
+  <div class="table-card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:40px">#</th>
+          <th>Zona / Bangunan</th>
+          <th>Dimensi (P × L)</th>
+          <th class="num">Luas (m²)</th>
+          <th class="num">Persentase</th>
+          <th style="width:200px">Visual</th>
+        </tr>
+      </thead>
+      <tbody id="data-table-body">
+        <!-- diisi oleh JS -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ==================== DONUT CHART ==================== -->
+  <h2 class="section-title">Proporsi Penggunaan Lahan</h2>
+  <div class="chart-card">
+    <div class="chart-grid">
+      <div class="donut-wrap">
+        <svg viewBox="0 0 200 200" class="donut-svg">
+          <!-- Background ring -->
+          <circle cx="100" cy="100" r="70" fill="none" stroke="#f0f0f0" stroke-width="40"/>
+
+          <!-- Bangunan: 45.54% -->
+          <circle cx="100" cy="100" r="70" fill="none" stroke="#2e7d32" stroke-width="40"
+                  stroke-dasharray="200.3 239.5" transform="rotate(-90 100 100)"/>
+
+          <!-- Sirkulasi: 33.18% -->
+          <circle cx="100" cy="100" r="70" fill="none" stroke="#1976d2" stroke-width="40"
+                  stroke-dasharray="145.9 293.9" transform="rotate(73.9 100 100)"/>
+
+          <!-- Area Terbuka: 15.28% -->
+          <circle cx="100" cy="100" r="70" fill="none" stroke="#f9a825" stroke-width="40"
+                  stroke-dasharray="67.2 372.6" transform="rotate(193.3 100 100)"/>
+
+          <!-- RTH: 6.00% -->
+          <circle cx="100" cy="100" r="70" fill="none" stroke="#66bb6a" stroke-width="40"
+                  stroke-dasharray="26.4 413.4" transform="rotate(248.3 100 100)"/>
+
+          <!-- Center hole -->
+          <circle cx="100" cy="100" r="50" fill="#fff"/>
+        </svg>
+        <div class="donut-center">
+          <div class="total-label">Total Lahan</div>
+          <div class="total-value">10.000 m²</div>
+        </div>
+      </div>
+
+      <div class="chart-legend">
+        <div class="chart-legend-item">
+          <div class="chart-legend-swatch" style="background:#2e7d32"></div>
+          <span class="chart-legend-name">Bangunan Gedung</span>
+          <span class="chart-legend-pct">(45,54%)</span>
+          <span class="chart-legend-value">4.554 m²</span>
+        </div>
+        <div class="chart-legend-item">
+          <div class="chart-legend-swatch" style="background:#1976d2"></div>
+          <span class="chart-legend-name">Jalan & Sirkulasi</span>
+          <span class="chart-legend-pct">(33,18%)</span>
+          <span class="chart-legend-value">3.318 m²</span>
+        </div>
+        <div class="chart-legend-item">
+          <div class="chart-legend-swatch" style="background:#f9a825"></div>
+          <span class="chart-legend-name">Area Terbuka (Parkir + Jemur)</span>
+          <span class="chart-legend-pct">(15,28%)</span>
+          <span class="chart-legend-value">1.528 m²</span>
+        </div>
+        <div class="chart-legend-item">
+          <div class="chart-legend-swatch" style="background:#66bb6a"></div>
+          <span class="chart-legend-name">Ruang Terbuka Hijau</span>
+          <span class="chart-legend-pct">(6,00%)</span>
+          <span class="chart-legend-value">600 m²</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== FLOW ==================== -->
+  <h2 class="section-title">Alur Proses Produksi</h2>
+  <div class="flow-card">
+    <div class="flow-steps">
+      <div class="flow-step">📥 Penerimaan<small>Inloading & Timbang</small></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">🗄️ Penyimpanan<small>Gudang Bahan Baku</small></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">⚙️ Persiapan<small>Chipper · Hammer Mill</small></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">☀️ Pengeringan<small>Jemur · Rotary Dryer</small></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">🎯 Peletisasi<small>3× Pellet Mill</small></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">❄️ Pendinginan<small>Cooler · Screener</small></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">📦 Pengemasan<small>Jumbo Bag · Karung</small></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">🚚 Pengiriman<small>Outloading</small></div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <strong>PT Elveniun Agro Inovasi</strong> — Denah Tata Letak Pabrik Pelet Biomassa · 1 Hektar (10.000 m²)
+    <small>Perhitungan luas bersifat estimasi desain. Untuk pelaksanaan konstruksi, diperlukan engineering drawing & perhitungan struktur oleh konsultan perencana.</small>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   DATA ZONA (detail untuk panel & table)
+   ============================================================ */
+const ZONE_DATA = [
+  // ===== BANGUNAN GEDUNG =====
+  { id:'kantor', title:'Kantor Utama', category:'Bangunan Gedung', color:'#ce93d8',
+    dims:'22 × 12 m', area:264, pct:2.64,
+    desc:'Pusat administrasi, manajemen, dan penerimaan tamu pabrik.',
+    details:['Ruang Direksi','Ruang Administrasi','Ruang Rapat','Ruang Tamu','Area Arsip'] },
+  { id:'lab', title:'Laboratorium', category:'Bangunan Gedung', color:'#ce93d8',
+    dims:'8 × 10 m', area:80, pct:0.80,
+    desc:'Pengujian kualitas bahan baku dan produk akhir pelet.',
+    details:['Uji Kadar Air','Uji Nilai Kalori','Uji Densitas','Uji Durabilitas'] },
+  { id:'fasilitas', title:'Fasilitas Karyawan', category:'Bangunan Gedung', color:'#ce93d8',
+    dims:'16 × 10 m', area:160, pct:1.60,
+    desc:'Sarana penunjang kesejahteraan dan kenyamanan karyawan.',
+    details:['Kantin','Ruang Ganti','Toilet Pria/Wanita','Mushola','Ruang Istirahat'] },
+  { id:'utilitas', title:'Utilitas & Energi', category:'Bangunan Gedung', color:'#90a4ae',
+    dims:'14 × 10 m', area:140, pct:1.40,
+    desc:'Pusat kelistrikan dan sistem pendukung operasional pabrik.',
+    details:['Genset Cadangan 500 kVA','Panel Listrik Utama','Pompa Air','Kompresor'] },
+  { id:'bengkel', title:'Bengkel & Gudang Sparepart', category:'Bangunan Gedung', color:'#90a4ae',
+    dims:'14 × 10 m', area:140, pct:1.40,
+    desc:'Perawatan mesin dan penyimpanan suku cadang produksi.',
+    details:['Workshop','Gudang Sparepart','Alat Berat','Ruang Tool'] },
+  { id:'gudang-bb', title:'Gudang Bahan Baku', category:'Bangunan Gedung', color:'#bcaaa4',
+    dims:'30 × 20 m', area:600, pct:6.00,
+    desc:'Penyimpanan bahan baku kering untuk 7–14 hari produksi.',
+    details:['Luas 600 m²','Kapasitas ±500 ton','Lantai beton cor','Ventilasi silang','Akses Wheel Loader'] },
+  { id:'persiapan', title:'Area Persiapan', category:'Bangunan Gedung', color:'#ffb74d',
+    dims:'20 × 16 m', area:320, pct:3.20,
+    desc:'Pengecilan ukuran bahan baku menjadi serbuk halus sebelum pengeringan.',
+    details:['Wood Chipper','Hammer Mill 1','Hammer Mill 2','Dust Collector','Konveyor'] },
+  { id:'dryer', title:'Rotary Drum Dryer', category:'Bangunan Gedung', color:'#fff176',
+    dims:'22 × 14 m', area:308, pct:3.08,
+    desc:'Pengeringan mekanis untuk kadar air konsisten 10–15%.',
+    details:['Drum 3 × 24 m','Tungku Biomassa','Siklon Pemisah','Konveyor','Kapasitas 9–12 TPH'] },
+  { id:'produksi', title:'Gudang Produksi Utama', category:'Bangunan Gedung', color:'#81c784',
+    dims:'26 × 20 m', area:520, pct:5.20,
+    desc:'Jantung pabrik: peletisasi, pendinginan, penyaringan, penyimpanan produk antara.',
+    details:['3 unit Pellet Mill XGJ850','Pellet Cooler','Vibrating Screener','2 Silo Penyimpanan','Dust Collector'] },
+  { id:'pengemasan', title:'Stasiun Pengemasan', category:'Bangunan Gedung', color:'#64b5f6',
+    dims:'22 × 14 m', area:308, pct:3.08,
+    desc:'Pengemasan pelet jadi ke dalam jumbo bag dan karung konsumen.',
+    details:['Jumbo Bag 1 ton','Karung 25–50 kg','Mesin Jahit','Timbangan Digital','Palletizer'] },
+  { id:'gudang-pj', title:'Gudang Produk Jadi', category:'Bangunan Gedung', color:'#42a5f5',
+    dims:'24 × 14 m', area:336, pct:3.36,
+    desc:'Penyimpanan pelet siap kirim untuk 3–5 hari produksi.',
+    details:['Luas 336 m²','Kapasitas ±300 ton','Rak Pallet','Kontrol Kelembapan'] },
+  { id:'inloading', title:'Inloading & Jembatan Timbang', category:'Bangunan Gedung', color:'#bcaaa4',
+    dims:'24 × 16 m', area:384, pct:3.84,
+    desc:'Penerimaan bahan baku dari truk, penimbangan, dan penurunan ke hopper.',
+    details:['Jembatan Timbang 60 ton','Hopper Penerimaan','Pos Keamanan','Ruang Timbang'] },
+  { id:'outloading', title:'Outloading Area', category:'Bangunan Gedung', color:'#26c6da',
+    dims:'22 × 18 m', area:396, pct:3.96,
+    desc:'Pemuatan produk jadi ke truk untuk distribusi ke pelanggan.',
+    details:['2 Loading Dock','Jalur Truk Keluar','Timbangan Keluar','Area Manuver','Dokumen Ekspedisi'] },
+  { id:'kebakaran', title:'Proteksi Kebakaran', category:'Bangunan Gedung', color:'#e57373',
+    dims:'12 × 10 m', area:120, pct:1.20,
+    desc:'Fasilitas keselamatan kebakaran untuk melindungi area penyimpanan dan produksi.',
+    details:['Tandon Air 200 m³','Hidran Halaman','Sprinkler Gedung','APAR','Pompa Kebakaran'] },
+
+  // ===== AREA TERBUKA =====
+  { id:'parkir', title:'Area Parkir', category:'Area Terbuka', color:'#b0bec5',
+    dims:'24 × 16 m', area:384, pct:3.84,
+    desc:'Parkir karyawan dan tamu, terpisah dari jalur truk berat.',
+    details:['6 Slot Mobil','10 Slot Motor','Parkir Tamu','Pos Satpam'] },
+  { id:'jemur', title:'Lantai Jemur', category:'Area Terbuka', color:'#fff59d',
+    dims:'32 × 22 m', area:704, pct:7.04,
+    desc:'Pengeringan alami dengan sinar matahari untuk menurunkan kadar air bahan baku.',
+    details:['Luas 704 m²','Beton cor','Drainase keliling','Akses Wheel Loader','Kanopi opsional'] },
+
+  // ===== RTH =====
+  { id:'rth', title:'Taman / RTH', category:'Ruang Terbuka Hijau', color:'#c5e1a5',
+    dims:'Tersebar', area:600, pct:6.00,
+    desc:'Ruang terbuka hijau berupa taman, buffer, dan landscaping di sekitar pabrik.',
+    details:['Buffer perimeter','Taman tengah','Pohon peneduh','Area resapan air','Landscaping'] }
+];
+
+/* ============================================================
+   RENDER ZONE CARDS
+   ============================================================ */
+const grid = document.getElementById('zones-grid');
+ZONE_DATA.forEach(z => {
+  const card = document.createElement('div');
+  card.className = 'zone-card';
+  card.style.borderTopColor = z.color;
+  card.dataset.zone = z.id;
+  card.innerHTML = `
+    <h3>${z.title}</h3>
+    <div class="card-dims">${z.dims}</div>
+    <div class="card-area">${z.area.toLocaleString('id-ID')} <small>m²</small></div>
+    <div class="card-pct">${z.pct.toFixed(2).replace('.', ',')}% dari lahan</div>
+  `;
+  card.addEventListener('click', () => activateZone(z.id, true));
+  grid.appendChild(card);
+});
+
+/* ============================================================
+   RENDER TABLE
+   ============================================================ */
+const tableBody = document.getElementById('data-table-body');
+
+// Group by category
+const categories = [
+  { name: 'A. Bangunan Gedung', key: 'Bangunan Gedung' },
+  { name: 'B. Area Terbuka', key: 'Area Terbuka' },
+  { name: 'C. Ruang Terbuka Hijau', key: 'Ruang Terbuka Hijau' }
+];
+
+let counter = 1;
+categories.forEach(cat => {
+  const items = ZONE_DATA.filter(z => z.category === cat.key);
+  if (items.length === 0) return;
+
+  const subtotal = items.reduce((s, i) => s + i.area, 0);
+  const subPct = items.reduce((s, i) => s + i.pct, 0);
+
+  // Group header row
+  const groupRow = document.createElement('tr');
+  groupRow.className = 'group-row';
+  groupRow.innerHTML = `
+    <td></td>
+    <td>${cat.name}</td>
+    <td></td>
+    <td class="num">${subtotal.toLocaleString('id-ID')}</td>
+    <td class="num">${subPct.toFixed(2).replace('.', ',')}%</td>
+    <td><span class="pct-bar-inline" style="width:${Math.min(subPct * 3.5, 180)}px"></span></td>
+  `;
+  tableBody.appendChild(groupRow);
+
+  // Item rows
+  items.forEach(item => {
+    const row = document.createElement('tr');
+    row.style.cursor = 'pointer';
+    row.innerHTML = `
+      <td>${counter++}</td>
+      <td><strong>${item.title}</strong></td>
+      <td>${item.dims}</td>
+      <td class="num">${item.area.toLocaleString('id-ID')}</td>
+      <td class="num">${item.pct.toFixed(2).replace('.', ',')}%</td>
+      <td><span class="pct-bar-inline" style="width:${Math.min(item.pct * 3.5, 180)}px"></span></td>
+    `;
+    row.addEventListener('click', () => activateZone(item.id, true));
+    tableBody.appendChild(row);
+  });
+});
+
+// Additional rows for non-building categories
+const additionalRows = [
+  { cat:'D. Jalan & Sirkulasi', items: [
+    { title:'Jalan Lingkar (perimeter 6m)', dims:'6 × 360 m', area:2160, pct:21.60 },
+    { title:'Sirkulasi internal & buffer', dims:'Tersebar', area:1158, pct:11.58 }
+  ]}
+];
+
+additionalRows.forEach(group => {
+  const items = group.items;
+  const subtotal = items.reduce((s, i) => s + i.area, 0);
+  const subPct = items.reduce((s, i) => s + i.pct, 0);
+
+  const groupRow = document.createElement('tr');
+  groupRow.className = 'group-row';
+  groupRow.innerHTML = `
+    <td></td>
+    <td>${group.cat}</td>
+    <td></td>
+    <td class="num">${subtotal.toLocaleString('id-ID')}</td>
+    <td class="num">${subPct.toFixed(2).replace('.', ',')}%</td>
+    <td><span class="pct-bar-inline" style="width:${Math.min(subPct * 3.5, 180)}px"></span></td>
+  `;
+  tableBody.appendChild(groupRow);
+
+  items.forEach(item => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${counter++}</td>
+      <td><strong>${item.title}</strong></td>
+      <td>${item.dims}</td>
+      <td class="num">${item.area.toLocaleString('id-ID')}</td>
+      <td class="num">${item.pct.toFixed(2).replace('.', ',')}%</td>
+      <td><span class="pct-bar-inline" style="width:${Math.min(item.pct * 3.5, 180)}px"></span></td>
+    `;
+    tableBody.appendChild(row);
+  });
+});
+
+// Total row
+const totalRow = document.createElement('tr');
+totalRow.className = 'total-row';
+totalRow.innerHTML = `
+  <td></td>
+  <td>TOTAL PENGGUNAAN LAHAN</td>
+  <td>100 × 100 m</td>
+  <td class="num">10.000</td>
+  <td class="num">100,00%</td>
+  <td><span class="pct-bar-inline" style="width:180px;background:#fff"></span></td>
+`;
+tableBody.appendChild(totalRow);
+
+/* ============================================================
+   INTERAKSI MAP
+   ============================================================ */
+const panel = document.getElementById('panel-content');
+const zones = document.querySelectorAll('.zone');
+
+function activateZone(id, scroll = false) {
+  zones.forEach(z => z.classList.toggle('active', z.dataset.zone === id));
+  document.querySelectorAll('.zone-card').forEach(c =>
+    c.classList.toggle('active', c.dataset.zone === id)
+  );
+
+  const data = ZONE_DATA.find(z => z.id === id);
+  if (!data) {
+    panel.innerHTML = `<div class="placeholder">Zona tidak ditemukan.</div>`;
+    return;
+  }
+
+  panel.innerHTML = `
+    <div class="zone-title">${data.title}</div>
+    <div style="margin-top:8px">
+      <span class="zone-dim-badge">📐 ${data.dims}</span>
+      <span class="zone-area-badge">📏 ${data.area.toLocaleString('id-ID')} m²</span>
+      <span class="zone-pct-badge">${data.pct.toFixed(2).replace('.', ',')}%</span>
+    </div>
+    <p class="zone-desc">${data.desc}</p>
+    <ul class="zone-details">
+      ${data.details.map(d => `<li>${d}</li>`).join('')}
+    </ul>
+  `;
+
+  if (scroll) {
+    document.querySelector('.map-section').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+}
+
+zones.forEach(z => {
+  z.addEventListener('click', () => activateZone(z.dataset.zone, false));
+});
+
+/* Default: tampilkan gudang produksi */
+window.addEventListener('load', () => {
+  setTimeout(() => activateZone('produksi', false), 400);
+});
+</script>
+
+</body>
+</html>
