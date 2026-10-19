@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PT Minerva Green Agro — Command Center</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.2/dist/apexcharts.min.js"></script>
+<style>
+:root{
+  --bg:#070d16; --line:rgba(148,163,184,.14); --txt:#e8eef7; --muted:#8ea1bb;
+  --green:#2ee66b; --green2:#0ea85a; --amber:#f5b942; --blue:#38bdf8;
+  --red:#ff5c6c; --violet:#a78bfa; --teal:#2dd4bf;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  background:
+    radial-gradient(1200px 620px at 88% -12%, rgba(46,230,107,.11), transparent 62%),
+    radial-gradient(900px 520px at 2% 112%, rgba(56,189,248,.10), transparent 62%),
+    var(--bg); color:var(--txt); font-size:14px; -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(148,163,184,.22);border-radius:9px}
+::-webkit-scrollbar-thumb:hover{background:rgba(46,230,107,.45)}
+
+.app{display:grid;grid-template-columns:266px 1fr;min-height:100vh}
+.sidebar{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;
+  background:linear-gradient(180deg,rgba(15,24,40,.96),rgba(8,14,24,.98));
+  border-right:1px solid var(--line);padding:18px 14px;gap:14px;overflow-y:auto}
+.brand{display:flex;gap:11px;align-items:center;padding:4px 6px 14px;border-bottom:1px solid var(--line)}
+.logo{width:44px;height:44px;border-radius:13px;flex:0 0 44px;
+  background:linear-gradient(145deg,#2ee66b,#0ea85a 55%,#0b7a44);display:grid;place-items:center;
+  font-weight:800;font-size:15px;color:#04180c;box-shadow:0 8px 22px rgba(46,230,107,.32),
+  inset 0 1px 0 rgba(255,255,255,.4);letter-spacing:-.5px}
+.brand h1{font-size:13px;line-height:1.25;font-weight:700}
+.brand p{font-size:10.5px;color:var(--muted);margin-top:3px}
+nav{display:flex;flex-direction:column;gap:3px;flex:1}
+.nav-item{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:transparent;
+  border:1px solid transparent;color:#a9b8cd;padding:9px 10px;border-radius:10px;cursor:pointer;
+  font-size:12.2px;font-family:inherit;transition:.18s}
+.nav-item .ico{width:24px;height:24px;flex:0 0 24px;border-radius:7px;display:grid;place-items:center;
+  font-size:11px;background:rgba(148,163,184,.1);color:#9fb0c7;transition:.18s}
+.nav-item:hover{background:rgba(148,163,184,.07);color:#e8eef7}
+.nav-item.active{background:linear-gradient(90deg,rgba(46,230,107,.16),rgba(46,230,107,.02));
+  border-color:rgba(46,230,107,.28);color:#fff;font-weight:600;box-shadow:inset 2px 0 0 var(--green)}
+.nav-item.active .ico{background:linear-gradient(145deg,#2ee66b,#0b7a44);color:#04180c;font-weight:700}
+.side-foot{border-top:1px solid var(--line);padding-top:12px;font-size:10.5px;color:var(--muted);
+  display:flex;flex-direction:column;gap:8px}
+.pill-live{display:inline-flex;align-items:center;gap:6px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(46,230,107,.55)}70%{box-shadow:0 0 0 9px rgba(46,230,107,0)}100%{box-shadow:0 0 0 0 rgba(46,230,107,0)}}
+
+main{padding:0 0 44px;min-width:0}
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;
+  gap:16px;padding:14px 26px;backdrop-filter:blur(16px);
+  background:linear-gradient(180deg,rgba(7,13,22,.94),rgba(7,13,22,.68));
+  border-bottom:1px solid var(--line);flex-wrap:wrap}
+.topbar h2{font-size:16.5px;font-weight:700}
+.topbar .crumb{font-size:11px;color:var(--muted);margin-top:3px}
+.topbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:11px;padding:6px 11px;border-radius:999px;
+  border:1px solid var(--line);background:rgba(148,163,184,.07);color:#c3d1e2}
+.chip.green{border-color:rgba(46,230,107,.35);background:linear-gradient(135deg,rgba(46,230,107,.18),rgba(46,230,107,.04));color:#8bf0b3}
+.chip.amber{border-color:rgba(245,185,66,.35);background:linear-gradient(135deg,rgba(245,185,66,.16),rgba(245,185,66,.03));color:#ffd68a}
+.avatar{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:11.5px;font-weight:800;
+  background:linear-gradient(145deg,#38bdf8,#1d4ed8);color:#04121f;box-shadow:0 6px 16px rgba(56,189,248,.28)}
+
+.panel{display:none;padding:22px 26px 0;animation:fade .32s ease}
+.panel.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+
+.card{background:linear-gradient(155deg,rgba(24,36,56,.88),rgba(11,18,30,.92));
+  border:1px solid var(--line);border-radius:16px;padding:16px 18px;
+  box-shadow:0 16px 36px -22px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.045);
+  position:relative;overflow:hidden}
+.card::after{content:'';position:absolute;inset:0;border-radius:16px;pointer-events:none;
+  background:radial-gradient(420px 140px at 100% 0%,rgba(46,230,107,.07),transparent 70%)}
+.card h3{font-size:12.5px;font-weight:700;letter-spacing:.35px;text-transform:uppercase;
+  color:#cddbeb;display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.card h3::before{content:'';width:3px;height:13px;border-radius:3px;
+  background:linear-gradient(180deg,var(--green),var(--green2))}
+.card h3 .right{margin-left:auto;font-size:10.5px;font-weight:500;color:var(--muted);text-transform:none}
+.sub{font-size:11px;color:var(--muted);line-height:1.55}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:13px;margin-bottom:16px}
+.kpi{position:relative;border-radius:15px;padding:14px 15px 13px;overflow:hidden;
+  border:1px solid var(--line);background:linear-gradient(158deg,rgba(28,42,64,.92),rgba(10,16,27,.95));
+  box-shadow:0 16px 34px -24px #000, inset 0 1px 0 rgba(255,255,255,.05);transition:.22s}
+.kpi:hover{transform:translateY(-3px);border-color:rgba(46,230,107,.3)}
+.kpi::before{content:'';position:absolute;top:-42px;right:-42px;width:110px;height:110px;border-radius:50%;
+  background:radial-gradient(circle,rgba(46,230,107,.24),transparent 68%)}
+.kpi.a::before{background:radial-gradient(circle,rgba(245,185,66,.24),transparent 68%)}
+.kpi.b::before{background:radial-gradient(circle,rgba(56,189,248,.24),transparent 68%)}
+.kpi.v::before{background:radial-gradient(circle,rgba(167,139,250,.24),transparent 68%)}
+.kpi.t::before{background:radial-gradient(circle,rgba(45,212,191,.24),transparent 68%)}
+.kpi.r::before{background:radial-gradient(circle,rgba(255,92,108,.24),transparent 68%)}
+.kpi-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;position:relative;z-index:2}
+.kpi-label{font-size:10.3px;color:var(--muted);text-transform:uppercase;letter-spacing:.55px;font-weight:600;line-height:1.4}
+.kpi-ico{width:26px;height:26px;flex:0 0 26px;border-radius:8px;display:grid;place-items:center;font-size:12px;
+  background:linear-gradient(145deg,rgba(46,230,107,.22),rgba(46,230,107,.05));
+  border:1px solid rgba(46,230,107,.24);color:#7cf0a8}
+.kpi.a .kpi-ico{background:linear-gradient(145deg,rgba(245,185,66,.22),rgba(245,185,66,.05));border-color:rgba(245,185,66,.26);color:#ffd68a}
+.kpi.b .kpi-ico{background:linear-gradient(145deg,rgba(56,189,248,.22),rgba(56,189,248,.05));border-color:rgba(56,189,248,.26);color:#9adcff}
+.kpi.v .kpi-ico{background:linear-gradient(145deg,rgba(167,139,250,.22),rgba(167,139,250,.05));border-color:rgba(167,139,250,.26);color:#c8b6ff}
+.kpi.t .kpi-ico{background:linear-gradient(145deg,rgba(45,212,191,.22),rgba(45,212,191,.05));border-color:rgba(45,212,191,.26);color:#8be9dc}
+.kpi-val{font-size:22px;font-weight:800;letter-spacing:-.8px;margin-top:9px;position:relative;z-index:2;line-height:1.1;
+  padding:2px 4px;border-radius:5px;transition:.15s}
+.kpi-val:hover{background:rgba(46,230,107,.08);box-shadow:0 0 0 1px rgba(46,230,107,.3)}
+.kpi-val:focus{outline:none;background:rgba(46,230,107,.14);box-shadow:0 0 0 2px rgba(46,230,107,.5)}
+.kpi-val small{font-size:11.5px;font-weight:600;color:var(--muted);margin-left:3px}
+.kpi-sub{font-size:10.5px;color:var(--muted);margin-top:5px;position:relative;z-index:2}
+.kpi-bar{height:4px;border-radius:4px;background:rgba(148,163,184,.14);margin-top:11px;overflow:hidden;position:relative;z-index:2}
+.kpi-bar i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#0ea85a,#2ee66b,#8bf0b3);box-shadow:0 0 12px rgba(46,230,107,.6)}
+.kpi.a .kpi-bar i{background:linear-gradient(90deg,#b47b0b,#f5b942,#ffe0a0)}
+.kpi.b .kpi-bar i{background:linear-gradient(90deg,#0b7ea8,#38bdf8,#a5e8ff)}
+.kpi.v .kpi-bar i{background:linear-gradient(90deg,#6d4bd6,#a78bfa,#d9cbff)}
+.kpi.t .kpi-bar i{background:linear-gradient(90deg,#0d8a7d,#2dd4bf,#a5f3ea)}
+
+.grid{display:grid;gap:14px;margin-bottom:16px}
+.g-2{grid-template-columns:1fr 1fr}
+.g-3{grid-template-columns:repeat(3,1fr)}
+.g-21{grid-template-columns:1.55fr 1fr}
+.g-12{grid-template-columns:1fr 1.5fr}
+
+.map-box{height:380px;border-radius:14px;overflow:hidden;border:1px solid var(--line);position:relative}
+.map-box .leaflet-container{background:#0a1524;height:100%}
+.map-box .leaflet-popup-content-wrapper{background:#0a1524;color:#e8eef7;border:1px solid rgba(46,230,107,.4);border-radius:10px}
+.map-box .leaflet-popup-tip{background:#0a1524;border:1px solid rgba(46,230,107,.4)}
+.map-box .leaflet-popup-content{font-size:11px;line-height:1.65;margin:10px 12px}
+.map-box .leaflet-popup-content b{color:#8bf0b3}
+.legend-inline{display:flex;gap:14px;flex-wrap:wrap;font-size:10.5px;color:var(--muted);margin-top:10px}
+.legend-inline i{width:9px;height:9px;border-radius:3px;display:inline-block;margin-right:6px;vertical-align:middle}
+
+.alert-list{display:flex;flex-direction:column;gap:9px;max-height:352px;overflow-y:auto;padding-right:4px}
+.alert{display:flex;gap:11px;padding:11px 12px;border-radius:11px;border:1px solid var(--line);
+  background:linear-gradient(120deg,rgba(148,163,184,.06),rgba(148,163,184,.015));border-left-width:3px;transition:.18s}
+.alert:hover{transform:translateX(3px)}
+.alert.crit{border-left-color:var(--red);background:linear-gradient(120deg,rgba(255,92,108,.13),rgba(255,92,108,.02))}
+.alert.warn{border-left-color:var(--amber);background:linear-gradient(120deg,rgba(245,185,66,.13),rgba(245,185,66,.02))}
+.alert.info{border-left-color:var(--blue);background:linear-gradient(120deg,rgba(56,189,248,.12),rgba(56,189,248,.02))}
+.alert.ok{border-left-color:var(--green);background:linear-gradient(120deg,rgba(46,230,107,.12),rgba(46,230,107,.02))}
+.alert .ai{width:26px;height:26px;flex:0 0 26px;border-radius:8px;display:grid;place-items:center;font-size:12px;background:rgba(0,0,0,.3)}
+.alert strong{font-size:11.8px;display:block;margin-bottom:2px}
+.alert span{font-size:10.5px;color:var(--muted);line-height:1.45}
+
+.tbl{width:100%;border-collapse:collapse;font-size:11.6px}
+.tbl th{text-align:left;font-size:9.8px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);
+  padding:8px 10px;border-bottom:1px solid var(--line);font-weight:700;white-space:nowrap}
+.tbl td{padding:8px 10px;border-bottom:1px solid rgba(148,163,184,.07);color:#c8d5e5;white-space:nowrap}
+.tbl tbody tr{transition:.15s}
+.tbl tbody tr:hover{background:rgba(46,230,107,.055)}
+.tbl td[contenteditable]{outline:none;border-radius:5px;transition:.15s;min-width:40px;cursor:text}
+.tbl td[contenteditable]:hover{background:rgba(46,230,107,.06);box-shadow:inset 0 0 0 1px rgba(46,230,107,.2)}
+.tbl td[contenteditable]:focus{background:rgba(46,230,107,.12);box-shadow:inset 0 0 0 2px rgba(46,230,107,.5);color:#fff}
+.tbl .act{text-align:center;width:46px}
+.tbl-scroll{max-height:340px;overflow:auto}
+
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:9.8px;font-weight:700;
+  padding:3px 8px;border-radius:999px;letter-spacing:.3px;text-transform:uppercase}
+.b-green{background:rgba(46,230,107,.16);color:#7cf0a8;border:1px solid rgba(46,230,107,.3)}
+.b-amber{background:rgba(245,185,66,.16);color:#ffd68a;border:1px solid rgba(245,185,66,.3)}
+.b-red{background:rgba(255,92,108,.16);color:#ff9aa5;border:1px solid rgba(255,92,108,.3)}
+.b-blue{background:rgba(56,189,248,.16);color:#9adcff;border:1px solid rgba(56,189,248,.3)}
+.b-gray{background:rgba(148,163,184,.14);color:#b8c6d8;border:1px solid rgba(148,163,184,.24)}
+
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:10.2px;text-transform:uppercase;letter-spacing:.55px;color:var(--muted);font-weight:700}
+input[type=text],input[type=number],input[type=date],select{
+  width:100%;padding:9px 11px;border-radius:9px;font-family:inherit;font-size:12.3px;
+  background:linear-gradient(160deg,rgba(9,16,28,.95),rgba(17,26,42,.9));
+  border:1px solid var(--line);color:var(--txt);outline:none;transition:.18s}
+input:focus,select:focus{border-color:rgba(46,230,107,.55);box-shadow:0 0 0 3px rgba(46,230,107,.13)}
+input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:5px;outline:none;
+  background:linear-gradient(90deg,var(--green2),var(--green))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:radial-gradient(circle at 32% 30%,#b6ffd0,#2ee66b 55%,#0b7a44);
+  box-shadow:0 0 12px rgba(46,230,107,.7);cursor:pointer;border:2px solid #06140c}
+.form-grid{display:grid;gap:12px;grid-template-columns:repeat(2,1fr)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  padding:9px 16px;border-radius:10px;font-family:inherit;font-size:12px;font-weight:700;
+  cursor:pointer;border:1px solid transparent;transition:.18s;
+  background:linear-gradient(145deg,#2ee66b,#0ea85a);color:#04180c;
+  box-shadow:0 10px 24px -12px rgba(46,230,107,.8)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 14px 28px -12px rgba(46,230,107,.95)}
+.btn.ghost{background:linear-gradient(145deg,rgba(148,163,184,.13),rgba(148,163,184,.05));color:#d3dfec;border-color:var(--line);box-shadow:none}
+.btn.ghost:hover{border-color:rgba(46,230,107,.4);color:#fff}
+.btn.blue{background:linear-gradient(145deg,#38bdf8,#1d4ed8);color:#04121f}
+.btn.small{padding:6px 11px;font-size:11px}
+.btn.danger{background:linear-gradient(145deg,#ff5c6c,#a01c2b);color:#fff;box-shadow:none}
+
+.result-box{border-radius:12px;padding:14px 16px;margin-top:12px;
+  background:linear-gradient(135deg,rgba(46,230,107,.14),rgba(14,168,90,.04));
+  border:1px solid rgba(46,230,107,.3)}
+.result-box .rlabel{font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:#8bf0b3;font-weight:700}
+.result-box .rval{font-size:22px;font-weight:800;letter-spacing:-.9px;margin-top:4px}
+.result-box .rnote{font-size:10.5px;color:var(--muted);margin-top:4px;line-height:1.55}
+
+.gauge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.gauge{text-align:center;padding:14px 10px;border-radius:13px;border:1px solid var(--line);
+  background:linear-gradient(160deg,rgba(24,36,56,.7),rgba(10,16,27,.85))}
+.gauge svg{display:block;margin:0 auto}
+.gauge .glabel{font-size:10.5px;color:var(--muted);margin-top:8px;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+
+.qr-box{background:linear-gradient(160deg,#fff,#dbe7f3);border-radius:13px;padding:11px;display:inline-block;
+  box-shadow:0 14px 30px -14px rgba(0,0,0,.8)}
+.yard-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:6px}
+.yard-cell{aspect-ratio:1;border-radius:6px;display:grid;place-items:center;font-size:9px;font-weight:700;
+  color:#04180c;cursor:pointer;border:1px solid rgba(0,0,0,.2);transition:.18s}
+.yard-cell:hover{transform:scale(1.12);z-index:3;box-shadow:0 8px 18px rgba(0,0,0,.6)}
+.progress{height:7px;border-radius:7px;background:rgba(148,163,184,.14);overflow:hidden;margin-top:7px}
+.progress i{display:block;height:100%;border-radius:7px;background:linear-gradient(90deg,#0ea85a,#2ee66b,#8bf0b3);box-shadow:0 0 10px rgba(46,230,107,.55)}
+
+.sync-row{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid rgba(148,163,184,.07);font-size:11.6px}
+.sync-row:last-child{border-bottom:none}
+.doc-item{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid rgba(148,163,184,.08)}
+.doc-item:last-child{border-bottom:none}
+.doc-ico{width:30px;height:30px;flex:0 0 30px;border-radius:9px;display:grid;place-items:center;font-size:12px;
+  background:linear-gradient(145deg,rgba(56,189,248,.2),rgba(56,189,248,.04));border:1px solid rgba(56,189,248,.26);color:#9adcff}
+
+.matrix td,.matrix th{text-align:center}
+.matrix td:first-child,.matrix th:first-child{text-align:left}
+.tick{color:#2ee66b;font-weight:800;cursor:pointer}
+.cross{color:rgba(148,163,184,.32);cursor:pointer}
+
+.apexcharts-tooltip{background:rgba(8,14,24,.96)!important;border:1px solid rgba(46,230,107,.35)!important;color:#e8eef7!important}
+.apexcharts-tooltip-title{background:rgba(46,230,107,.12)!important;border-bottom:1px solid rgba(46,230,107,.3)!important}
+.apexcharts-xaxistooltip,.apexcharts-yaxistooltip{background:rgba(8,14,24,.96)!important;border:1px solid rgba(148,163,184,.3)!important;color:#e8eef7!important}
+.apexcharts-legend-text{color:#8ea1bb!important;font-size:10.5px!important}
+
+.toast{position:fixed;bottom:20px;right:20px;background:linear-gradient(145deg,#2ee66b,#0ea85a);color:#04180c;
+  padding:12px 20px;border-radius:10px;font-weight:700;font-size:12px;box-shadow:0 10px 30px rgba(46,230,107,.5);
+  z-index:9999;opacity:0;transform:translateY(20px);transition:.25s;pointer-events:none}
+.toast.show{opacity:1;transform:none}
+
+@media(max-width:1400px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:1180px){.g-21,.g-12,.g-2,.g-3{grid-template-columns:1fr}}
+@media(max-width:900px){
+  .app{grid-template-columns:1fr}
+  .sidebar{position:relative;height:auto}
+  nav{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .panel{padding:16px}.topbar{padding:12px 16px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">MG</div>
+      <div><h1>PT MINERVA GREEN AGRO</h1><p>Sukabumi · Biomass Pellet</p></div>
+    </div>
+    <nav id="nav">
+      <button class="nav-item active" data-panel="p1"><span class="ico">◈</span>Dashboard Eksekutif</button>
+      <button class="nav-item" data-panel="p2"><span class="ico">⌖</span>Pemetaan GIS &amp; Lahan</button>
+      <button class="nav-item" data-panel="p3"><span class="ico">❦</span>Pembibitan &amp; Propagasi</button>
+      <button class="nav-item" data-panel="p4"><span class="ico">⩜</span>Penanaman &amp; Pemeliharaan</button>
+      <button class="nav-item" data-panel="p5"><span class="ico">✂</span>Pemanenan &amp; Coppicing</button>
+      <button class="nav-item" data-panel="p6"><span class="ico">◐</span>Pasca-Panen &amp; QC</button>
+      <button class="nav-item" data-panel="p7"><span class="ico">▤</span>Logistik &amp; Penerimaan</button>
+      <button class="nav-item" data-panel="p8"><span class="ico">⛃</span>Tenaga Kerja &amp; Biaya</button>
+      <button class="nav-item" data-panel="p9"><span class="ico">◭</span>Analitik &amp; ERP</button>
+      <button class="nav-item" data-panel="p10"><span class="ico">⚙</span>Pengaturan &amp; PWA</button>
+    </nav>
+    <div class="side-foot">
+      <div class="pill-live"><span class="dot"></span> Sinkronisasi PWA aktif</div>
+      <div>Data tersimpan lokal (localStorage)</div>
+      <button class="btn ghost small" style="width:100%;margin-top:4px" onclick="resetDB()">↻ Reset Data Demo</button>
+    </div>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <div>
+        <h2 id="panelTitle">Dashboard Eksekutif &amp; Monitoring Utama</h2>
+        <div class="crumb" id="panelCrumb">PT Minerva Green Agro · Estate Sukabumi · PLTU Pelabuhan Ratu &amp; Export</div>
+      </div>
+      <div class="topbar-right">
+        <span class="chip green"><span class="dot"></span>Online</span>
+        <span class="chip">🗓 <span id="today"></span></span>
+        <span class="chip amber">⚡ Kuota Pabrik 78,4%</span>
+        <div class="avatar">AM</div>
+      </div>
+    </div>
+
+    <!-- ================= PANEL 1 — DASHBOARD EKSEKUTIF (TANPA PETA) ================= -->
+    <section class="panel active" id="p1">
+      <div class="kpi-grid">
+        <div class="kpi g">
+          <div class="kpi-top"><span class="kpi-label">Luas Area Aktif</span><span class="kpi-ico">◈</span></div>
+          <div class="kpi-val" contenteditable="true" data-kpi="area">10.000 <small>Ha</small></div>
+          <div class="kpi-sub">12 blok · 4 estate</div>
+          <div class="kpi-bar"><i style="width:100%"></i></div>
+        </div>
+        <div class="kpi b">
+          <div class="kpi-top"><span class="kpi-label">Populasi Tanaman Hidup</span><span class="kpi-ico">❦</span></div>
+          <div class="kpi-val" contenteditable="true" data-kpi="pop">79,0 <small>juta</small></div>
+          <div class="kpi-sub">Survival rate 94,2%</div>
+          <div class="kpi-bar"><i style="width:94%"></i></div>
+        </div>
+        <div class="kpi a">
+          <div class="kpi-top"><span class="kpi-label">Biomassa Basah Siap Panen</span><span class="kpi-ico">◍</span></div>
+          <div class="kpi-val" contenteditable="true" data-kpi="wet">100.010 <small>Ton</small></div>
+          <div class="kpi-sub">MC rata-rata 56%</div>
+          <div class="kpi-bar"><i style="width:71%"></i></div>
+        </div>
+        <div class="kpi t">
+          <div class="kpi-top"><span class="kpi-label">Biomassa Kering Siap Panen</span><span class="kpi-ico">◐</span></div>
+          <div class="kpi-val" contenteditable="true" data-kpi="dry">51.700 <small>Ton</small></div>
+          <div class="kpi-sub">Rasio susut 29,9%</div>
+          <div class="kpi-bar"><i style="width:64%"></i></div>
+        </div>
+        <div class="kpi v">
+          <div class="kpi-top"><span class="kpi-label">HPP Rata-rata</span><span class="kpi-ico">⛃</span></div>
+          <div class="kpi-val" contenteditable="true" data-kpi="hpp">612.400 <small>Rp/Ton</small></div>
+          <div class="kpi-sub">Target ≤ Rp 650.000</div>
+          <div class="kpi-bar"><i style="width:76%"></i></div>
+        </div>
+        <div class="kpi r">
+          <div class="kpi-top"><span class="kpi-label">Pemenuhan Kuota Pabrik</span><span class="kpi-ico">▣</span></div>
+          <div class="kpi-val" contenteditable="true" data-kpi="quota">78,4 <small>%</small></div>
+          <div class="kpi-sub">12.000 Ton/bulan target</div>
+          <div class="kpi-bar"><i style="width:78%"></i></div>
+        </div>
+      </div>
+
+      <!-- Baris 2: Komposisi Status (donut) + Notifikasi -->
+      <div class="grid g-21">
+        <div class="card">
+          <h3>Komposisi Luas Lahan per Status <span class="right">Berdasarkan data blok aktif</span></h3>
+          <div id="chStatus" style="min-height:340px"></div>
+          <div class="legend-inline">
+            <span><i style="background:#2ee66b"></i>Siap Panen</span>
+            <span><i style="background:#f5b942"></i>Tumbuh</span>
+            <span><i style="background:#ff5c6c"></i>Persiapan</span>
+            <span><i style="background:#38bdf8"></i>Istirahat</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Sistem Peringatan &amp; Notifikasi</h3>
+          <div class="alert-list">
+            <div class="alert crit"><div class="ai">⚠</div><div><strong>Serangan Heteropsylla cubana — Blok C2</strong><span>Terdeteksi 18% pucuk terserang. Biopestisida Bt 2 L/Ha.</span></div></div>
+            <div class="alert warn"><div class="ai">✂</div><div><strong>Blok A3 melebihi jadwal panen terubusan</strong><span>Umur tunas 13,2 bulan. Estimasi kerugian 146 Ton.</span></div></div>
+            <div class="alert warn"><div class="ai">💧</div><div><strong>Defisit kadar air pengeringan — Batch DRY-0621</strong><span>MC 31% (target 20–30%). Perpanjang drying 2 hari.</span></div></div>
+            <div class="alert info"><div class="ai">▤</div><div><strong>Stok bahan baku mendekati batas minimum</strong><span>Stok yard 4.120 Ton dari buffer 5.000 Ton.</span></div></div>
+            <div class="alert ok"><div class="ai">✓</div><div><strong>Sinkronisasi ERP Dolibarr berhasil</strong><span>1.284 transaksi &amp; 96 jurnal tersinkron 06:12 WIB.</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Baris 3: Bar luas per blok + Gauge kuota + Bar populasi -->
+      <div class="grid g-3">
+        <div class="card">
+          <h3>Luas per Blok <span class="right">Ha</span></h3>
+          <div id="chBlockArea" style="min-height:300px"></div>
+        </div>
+        <div class="card">
+          <h3>Pemenuhan Kuota Pabrik <span class="right">Target 12.000 T/bulan</span></h3>
+          <div id="chQuota" style="min-height:300px"></div>
+        </div>
+        <div class="card">
+          <h3>Populasi Tanaman Hidup <span class="right">8 blok teratas</span></h3>
+          <div id="chPop" style="min-height:300px"></div>
+        </div>
+      </div>
+
+      <!-- Baris 4: Supply -->
+      <div class="card" style="margin-bottom:16px">
+        <h3>Ringkasan Pasokan Pabrik <span class="right">Ton kering / bulan</span></h3>
+        <div id="chSupply" style="min-height:300px"></div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 2 ================= -->
+    <section class="panel" id="p2">
+      <div class="grid g-21">
+        <div class="card">
+          <h3>GIS Map — Esri World Imagery <span class="right">Layer control aktif · poligon mengikuti topografi</span></h3>
+          <div class="map-box" style="height:480px">
+            <div id="mapP2" style="height:100%"></div>
+          </div>
+          <div class="legend-inline">
+            <span><i style="background:#2ee66b"></i>Siap Panen</span>
+            <span><i style="background:#f5b942"></i>Tumbuh</span>
+            <span><i style="background:#ff5c6c"></i>Persiapan</span>
+            <span><i style="background:#38bdf8"></i>Istirahat</span>
+            <span><i style="background:#8a6d45"></i>Pemukiman</span>
+          </div>
+          <div class="sub" style="margin-top:10px">
+            <b style="color:#8bf0b3">Kesesuaian Lahan Gamal:</b> S1 = sangat sesuai (lereng 8–25°, drainase baik, pH 5,5–6,8) · S2 = cukup sesuai (lereng 3–8° atau 25–40°, kedalaman tanah dangkal).
+            Semua blok diposisikan di luar buffer 500 m dari batas pemukiman.
+          </div>
+        </div>
+        <div class="card">
+          <h3>Kalkulator Aksesibilitas Jalan</h3>
+          <div class="form-grid">
+            <div class="field"><label>Pilih Blok</label>
+              <select id="accBlock">
+                <option>A1 — 900 Ha</option><option>A2 — 800 Ha</option><option>A3 — 950 Ha</option>
+                <option>B1 — 850 Ha</option><option>B2 — 800 Ha</option><option>C1 — 1.000 Ha</option>
+                <option>C2 — 950 Ha</option><option>D2 — 800 Ha</option>
+              </select>
+            </div>
+            <div class="field"><label>Jenis Kendaraan</label>
+              <select id="accVeh"><option>Truk Tronton (20 Ton)</option><option>Truk Engkel (8 Ton)</option><option>Colt Diesel (4 Ton)</option></select>
+            </div>
+          </div>
+          <button class="btn" style="margin-top:12px;width:100%" onclick="calcAccess()">Hitung Aksesibilitas</button>
+          <div class="result-box" id="accResult">
+            <div class="rlabel">Jarak ke Jembatan Timbang Pabrik</div>
+            <div class="rval">14,8 km</div>
+            <div class="rnote">Kelas jalan: <b style="color:#8bf0b3">TRUK TRONTON LAYAK</b> · Estimasi 34 menit</div>
+          </div>
+          <div id="chSoil" style="min-height:180px;margin-top:12px"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px">
+        <h3>Manajemen Profil Blok / Petak <span class="right">Klik sel edit · tambah/hapus baris</span></h3>
+        <div id="tblBlocks"></div>
+      </div>
+
+      <div class="card">
+        <h3>Modul Legalitas &amp; Dokumen</h3>
+        <div class="doc-item"><div class="doc-ico">📜</div><div style="flex:1"><strong style="font-size:11.8px">Sertifikat HGU No. 114/SKB/2019</strong><div class="sub">Berlaku s.d. 2039 · 10.000 Ha</div><div class="progress"><i style="width:100%"></i></div></div><span class="badge b-green">Aktif</span></div>
+        <div class="doc-item"><div class="doc-ico">💧</div><div style="flex:1"><strong style="font-size:11.8px">SIPA — Izin Pemanfaatan Air Tanah</strong><div class="sub">No. 503/SIPA/2023 · Kuota 12 L/detik</div><div class="progress"><i style="width:74%"></i></div></div><span class="badge b-amber">Review 2026</span></div>
+        <div class="doc-item"><div class="doc-ico">🌿</div><div style="flex:1"><strong style="font-size:11.8px">Izin Lingkungan (AMDAL / UKL-UPL)</strong><div class="sub">No. 660/UKL-UPL/2022</div><div class="progress"><i style="width:96%"></i></div></div><span class="badge b-green">Aktif</span></div>
+        <div class="doc-item"><div class="doc-ico">🤝</div><div style="flex:1"><strong style="font-size:11.8px">Perjanjian Kemitraan Plasma</strong><div class="sub">42 KK petani mitra · 68,4 Ha</div><div class="progress"><i style="width:88%"></i></div></div><span class="badge b-blue">Berjalan</span></div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 3 ================= -->
+    <section class="panel" id="p3">
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi g"><div class="kpi-top"><span class="kpi-label">Batch Aktif</span><span class="kpi-ico">❦</span></div><div class="kpi-val" contenteditable="true" data-kpi="batches">7 <small>batch</small></div><div class="kpi-sub">3 generatif · 4 vegetatif</div></div>
+        <div class="kpi b"><div class="kpi-top"><span class="kpi-label">Bibit Siap Rilis</span><span class="kpi-ico">✓</span></div><div class="kpi-val" contenteditable="true" data-kpi="seedlings">1.845.000 <small>btg</small></div><div class="kpi-sub">Lolos standar mutu</div></div>
+        <div class="kpi a"><div class="kpi-top"><span class="kpi-label">Germination Rate</span><span class="kpi-ico">◍</span></div><div class="kpi-val" contenteditable="true" data-kpi="germ">87,6 <small>%</small></div><div class="kpi-sub">Target ≥ 85%</div></div>
+        <div class="kpi r"><div class="kpi-top"><span class="kpi-label">Mortality Rate</span><span class="kpi-ico">⚠</span></div><div class="kpi-val" contenteditable="true" data-kpi="mort">6,2 <small>%</small></div><div class="kpi-sub">Ambang batas 8%</div></div>
+      </div>
+      <div class="grid g-21">
+        <div class="card">
+          <h3>Pelacakan Bahan Tanam <span class="right">Klik sel edit · tambah/hapus baris</span></h3>
+          <div id="tblNursery"></div>
+        </div>
+        <div class="card">
+          <h3>Monitoring Tumbuh Bibit</h3>
+          <div id="chNursery" style="min-height:280px"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 4 ================= -->
+    <section class="panel" id="p4">
+      <div class="grid g-2">
+        <div class="card">
+          <h3>Konfigurasi Kerapatan Tanam</h3>
+          <div class="form-grid">
+            <div class="field"><label>Skema Jarak Tanam</label>
+              <select id="densityScheme">
+                <option value="1">1 m × 1 m — 10.000 pohon/Ha</option>
+                <option value="0.5">1 m × 0,5 m — 20.000 pohon/Ha</option>
+                <option value="0.75">1 m × 0,75 m — 13.333 pohon/Ha</option>
+                <option value="1.5">1,5 m × 1 m — 6.667 pohon/Ha</option>
+              </select>
+            </div>
+            <div class="field"><label>Luas Area Tanam (Ha)</label><input type="number" id="densityArea" value="900" step="1"></div>
+          </div>
+          <button class="btn" style="margin-top:12px;width:100%" onclick="calcDensity()">Hitung Kebutuhan Bibit</button>
+          <div class="result-box" id="densityResult">
+            <div class="rlabel">Estimasi Kebutuhan Bibit</div>
+            <div class="rval">9.000.000 <span style="font-size:13px;color:#8bf0b3">batang</span></div>
+            <div class="rnote">Populasi 10.000 pohon/Ha · Cadangan penyulaman 5%</div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Evaluasi Daya Tumbuh &amp; Penyulaman <span class="right">H+30 vs H+90</span></h3>
+          <div id="chSurvival" style="min-height:280px"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <h3>Pemupukan Berkala <span class="right">Editable</span></h3>
+        <div id="tblFertilizer"></div>
+      </div>
+      <div class="grid g-2">
+        <div class="card">
+          <h3>Penyiangan Gulma</h3>
+          <div class="sync-row"><span>🪓</span><span style="flex:1">Metode Manual</span><span class="badge b-green">62%</span></div>
+          <div class="sync-row"><span>⚙</span><span style="flex:1">Metode Mekanis</span><span class="badge b-blue">38%</span></div>
+          <div class="sync-row"><span>🔁</span><span style="flex:1">Frekuensi</span><span class="badge b-amber">4× / tahun</span></div>
+          <div class="sync-row"><span>👷</span><span style="flex:1">Kebutuhan HOK</span><span class="badge b-violet">12.840 HOK</span></div>
+        </div>
+        <div class="card">
+          <h3>Pengendalian Hama &amp; Penyakit</h3>
+          <div class="alert warn"><div class="ai">🐛</div><div><strong>Heteropsylla cubana</strong><span>Blok C2 · keparahan 18% · Bt 2 L/Ha</span></div></div>
+          <div class="alert info" style="margin-top:9px"><div class="ai">🍄</div><div><strong>Cercospora leaf spot</strong><span>Blok A2 · 7% · Mankozeb 2 g/L</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 5 ================= -->
+    <section class="panel" id="p5">
+      <div class="grid g-2">
+        <div class="card">
+          <h3>Penjadwalan Rotasi Panen</h3>
+          <div class="form-grid">
+            <div class="field"><label>Siklus Pangkas</label>
+              <select><option>6 bulan</option><option selected>8 bulan</option><option>12 bulan</option></select>
+            </div>
+            <div class="field"><label>Target Tonase (Ton/Siklus)</label><input type="number" value="145000"></div>
+            <div class="field"><label>Umur Tunas (bulan)</label><input type="number" value="13.2" step="0.1"></div>
+            <div class="field"><label>Tanggal Panen Berikutnya</label><input type="date" value="2025-07-02"></div>
+          </div>
+          <div class="result-box" style="background:linear-gradient(135deg,rgba(255,92,108,.14),rgba(160,28,43,.04));border-color:rgba(255,92,108,.32)">
+            <div class="rlabel" style="color:#ff9aa5">Status Blok A3</div>
+            <div class="rval" style="font-size:18px">OVERDUE 1,2 bulan</div>
+            <div class="rnote">Potensi kehilangan: <b style="color:#ff9aa5">146 Ton</b></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Input Hasil Panen Lapangan</h3>
+          <div class="field" style="margin-bottom:11px"><label>Tonase Basah per Pohon (kg)</label><input type="number" id="hvKg" value="2.8" step="0.1" oninput="calcHarvest()"></div>
+          <div class="field" style="margin-bottom:11px"><label>Populasi Panen (pohon/Ha)</label><input type="number" id="hvPop" value="10000" step="100" oninput="calcHarvest()"></div>
+          <div class="result-box" id="hvResult">
+            <div class="rlabel">Produktivitas Total</div>
+            <div class="rval">28,00 <span style="font-size:13px;color:#8bf0b3">Ton/Ha/Siklus</span></div>
+            <div class="rnote">Estimasi kering: <b style="color:#8bf0b3">14,48 Ton/Ha</b></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <h3>Monitoring Regenerasi Tunas</h3>
+        <div id="chCoppice" style="min-height:320px"></div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 6 ================= -->
+    <section class="panel" id="p6">
+      <div class="card" style="margin-bottom:16px">
+        <h3>Multi-Stage Moisture Tracking</h3>
+        <div class="gauge-grid">
+          <div class="gauge">
+            <svg width="112" height="112" viewBox="0 0 112 112">
+              <circle cx="56" cy="56" r="42" fill="none" stroke="rgba(148,163,184,.14)" stroke-width="10"/>
+              <circle cx="56" cy="56" r="42" fill="none" stroke="url(#g1)" stroke-width="10" stroke-linecap="round" stroke-dasharray="147.8 263.9" transform="rotate(-90 56 56)"/>
+              <defs><linearGradient id="g1"><stop offset="0%" stop-color="#ffd070"/><stop offset="100%" stop-color="#b47b0b"/></linearGradient></defs>
+              <text x="56" y="52" text-anchor="middle" fill="#e8eef7" font-size="21" font-weight="800" font-family="Inter,sans-serif">56%</text>
+              <text x="56" y="68" text-anchor="middle" fill="#8ea1bb" font-size="9" font-family="Inter,sans-serif">MC BASAH</text>
+            </svg>
+            <div class="glabel">MC Basah</div>
+          </div>
+          <div class="gauge">
+            <svg width="112" height="112" viewBox="0 0 112 112">
+              <circle cx="56" cy="56" r="42" fill="none" stroke="rgba(148,163,184,.14)" stroke-width="10"/>
+              <circle cx="56" cy="56" r="42" fill="none" stroke="url(#g2)" stroke-width="10" stroke-linecap="round" stroke-dasharray="63.3 263.9" transform="rotate(-90 56 56)"/>
+              <defs><linearGradient id="g2"><stop offset="0%" stop-color="#7dd3fc"/><stop offset="100%" stop-color="#0b5a8a"/></linearGradient></defs>
+              <text x="56" y="52" text-anchor="middle" fill="#e8eef7" font-size="21" font-weight="800" font-family="Inter,sans-serif">24%</text>
+              <text x="56" y="68" text-anchor="middle" fill="#8ea1bb" font-size="9" font-family="Inter,sans-serif">MC LAPANGAN</text>
+            </svg>
+            <div class="glabel">MC Lapangan</div>
+          </div>
+          <div class="gauge">
+            <svg width="112" height="112" viewBox="0 0 112 112">
+              <circle cx="56" cy="56" r="42" fill="none" stroke="rgba(148,163,184,.14)" stroke-width="10"/>
+              <circle cx="56" cy="56" r="42" fill="none" stroke="url(#g3)" stroke-width="10" stroke-linecap="round" stroke-dasharray="34.3 263.9" transform="rotate(-90 56 56)"/>
+              <defs><linearGradient id="g3"><stop offset="0%" stop-color="#3df582"/><stop offset="100%" stop-color="#0b7a44"/></linearGradient></defs>
+              <text x="56" y="52" text-anchor="middle" fill="#e8eef7" font-size="21" font-weight="800" font-family="Inter,sans-serif">13%</text>
+              <text x="56" y="68" text-anchor="middle" fill="#8ea1bb" font-size="9" font-family="Inter,sans-serif">MC PABRIK</text>
+            </svg>
+            <div class="glabel">MC Pabrik</div>
+          </div>
+        </div>
+      </div>
+      <div class="grid g-21">
+        <div class="card"><h3>Uji Laboratorium Biomassa</h3><div id="chLab" style="min-height:280px"></div></div>
+        <div class="card">
+          <h3>Penyusutan &amp; Susut Bobot</h3>
+          <div class="field" style="margin-bottom:11px"><label>Berat Basah (kg)</label><input type="number" id="wlWet" value="10000" oninput="calcLoss()"></div>
+          <div class="field" style="margin-bottom:11px"><label>MC Basah (%)</label><input type="number" id="wlMc1" value="56" oninput="calcLoss()"></div>
+          <div class="field" style="margin-bottom:11px"><label>MC Target (%)</label><input type="number" id="wlMc2" value="13" oninput="calcLoss()"></div>
+          <div class="result-box" id="wlResult">
+            <div class="rlabel">Berat Kering Target</div>
+            <div class="rval">5.057 <span style="font-size:13px;color:#8bf0b3">kg</span></div>
+            <div class="rnote">Susut bobot: <b style="color:#ffd68a">49,4%</b></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 7 ================= -->
+    <section class="panel" id="p7">
+      <div class="grid g-12">
+        <div class="card">
+          <h3>Surat Jalan Digital</h3>
+          <div style="text-align:center;padding:6px 0 12px"><div class="qr-box"><canvas id="qrCanvas" width="150" height="150"></canvas></div></div>
+          <div class="sync-row"><span>🆔</span><span style="flex:1">ID Blok Asal</span><b>A3 · 950 Ha</b></div>
+          <div class="sync-row"><span>🚛</span><span style="flex:1">ID Truk</span><b>B-9421-MGA</b></div>
+          <div class="sync-row"><span>👤</span><span style="flex:1">Pengemudi</span><b>Hendra S.</b></div>
+          <div class="sync-row"><span>⚖</span><span style="flex:1">Estimasi Berat Basah</span><b>18.400 kg</b></div>
+        </div>
+        <div class="card">
+          <h3>Integrasi Jembatan Timbang <span class="right">Editable</span></h3>
+          <div id="tblWeigh"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h3>Manajemen Antrean &amp; Area Penumpukan (Yard Management)</h3>
+        <div class="yard-grid" id="yardGrid"></div>
+        <div class="legend-inline">
+          <span><i style="background:#3df582"></i>MC &lt; 15% — siap giling</span>
+          <span><i style="background:#ffd070"></i>MC 15–25% — re-drying</span>
+          <span><i style="background:#ff8b96"></i>MC &gt; 25% — tunda</span>
+          <span><i style="background:rgba(148,163,184,.18)"></i>Kosong</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 8 ================= -->
+    <section class="panel" id="p8">
+      <div class="grid g-2">
+        <div class="card"><h3>Manajemen HOK &amp; Presensi Geofencing</h3><div id="chHok" style="min-height:280px"></div></div>
+        <div class="card"><h3>Matriks Penggajian Operasional <span class="right">Editable</span></h3><div id="tblPayroll"></div></div>
+      </div>
+      <div class="grid g-2" style="margin-top:16px">
+        <div class="card"><h3>Buku Kas Biaya (Cost Ledger)</h3><div id="chCost" style="min-height:280px"></div></div>
+        <div class="card">
+          <h3>Kalkulator HPP Real-time</h3>
+          <div class="field" style="margin-bottom:11px">
+            <label>OPEX (Rp/Ha/thn) — <b id="opexLbl" style="color:#8bf0b3">6.500.000</b></label>
+            <input type="range" id="opexRange" min="2000000" max="15000000" step="250000" value="6500000" oninput="updateHPP()">
+          </div>
+          <div class="field" style="margin-bottom:11px">
+            <label>CAPEX (Rp/Ha/thn) — <b id="capexLbl" style="color:#9adcff">2.200.000</b></label>
+            <input type="range" id="capexRange" min="500000" max="8000000" step="100000" value="2200000" oninput="updateHPP()">
+          </div>
+          <div class="field" style="margin-bottom:11px">
+            <label>Produktivitas (Ton Kering/Ha/thn) — <b id="prodLbl" style="color:#ffd68a">14,2</b></label>
+            <input type="range" id="prodRange" min="6" max="30" step="0.2" value="14.2" oninput="updateHPP()">
+          </div>
+          <div class="result-box" id="hppBox">
+            <div class="rlabel">Harga Pokok Produksi (HPP)</div>
+            <div class="rval" id="hppVal">Rp 612.676 /Ton</div>
+            <div class="rnote" id="hppNote">(OPEX + CAPEX) ÷ Produktivitas</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 9 ================= -->
+    <section class="panel" id="p9">
+      <div class="card" style="margin-bottom:16px">
+        <h3>Forecasting Hasil Panen <span class="right">Regresi historis · 1–6 bulan ke depan</span></h3>
+        <div id="chForecast" style="min-height:340px"></div>
+      </div>
+      <div class="grid g-2">
+        <div class="card">
+          <h3>Ekspor Data Terstruktur</h3>
+          <div class="sub" style="margin-bottom:12px">Unduh dataset operasional untuk analisis.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+            <button class="btn ghost" onclick="exportCSV()">⬇ CSV</button>
+            <button class="btn ghost" onclick="exportJSON()">⬇ JSON</button>
+            <button class="btn ghost">⬇ XLSX</button>
+            <button class="btn ghost">⬇ SmartPLS</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Sinkronisasi ERP (Dolibarr REST API)</h3>
+          <div class="sync-row"><span>📦</span><span style="flex:1">Modul Inventory</span><span class="badge b-green">Tersinkron</span></div>
+          <div class="sync-row"><span>📒</span><span style="flex:1">Modul Accounting</span><span class="badge b-green">Tersinkron</span></div>
+          <div class="sync-row"><span>🏭</span><span style="flex:1">Modul Manufacturing</span><span class="badge b-amber">Antrean 12</span></div>
+          <div class="sync-row"><span>🔗</span><span style="flex:1">Endpoint API</span><b style="font-size:10.5px">https://erp.minervagreen.id/api</b></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 10 ================= -->
+    <section class="panel" id="p10">
+      <div class="grid g-2">
+        <div class="card">
+          <h3>Role-Based Access Control <span class="right">Klik ✔/✕ untuk toggle</span></h3>
+          <div id="tblRbac"></div>
+        </div>
+        <div class="card">
+          <h3>Engine Sync Offline-First PWA</h3>
+          <div class="sync-row"><span>💾</span><span style="flex:1">IndexedDB lokal</span><b>1.284 record</b></div>
+          <div class="sync-row"><span>📶</span><span style="flex:1">Status koneksi</span><span class="badge b-green">Online</span></div>
+          <div class="sync-row"><span>🔄</span><span style="flex:1">Auto-Conflict Resolution</span><span class="badge b-green">Aktif</span></div>
+          <div class="progress" style="margin-top:14px"><i style="width:96%"></i></div>
+          <div class="sub" style="margin-top:6px">Kesiapan cache offline: 96%</div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h3>Log Audit &amp; Keamanan Sistem</h3>
+        <div id="tblAudit"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast" id="toast">Tersimpan</div>
+
+<script>
+/* ============================================================
+   PT MINERVA GREEN AGRO — Command Center v5
+   Leaflet + Esri World Imagery + ApexCharts
+   Dashboard Eksekutif tanpa peta — diganti chart/ringkasan visual
+   ============================================================ */
+
+const fmt = n => Math.round(+n || 0).toLocaleString('id-ID');
+const esc = s => String(s ?? '').replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+const toast = (msg='Tersimpan') => { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), 1500); };
+const STATUS_COLOR = { persiapan:'#ff5c6c', tumbuh:'#f5b942', siap:'#2ee66b', istirahat:'#38bdf8' };
+const STATUS_LABEL = { persiapan:'Persiapan', tumbuh:'Tumbuh', siap:'Siap Panen', istirahat:'Istirahat' };
+
+/* ---------- localStorage DB ---------- */
+const DEFAULT_DB = {
+  blocks: [
+    {id:'A1', area:900, status:'siap',      pop:8460000, age:'11,4 bln', prod:'26,8 Ton/Ha'},
+    {id:'A2', area:800, status:'tumbuh',    pop:7520000, age:'5,2 bln',  prod:'—'},
+    {id:'A3', area:950, status:'siap',      pop:8930000, age:'13,2 bln', prod:'27,4 Ton/Ha'},
+    {id:'B1', area:850, status:'persiapan', pop:0,       age:'—',        prod:'—'},
+    {id:'B2', area:800, status:'istirahat', pop:7520000, age:'1,8 bln',  prod:'—'},
+    {id:'B3', area:700, status:'tumbuh',    pop:6580000, age:'6,1 bln',  prod:'—'},
+    {id:'C1', area:1000,status:'siap',      pop:9400000, age:'12,1 bln', prod:'28,1 Ton/Ha'},
+    {id:'C2', area:950, status:'tumbuh',    pop:8930000, age:'4,4 bln',  prod:'—'},
+    {id:'C3', area:750, status:'persiapan', pop:0,       age:'—',        prod:'—'},
+    {id:'D1', area:850, status:'istirahat', pop:7990000, age:'2,3 bln',  prod:'—'},
+    {id:'D2', area:800, status:'siap',      pop:7520000, age:'12,8 bln', prod:'25,9 Ton/Ha'},
+    {id:'D3', area:650, status:'tumbuh',    pop:6110000, age:'7,0 bln',  prod:'—'}
+  ],
+  nursery: [
+    {batch:'NUR-2401', tipe:'Generatif', vendor:'Balai Benih Sukabumi', tgl:'2024-01-12', bedeng:'A-01', pop:2400000, hss:142, status:'Siap Rilis'},
+    {batch:'NUR-2402', tipe:'Vegetatif', vendor:'PT Nursery Nusantara', tgl:'2024-01-28', bedeng:'A-02', pop:1800000, hss:126, status:'Siap Rilis'},
+    {batch:'NUR-2403', tipe:'Generatif', vendor:'Balai Benih Sukabumi', tgl:'2024-03-05', bedeng:'B-01', pop:3200000, hss:98,  status:'Aklimatisasi'},
+    {batch:'NUR-2404', tipe:'Vegetatif', vendor:'Koperasi Tani Cibadak',tgl:'2024-03-19', bedeng:'B-02', pop:2080000, hss:84,  status:'Aklimatisasi'},
+    {batch:'NUR-2405', tipe:'Generatif', vendor:'Balai Benih Sukabumi', tgl:'2024-04-02', bedeng:'C-01', pop:3800000, hss:51,  status:'Vegetatif'},
+    {batch:'NUR-2406', tipe:'Vegetatif', vendor:'PT Nursery Nusantara', tgl:'2024-04-21', bedeng:'C-02', pop:2800000, hss:32,  status:'Vegetatif'},
+    {batch:'NUR-2407', tipe:'Generatif', vendor:'Koperasi Tani Cibadak',tgl:'2024-05-08', bedeng:'D-01', pop:2560000, hss:14,  status:'Germinasi'}
+  ],
+  fertilizer: [
+    {jenis:'Urea',        dosis:150,  tgl:'2024-05-12'},
+    {jenis:'SP-36',       dosis:100,  tgl:'2024-05-12'},
+    {jenis:'KCl',         dosis:75,   tgl:'2024-05-14'},
+    {jenis:'Organik/Kompos', dosis:2000, tgl:'2024-05-10'},
+    {jenis:'Urea (susulan)', dosis:100, tgl:'2024-08-02'}
+  ],
+  weigh: [
+    {tiket:'WB-2418', blok:'A3', gross:19240, tare:7180, nett:12060, mc:14.2, status:'Diterima'},
+    {tiket:'WB-2419', blok:'C1', gross:20110, tare:7240, nett:12870, mc:13.8, status:'Diterima'},
+    {tiket:'WB-2420', blok:'D2', gross:18870, tare:7150, nett:11720, mc:16.4, status:'Re-drying'},
+    {tiket:'WB-2421', blok:'A1', gross:19560, tare:7230, nett:12330, mc:13.1, status:'Diterima'},
+    {tiket:'WB-2422', blok:'B2', gross:17990, tare:7100, nett:10890, mc:17.8, status:'Ditolak'},
+    {tiket:'WB-2423', blok:'C1', gross:20340, tare:7260, nett:13080, mc:12.9, status:'Diterima'}
+  ],
+  payroll: [
+    {kegiatan:'Penebangan',      sistem:'Borongan', tarif:'Rp 850/pohon',    volume:'9.800.000 phn', total:8330000000},
+    {kegiatan:'Penyiangan',      sistem:'Borongan', tarif:'Rp 1.200.000/Ha', volume:'950 Ha',        total:1140000000},
+    {kegiatan:'Pemupukan',       sistem:'Harian',   tarif:'Rp 125.000/HOK',  volume:'18.600 HOK',    total:2325000000},
+    {kegiatan:'Penyulaman',      sistem:'Harian',   tarif:'Rp 125.000/HOK',  volume:'9.400 HOK',     total:1175000000},
+    {kegiatan:'Angkut & Muat',   sistem:'Borongan', tarif:'Rp 45.000/Ton',   volume:'18.200 Ton',    total:819000000}
+  ],
+  rbac: [
+    {role:'Super Admin',             lahan:1, panen:1, qc:1, biaya:1, erp:1},
+    {role:'Manager Perkebunan',      lahan:1, panen:1, qc:1, biaya:1, erp:0},
+    {role:'Staff QC',                lahan:0, panen:1, qc:1, biaya:0, erp:0},
+    {role:'Operator Jembatan Timbang',lahan:0,panen:1, qc:1, biaya:0, erp:0},
+    {role:'Mandor Lapangan',         lahan:1, panen:1, qc:0, biaya:0, erp:0}
+  ],
+  audit: [
+    {waktu:'06:12:44', user:'Ahmad Mulyadi', role:'Manager', aksi:'Update tonase panen', objek:'Blok A3 — 146 Ton', status:'Sukses'},
+    {waktu:'06:08:11', user:'Siti Nurhaliza', role:'QC', aksi:'Input hasil lab', objek:'Batch DRY-0621', status:'Sukses'},
+    {waktu:'05:57:03', user:'Budi Santoso', role:'Operator', aksi:'Validasi tiket', objek:'WB-2423', status:'Sukses'},
+    {waktu:'05:31:52', user:'Rahmat Hidayat', role:'Mandor', aksi:'Presensi offline', objek:'Blok C2 — 12 pekerja', status:'Antrean Sync'},
+    {waktu:'04:58:41', user:'Andi Wijaya', role:'QC', aksi:'Koreksi kadar abu', objek:'LAB-0087', status:'Direvisi'}
+  ]
+};
+
+let DB = loadDB();
+function loadDB() {
+  try {
+    const saved = localStorage.getItem('mga_db_v5');
+    if (saved) return { ...DEFAULT_DB, ...JSON.parse(saved) };
+  } catch(e) {}
+  return JSON.parse(JSON.stringify(DEFAULT_DB));
+}
+function saveDB() {
+  try { localStorage.setItem('mga_db_v5', JSON.stringify(DB)); } catch(e) {}
+}
+function resetDB() {
+  if (!confirm('Reset semua data ke default demo?')) return;
+  localStorage.removeItem('mga_db_v5');
+  DB = JSON.parse(JSON.stringify(DEFAULT_DB));
+  location.reload();
+}
+
+/* ============================================================
+   GIS — hanya untuk panel 2 (panel 1 tanpa peta)
+   ============================================================ */
+const BLOCK_LAYOUT = [
+  ['A1', -6.872, 106.885, 0.0140, 0.0146, 7,  0],
+  ['A2', -6.872, 106.922, 0.0133, 0.0139, 13, 0],
+  ['A3', -6.872, 106.959, 0.0144, 0.0150, 19, 1],
+  ['B1', -6.906, 106.885, 0.0138, 0.0143, 23, 0],
+  ['B2', -6.906, 106.922, 0.0133, 0.0139, 29, 1],
+  ['B3', -6.906, 106.959, 0.0125, 0.0130, 31, 0],
+  ['C1', -6.940, 106.885, 0.0148, 0.0154, 37, 0],
+  ['C2', -6.940, 106.922, 0.0144, 0.0150, 41, 1],
+  ['C3', -6.940, 106.959, 0.0129, 0.0135, 43, 0],
+  ['D1', -6.974, 106.885, 0.0138, 0.0143, 47, 0],
+  ['D2', -6.974, 106.922, 0.0133, 0.0139, 53, 0],
+  ['D3', -6.974, 106.959, 0.0120, 0.0125, 59, 1]
+];
+
+const SUITABILITY = {
+  A1:'S1', A2:'S1', A3:'S1',
+  B1:'S2', B2:'S1', B3:'S2',
+  C1:'S1', C2:'S1', C3:'S2',
+  D1:'S2', D2:'S1', D3:'S2'
+};
+const SUIT_LABEL = { S1:'Sangat Sesuai', S2:'Cukup Sesuai', S3:'Marginal', N:'Tidak Sesuai' };
+const SUIT_COLOR = { S1:'#2ee66b', S2:'#f5b942', S3:'#ff9aa5', N:'#ff5c6c' };
+
+function generateBlockPolygon(centerLat, centerLng, rLat, rLng, seed, hasNotch) {
+  const n = 11 + (seed % 3);
+  const pts = [];
+  let s = seed * 1337 + 1;
+  const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+  for (let i = 0; i < n; i++) {
+    const angle = (i / n) * 2 * Math.PI - Math.PI / 2;
+    const rj = 0.78 + rand() * 0.32;
+    const aj = (rand() - 0.5) * 0.30;
+    pts.push([
+      centerLat + Math.sin(angle + aj) * rLat * rj,
+      centerLng + Math.cos(angle + aj) * rLng * rj
+    ]);
+  }
+  if (hasNotch) {
+    const biteIdx = Math.floor(n * 0.35);
+    const before = pts[biteIdx];
+    const after = pts[biteIdx + 1] || pts[0];
+    const mx = (before[0] + after[0]) / 2;
+    const my = (before[1] + after[1]) / 2;
+    const inwardLat = mx + (centerLat - mx) * 0.48;
+    const inwardLng = my + (centerLng - my) * 0.48;
+    pts.splice(biteIdx + 1, 0, [inwardLat, inwardLng]);
+  }
+  return pts;
+}
+
+const BLOCK_SHAPES = {};
+BLOCK_LAYOUT.forEach(([id, cLat, cLng, rLat, rLng, seed, notch]) => {
+  BLOCK_SHAPES[id] = generateBlockPolygon(cLat, cLng, rLat, rLng, seed, notch);
+});
+
+function getBlockShape(id) {
+  if (BLOCK_SHAPES[id]) return BLOCK_SHAPES[id];
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) | 0;
+  return generateBlockPolygon(-6.92, 106.92, 0.014, 0.015, Math.abs(hash) % 1000 + 1, 0);
+}
+
+const SETTLEMENTS = [
+  { name:'Cibadak', coords:[[-6.814,106.848],[-6.810,106.862],[-6.816,106.870],[-6.824,106.866],[-6.826,106.855],[-6.820,106.846]] },
+  { name:'Surade', coords:[[-7.010,106.888],[-7.006,106.902],[-7.012,106.910],[-7.020,106.905],[-7.021,106.893],[-7.015,106.884]] },
+  { name:'Ciemas', coords:[[-6.935,107.000],[-6.929,107.014],[-6.937,107.020],[-6.945,107.015],[-6.947,107.005],[-6.941,106.997]] },
+  { name:'Warungkiara', coords:[[-6.820,106.950],[-6.815,106.962],[-6.821,106.970],[-6.829,106.966],[-6.831,106.955],[-6.825,106.946]] }
+];
+
+const RIVER = [
+  [-6.830, 106.862], [-6.860, 106.860], [-6.890, 106.865],
+  [-6.920, 106.870], [-6.950, 106.872], [-6.980, 106.878], [-7.005, 106.882]
+];
+
+const MAIN_ROAD = [
+  [-7.000, 106.903], [-6.975, 106.903], [-6.940, 106.903],
+  [-6.905, 106.903], [-6.872, 106.903], [-6.845, 106.902]
+];
+
+const ESTATE_BOUNDARY = [
+  [-6.845, 106.860], [-6.840, 106.940], [-6.848, 106.985],
+  [-6.920, 106.992], [-6.960, 106.985], [-6.995, 106.955],
+  [-6.998, 106.880], [-6.960, 106.858], [-6.900, 106.852], [-6.855, 106.855]
+];
+
+function settlementCenter(s) {
+  return [
+    s.coords.reduce((a,p)=>a+p[0],0) / s.coords.length,
+    s.coords.reduce((a,p)=>a+p[1],0) / s.coords.length
+  ];
+}
+
+function nearestSettlement(shape) {
+  const cLat = shape.reduce((a,p)=>a+p[0],0) / shape.length;
+  const cLng = shape.reduce((a,p)=>a+p[1],0) / shape.length;
+  let min = Infinity, name = '';
+  SETTLEMENTS.forEach(s => {
+    const [sLat, sLng] = settlementCenter(s);
+    const d = Math.hypot((cLat-sLat)*111, (cLng-sLng)*110.3);
+    if (d < min) { min = d; name = s.name; }
+  });
+  return { dist: min, name };
+}
+
+/* ============================================================
+   LEAFLET MAP — hanya Panel 2
+   ============================================================ */
+const ESRI_LAYERS = {
+  'Esri World Imagery': 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  'Esri World Topographic': 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+  'Esri World Street Map': 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+  'Esri World Terrain': 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}'
+};
+
+let mapP2 = null;
+let layerGroupsP2 = {};
+
+function buildBlockPopup(b) {
+  const shape = getBlockShape(b.id);
+  const suit = SUITABILITY[b.id] || 'S1';
+  const suitLabel = SUIT_LABEL[suit];
+  const suitColor = SUIT_COLOR[suit];
+  const ns = nearestSettlement(shape);
+  return `
+    <b>Blok ${esc(b.id)}</b><br>
+    Luas: <b>${fmt(b.area)} Ha</b><br>
+    Status: ${STATUS_LABEL[b.status] || b.status}<br>
+    Populasi: ${fmt(b.pop)} pohon<br>
+    Kesesuaian Gamal: <span style="color:${suitColor};font-weight:700">${suit} — ${suitLabel}</span><br>
+    Jarak ke pemukiman: <b>${ns.dist.toFixed(2)} km</b> (${ns.name})<br>
+    <span style="color:#8ea1bb;font-size:10px">Topografi: lereng 8–25° · drainase baik · pH 5,5–6,8</span>
+  `;
+}
+
+function drawSettlementLayer(group) {
+  SETTLEMENTS.forEach(s => {
+    L.polygon(s.coords, { color:'#c9a96e', fillColor:'#8a6d45', fillOpacity:0.55, weight:1.5, dashArray:'4,3' })
+      .bindTooltip(s.name, { sticky:true, direction:'center' })
+      .bindPopup(`<b>${s.name}</b><br>Zona permukiman · buffer 500 m`)
+      .addTo(group);
+    const [cLat, cLng] = settlementCenter(s);
+    L.circle([cLat, cLng], { radius: 500, color:'#f5b942', fillColor:'#f5b942', fillOpacity:0.06, weight:1.2, dashArray:'5,5' })
+      .addTo(group);
+  });
+}
+
+function initMapP2() {
+  if (mapP2) return;
+  mapP2 = L.map('mapP2', { zoomControl: true });
+  const baseLayers = {};
+  Object.entries(ESRI_LAYERS).forEach(([name, url]) => {
+    baseLayers[name] = L.tileLayer(url, { attribution: 'Tiles © Esri', maxZoom: 19 });
+  });
+  baseLayers['Esri World Imagery'].addTo(mapP2);
+
+  layerGroupsP2.blocks = L.layerGroup().addTo(mapP2);
+  layerGroupsP2.settlements = L.layerGroup().addTo(mapP2);
+  layerGroupsP2.river = L.layerGroup().addTo(mapP2);
+  layerGroupsP2.road = L.layerGroup().addTo(mapP2);
+  layerGroupsP2.boundary = L.layerGroup().addTo(mapP2);
+
+  drawSettlementLayer(layerGroupsP2.settlements);
+
+  L.polyline(RIVER, { color:'#38bdf8', weight:3, opacity:0.75 })
+    .bindTooltip('Sungai Cimandiri', { sticky:true })
+    .addTo(layerGroupsP2.river);
+  L.polyline(MAIN_ROAD, { color:'#f5b942', weight:3.5, opacity:0.85 })
+    .bindTooltip('Jl. Rekoleksi Utama', { sticky:true })
+    .addTo(layerGroupsP2.road);
+  L.polygon(ESTATE_BOUNDARY, { color:'#2ee66b', fillColor:'#2ee66b', fillOpacity:0.02, weight:2, dashArray:'10,6' })
+    .bindTooltip('Batas Estate 10.000 Ha', { sticky:true })
+    .addTo(layerGroupsP2.boundary);
+
+  refreshMapP2Blocks();
+
+  L.control.layers(baseLayers, {
+    'Blok Estate (Topografi)': layerGroupsP2.blocks,
+    'Pemukiman &amp; Buffer': layerGroupsP2.settlements,
+    'Sungai': layerGroupsP2.river,
+    'Jalan Rekoleksi': layerGroupsP2.road,
+    'Batas Estate': layerGroupsP2.boundary
+  }, { collapsed: false, position: 'topright' }).addTo(mapP2);
+
+  mapP2.fitBounds([[-6.998, 106.84], [-6.83, 107.02]]);
+  setTimeout(() => mapP2.invalidateSize(), 200);
+}
+
+function refreshMapP2Blocks() {
+  if (!mapP2 || !layerGroupsP2.blocks) return;
+  layerGroupsP2.blocks.clearLayers();
+  DB.blocks.forEach(b => {
+    const shape = getBlockShape(b.id);
+    const color = STATUS_COLOR[b.status] || '#888';
+    const poly = L.polygon(shape, { color, fillColor: color, fillOpacity: 0.42, weight: 2, opacity: 0.95 });
+    poly.bindPopup(buildBlockPopup(b));
+    poly.bindTooltip(`Blok ${b.id} · ${fmt(b.area)} Ha`, { sticky:true, direction:'center' });
+    layerGroupsP2.blocks.addLayer(poly);
+  });
+}
+
+/* ============================================================
+   EDITABLE TABLE ENGINE
+   ============================================================ */
+const SCHEMAS = {
+  blocks: {
+    columns: [
+      {key:'id',   label:'ID Blok',   type:'text'},
+      {key:'area', label:'Luas (Ha)', type:'num'},
+      {key:'status', label:'Status',  type:'text'},
+      {key:'pop',  label:'Populasi',  type:'num'},
+      {key:'age',  label:'Umur Tunas',type:'text'},
+      {key:'prod', label:'Produktivitas', type:'text'}
+    ],
+    defaults: {id:'NEW', area:0, status:'tumbuh', pop:0, age:'—', prod:'—'},
+    afterChange: () => {
+      updateBlocksDerived();
+      try { if (mapP2) refreshMapP2Blocks(); } catch(e) {}
+      // refresh dashboard eksekutif
+      renderStatusChart();
+      renderBlockAreaChart();
+      renderQuotaGauge();
+      renderPopChart();
+      toast('Data blok diperbarui');
+    }
+  },
+  nursery: {
+    columns: [
+      {key:'batch', label:'Kode Batch', type:'text'},
+      {key:'tipe',  label:'Tipe',       type:'text'},
+      {key:'vendor',label:'Vendor',     type:'text'},
+      {key:'tgl',   label:'Tgl Beli',   type:'text'},
+      {key:'bedeng',label:'Bedeng',     type:'text'},
+      {key:'pop',   label:'Populasi',   type:'num'},
+      {key:'hss',   label:'HSS',        type:'num'},
+      {key:'status',label:'Status',     type:'text'}
+    ],
+    defaults: {batch:'NEW', tipe:'Generatif', vendor:'', tgl:'', bedeng:'', pop:0, hss:0, status:'Germinasi'},
+    afterChange: () => { renderNurseryChart(); toast('Data nursery diperbarui'); }
+  },
+  fertilizer: {
+    columns: [
+      {key:'jenis', label:'Jenis Pupuk', type:'text'},
+      {key:'dosis', label:'Dosis (kg/Ha)', type:'num'},
+      {key:'tgl',   label:'Tanggal Aplikasi', type:'text'}
+    ],
+    defaults: {jenis:'', dosis:0, tgl:''},
+    afterChange: () => toast('Data pemupukan diperbarui')
+  },
+  weigh: {
+    columns: [
+      {key:'tiket', label:'No. Tiket', type:'text'},
+      {key:'blok',  label:'Blok', type:'text'},
+      {key:'gross', label:'Gross (kg)', type:'num'},
+      {key:'tare',  label:'Tare (kg)', type:'num'},
+      {key:'nett',  label:'Nett (kg)', type:'num'},
+      {key:'mc',    label:'MC (%)', type:'num'},
+      {key:'status',label:'Status', type:'text'}
+    ],
+    defaults: {tiket:'NEW', blok:'', gross:0, tare:0, nett:0, mc:0, status:'Diterima'},
+    afterChange: () => toast('Data timbang diperbarui')
+  },
+  payroll: {
+    columns: [
+      {key:'kegiatan', label:'Kegiatan', type:'text'},
+      {key:'sistem',   label:'Sistem',   type:'text'},
+      {key:'tarif',    label:'Tarif',    type:'text'},
+      {key:'volume',   label:'Volume',   type:'text'},
+      {key:'total',    label:'Total (Rp)', type:'num'}
+    ],
+    defaults: {kegiatan:'', sistem:'Borongan', tarif:'', volume:'', total:0},
+    afterChange: () => toast('Data penggajian diperbarui')
+  },
+  audit: {
+    columns: [
+      {key:'waktu', label:'Waktu', type:'text'},
+      {key:'user',  label:'Pengguna', type:'text'},
+      {key:'role',  label:'Peran', type:'text'},
+      {key:'aksi',  label:'Aktivitas', type:'text'},
+      {key:'objek', label:'Objek', type:'text'},
+      {key:'status',label:'Status', type:'text'}
+    ],
+    defaults: {waktu:'', user:'', role:'', aksi:'', objek:'', status:'Sukses'},
+    afterChange: () => toast('Log audit diperbarui')
+  }
+};
+
+function renderEditableTable(containerId, dataKey) {
+  const cont = document.getElementById(containerId);
+  if (!cont) return;
+  const schema = SCHEMAS[dataKey];
+  const data = DB[dataKey] || [];
+
+  let html = '<div class="tbl-scroll"><table class="tbl"><thead><tr>';
+  schema.columns.forEach(c => html += `<th>${c.label}</th>`);
+  html += '<th class="act">Hapus</th></tr></thead><tbody>';
+
+  data.forEach((row, i) => {
+    html += `<tr data-idx="${i}">`;
+    schema.columns.forEach(c => {
+      const v = row[c.key] ?? '';
+      const cls = c.type === 'num' ? 'num' : '';
+      html += `<td class="${cls}" contenteditable="true" data-key="${c.key}" data-type="${c.type}">${esc(v)}</td>`;
+    });
+    html += `<td class="act"><button class="btn danger small" data-del="${i}">✕</button></td>`;
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  html += `<div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+    <button class="btn small" data-add="${dataKey}">+ Tambah Baris</button>
+    <span class="sub">Klik sel untuk edit · tersimpan otomatis</span>
+  </div>`;
+  cont.innerHTML = html;
+
+  cont.querySelectorAll('[data-del]').forEach(b => b.onclick = () => {
+    if (!confirm('Hapus baris ini?')) return;
+    DB[dataKey].splice(+b.dataset.del, 1);
+    saveDB();
+    renderEditableTable(containerId, dataKey);
+    schema.afterChange && schema.afterChange();
+  });
+
+  cont.querySelector('[data-add]').onclick = () => {
+    DB[dataKey].push({ ...schema.defaults });
+    saveDB();
+    renderEditableTable(containerId, dataKey);
+    schema.afterChange && schema.afterChange();
+  };
+
+  cont.querySelectorAll('td[contenteditable]').forEach(td => {
+    td.addEventListener('blur', () => {
+      const idx = +td.closest('tr').dataset.idx;
+      const key = td.dataset.key;
+      const type = td.dataset.type;
+      let val = td.textContent.trim();
+      if (type === 'num') {
+        const cleaned = val.replace(/[^0-9,.\-]/g, '').replace(/\./g, '').replace(',', '.');
+        val = parseFloat(cleaned) || 0;
+        td.textContent = fmt(val);
+      }
+      if (DB[dataKey][idx][key] !== val) {
+        DB[dataKey][idx][key] = val;
+        saveDB();
+        schema.afterChange && schema.afterChange();
+      }
+    });
+    td.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); td.blur(); } });
+  });
+}
+
+function renderRbac() {
+  const cont = document.getElementById('tblRbac');
+  const cols = [
+    {key:'lahan', label:'Lahan'}, {key:'panen', label:'Panen'},
+    {key:'qc', label:'QC'}, {key:'biaya', label:'Biaya'}, {key:'erp', label:'ERP'}
+  ];
+  let html = '<div class="tbl-scroll"><table class="tbl matrix"><thead><tr><th>Peran</th>';
+  cols.forEach(c => html += `<th>${c.label}</th>`);
+  html += '</tr></thead><tbody>';
+  DB.rbac.forEach((r, i) => {
+    html += `<tr data-idx="${i}"><td contenteditable="true" data-key="role">${esc(r.role)}</td>`;
+    cols.forEach(c => {
+      html += `<td class="${r[c.key] ? 'tick' : 'cross'}" data-tog="${c.key}" data-idx="${i}">${r[c.key] ? '✔' : '✕'}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  cont.innerHTML = html;
+
+  cont.querySelectorAll('[data-tog]').forEach(td => td.onclick = () => {
+    const i = +td.dataset.idx;
+    DB.rbac[i][td.dataset.tog] = DB.rbac[i][td.dataset.tog] ? 0 : 1;
+    saveDB(); renderRbac(); toast('Hak akses diperbarui');
+  });
+  cont.querySelectorAll('td[contenteditable]').forEach(td => {
+    td.addEventListener('blur', () => {
+      DB.rbac[+td.closest('tr').dataset.idx].role = td.textContent.trim();
+      saveDB();
+    });
+  });
+}
+
+/* ============================================================
+   DERIVED KPIs
+   ============================================================ */
+function updateBlocksDerived() {
+  const totalArea = DB.blocks.reduce((s,b) => s + (+b.area||0), 0);
+  const totalPop = DB.blocks.reduce((s,b) => s + (+b.pop||0), 0);
+  const areaEl = document.querySelector('[data-kpi="area"]');
+  const popEl = document.querySelector('[data-kpi="pop"]');
+  if (areaEl) areaEl.innerHTML = `${fmt(totalArea)} <small>Ha</small>`;
+  if (popEl) popEl.innerHTML = `${(totalPop/1e6).toFixed(1).replace('.',',')} <small>juta</small>`;
+}
+
+/* ============================================================
+   APEXCHARTS
+   ============================================================ */
+const CHARTS = {};
+
+function apexBase(extra={}) {
+  return Object.assign({
+    chart: { height: 300, fontFamily: 'Inter, system-ui, sans-serif', foreColor: '#8ea1bb',
+      toolbar: { show: false }, background: 'transparent', animations: { enabled: true, easing: 'easeinout', speed: 500 } },
+    theme: { mode: 'dark' }, dataLabels: { enabled: false },
+    grid: { borderColor: 'rgba(148,163,184,.1)', strokeDashArray: 3 },
+    legend: { labels: { colors: '#8ea1bb' } },
+    tooltip: { theme: 'dark' }
+  }, extra);
+}
+
+/* ---- DASHBOARD: donut komposisi status ---- */
+function renderStatusChart() {
+  const el = document.getElementById('chStatus'); if (!el) return;
+  if (CHARTS.status) CHARTS.status.destroy();
+  const sums = { siap:0, tumbuh:0, persiapan:0, istirahat:0 };
+  DB.blocks.forEach(b => { sums[b.status] = (sums[b.status]||0) + (+b.area||0); });
+  CHARTS.status = new ApexCharts(el, apexBase({
+    chart: { type:'donut', height:340, background:'transparent' },
+    series: [sums.siap, sums.tumbuh, sums.persiapan, sums.istirahat],
+    labels: ['Siap Panen','Tumbuh','Persiapan','Istirahat'],
+    colors: ['#2ee66b','#f5b942','#ff5c6c','#38bdf8'],
+    plotOptions: { pie: { donut: { size:'68%', labels: {
+      show: true,
+      name: { show:true, fontSize:'11px', color:'#8ea1bb' },
+      value: { show:true, fontSize:'16px', fontWeight:800, color:'#e8eef7', formatter: v => fmt(v) + ' Ha' },
+      total: { show:true, label:'Total Luas', fontSize:'11px', color:'#8ea1bb',
+        formatter: w => fmt(w.globals.seriesTotals.reduce((a,b)=>a+b,0)) + ' Ha' }
+    } } } },
+    stroke: { width: 2, colors: ['#0a1524'] },
+    legend: { position:'bottom', labels:{ colors:'#8ea1bb' }, fontSize:'11px' }
+  }));
+  CHARTS.status.render();
+}
+
+/* ---- DASHBOARD: bar luas per blok ---- */
+function renderBlockAreaChart() {
+  const el = document.getElementById('chBlockArea'); if (!el) return;
+  if (CHARTS.blockArea) CHARTS.blockArea.destroy();
+  const sorted = [...DB.blocks].sort((a,b) => (+a.area||0) - (+b.area||0));
+  CHARTS.blockArea = new ApexCharts(el, apexBase({
+    chart: { type:'bar', height:300, background:'transparent' },
+    series: [{ name:'Luas (Ha)', data: sorted.map(b => +b.area || 0) }],
+    xaxis: { categories: sorted.map(b => b.id), labels:{ style:{ colors:'#8ea1bb', fontSize:'10px' } } },
+    yaxis: { labels:{ style:{ colors:'#8ea1bb' }, formatter: v => v.toLocaleString('id-ID') } },
+    colors: ['#2ee66b'],
+    plotOptions: { bar: { borderRadius: 5, horizontal: true, barHeight: '62%' } },
+    fill: { type:'gradient', gradient:{ shadeIntensity:1, opacityFrom:0.95, opacityTo:0.45, stops:[0,100] } },
+    legend: { show:false },
+    dataLabels: { enabled: true, style:{ colors:['#04180c'], fontSize:'10px', fontWeight:700 } }
+  }));
+  CHARTS.blockArea.render();
+}
+
+/* ---- DASHBOARD: gauge kuota pabrik ---- */
+function renderQuotaGauge() {
+  const el = document.getElementById('chQuota'); if (!el) return;
+  if (CHARTS.quota) CHARTS.quota.destroy();
+  const target = 12000;
+  const realisasi = 9408;
+  const pct = Math.min(100, (realisasi / target) * 100);
+  CHARTS.quota = new ApexCharts(el, apexBase({
+    chart: { type:'radialBar', height:300, background:'transparent' },
+    series: [ +pct.toFixed(1) ],
+    labels: ['Kuota'],
+    colors: [ pct >= 90 ? '#2ee66b' : pct >= 70 ? '#f5b942' : '#ff5c6c' ],
+    plotOptions: { radialBar: {
+      hollow: { size:'62%' },
+      track: { background:'rgba(148,163,184,.14)', strokeWidth:'100%' },
+      dataLabels: {
+        name: { fontSize:'12px', color:'#8ea1bb', offsetY: 18 },
+        value: { fontSize:'30px', fontWeight:800, color:'#e8eef7', offsetY: -12, formatter: v => (+v).toFixed(1).replace('.',',') + '%' }
+      }
+    } },
+    fill: { type:'gradient', gradient:{ shadeIntensity:1, opacityFrom:0.95, opacityTo:0.5, stops:[0,100] } },
+    stroke: { lineCap:'round' }
+  }));
+  CHARTS.quota.render();
+}
+
+/* ---- DASHBOARD: bar populasi tanaman ---- */
+function renderPopChart() {
+  const el = document.getElementById('chPop'); if (!el) return;
+  if (CHARTS.pop) CHARTS.pop.destroy();
+  const sorted = [...DB.blocks].filter(b => +b.pop > 0)
+    .sort((a,b) => (+b.pop||0) - (+a.pop||0)).slice(0, 8);
+  CHARTS.pop = new ApexCharts(el, apexBase({
+    chart: { type:'bar', height:300, background:'transparent' },
+    series: [{ name:'Populasi (juta)', data: sorted.map(b => +((+b.pop||0)/1e6).toFixed(2)) }],
+    xaxis: { categories: sorted.map(b => b.id), labels:{ style:{ colors:'#8ea1bb', fontSize:'10px' } } },
+    yaxis: { labels:{ style:{ colors:'#8ea1bb' }, formatter: v => (+v).toFixed(1) + ' jt' } },
+    colors: ['#38bdf8'],
+    plotOptions: { bar: { borderRadius: 5, columnWidth:'58%' } },
+    fill: { type:'gradient', gradient:{ shadeIntensity:1, opacityFrom:0.95, opacityTo:0.45, stops:[0,100] } },
+    legend: { show:false },
+    dataLabels: { enabled: false }
+  }));
+  CHARTS.pop.render();
+}
+
+/* ---- Supply (tetap) ---- */
+function renderSupplyChart() {
+  const el = document.getElementById('chSupply'); if (!el) return;
+  if (CHARTS.supply) CHARTS.supply.destroy();
+  CHARTS.supply = new ApexCharts(el, apexBase({
+    chart: { type:'bar', height:320, background:'transparent' },
+    series: [
+      { name:'Realisasi Pasokan', type:'bar', data:[8800,9200,9500,9800,8900,10200,9700,9400,9800,10100,9900,9408] },
+      { name:'Target Pabrik', type:'line', data:[12000,12000,12000,12000,12000,12000,12000,12000,12000,12000,12000,12000] },
+      { name:'Kontrak Export', type:'bar', data:[3000,3200,3400,3600,3400,3800,3600,3400,3800,4000,3900,3800] }
+    ],
+    xaxis: { categories: ['Jul','Agu','Sep','Okt','Nov','Des','Jan','Feb','Mar','Apr','Mei','Jun'],
+      labels: { style: { colors:'#8ea1bb' } } },
+    yaxis: { labels: { style:{ colors:'#8ea1bb' }, formatter: v => v.toLocaleString('id-ID') } },
+    colors: ['#2ee66b','#38bdf8','#f5b942'],
+    plotOptions: { bar: { borderRadius: 5, columnWidth: '55%' } },
+    stroke: { curve: 'smooth', width: [0, 2.5, 0], dashArray: [0, 7, 0] },
+    fill: { type:'gradient', gradient:{ shadeIntensity:1, opacityFrom:0.9, opacityTo:0.35, stops:[0,100] } },
+    legend: { position: 'top', horizontalAlign: 'right', labels: { colors:'#8ea1bb' }, fontSize: '11px' }
+  }));
+  CHARTS.supply.render();
+}
+
+function renderSoilChart() {
+  const el = document.getElementById('chSoil'); if (!el) return;
+  if (CHARTS.soil) CHARTS.soil.destroy();
+  CHARTS.soil = new ApexCharts(el, apexBase({
+    chart: { type:'donut', height:200, background:'transparent' },
+    series: [46,31,23], labels: ['Lempung','Liat','Pasir'],
+    colors: ['#2ee66b','#38bdf8','#f5b942'],
+    legend: { position:'right', labels:{ colors:'#8ea1bb' }, fontSize:'11px' },
+    plotOptions: { pie: { donut: { size:'62%' } } },
+    stroke: { width: 2, colors: ['#0a1524'] }
+  }));
+  CHARTS.soil.render();
+}
+
+function renderNurseryChart() {
+  const el = document.getElementById('chNursery'); if (!el) return;
+  if (CHARTS.nursery) CHARTS.nursery.destroy();
+  const cats = DB.nursery.map(n => n.batch);
+  const germ = DB.nursery.map(n => +(n.hss > 30 ? 85 + Math.random()*8 : 50 + Math.random()*20).toFixed(1));
+  const mort = DB.nursery.map(() => +(3 + Math.random()*5).toFixed(1));
+  CHARTS.nursery = new ApexCharts(el, apexBase({
+    chart: { type:'bar', height:300, background:'transparent' },
+    series: [{ name:'Germinasi (%)', data: germ }, { name:'Mortalitas (%)', data: mort }],
+    xaxis: { categories: cats, labels: { style:{ colors:'#8ea1bb', fontSize:'10px' }, rotate: -35 } },
+    yaxis: { max: 100, labels: { style:{ colors:'#8ea1bb' }, formatter: v => v + '%' } },
+    colors: ['#2ee66b','#ff5c6c'],
+    plotOptions: { bar: { borderRadius: 5, columnWidth: '60%' } },
+    fill: { type:'gradient', gradient:{ shadeIntensity:1, opacityFrom:0.9, opacityTo:0.35, stops:[0,100] } },
+    legend: { position:'top', horizontalAlign:'right', labels:{ colors:'#8ea1bb' }, fontSize:'11px' }
+  }));
+  CHARTS.nursery.render();
+}
+
+function renderSurvivalChart() {
+  const el = document.getElementById('chSurvival'); if (!el) return;
+  if (CHARTS.survival) CHARTS.survival.destroy();
+  CHARTS.survival = new ApexCharts(el, apexBase({
+    chart: { type:'bar', height:300, background:'transparent' },
+    series: [
+      { name:'Survival H+30 (%)', data:[97.2,95.8,96.4,94.1,95.2,97.8,96.0,96.9,95.4] },
+      { name:'Survival H+90 (%)', data:[94.8,92.6,93.9,91.2,92.4,95.1,93.0,94.2,92.8] }
+    ],
+    xaxis: { categories:['A1','A2','A3','B2','B3','C1','C2','D2','D3'], labels:{ style:{ colors:'#8ea1bb' } } },
+    yaxis: { min:85, max:100, labels: { style:{ colors:'#8ea1bb' }, formatter: v => v + '%' } },
+    colors: ['#2ee66b','#38bdf8'],
+    plotOptions: { bar: { borderRadius: 5, columnWidth: '60%' } },
+    fill: { type:'gradient', gradient:{ shadeIntensity:1, opacityFrom:0.9, opacityTo:0.35, stops:[0,100] } },
+    legend: { position:'top', horizontalAlign:'right', labels:{ colors:'#8ea1bb' }, fontSize:'11px' }
+  }));
+  CHARTS.survival.render();
+}
+
+function renderCoppiceChart() {
+  const el = document.getElementById('chCoppice'); if (!el) return;
+  if (CHARTS.coppice) CHARTS.coppice.destroy();
+  CHARTS.coppice = new ApexCharts(el, apexBase({
+    chart: { type:'line', height:320, background:'transparent' },
+    series: [
+      { name:'Tunas Produktif / Tunggak', type:'column', data:[4.8,5.2,4.1,5.5,4.4,4.9] },
+      { name:'Laju Pertumbuhan (cm/bln)', type:'line', data:[38,42,29,45,33,40] },
+      { name:'Durasi Kemunculan (hari)', type:'line', data:[18,16,22,14,20,17] }
+    ],
+    xaxis: { categories:['A1','A3','B2','C1','D1','D2'], labels:{ style:{ colors:'#8ea1bb' } } },
+    yaxis: [
+      { labels:{ style:{ colors:'#8ea1bb' }}, title:{ text:'Tunas / Tunggak', style:{ color:'#8ea1bb', fontSize:'10px' }}, min:0, max:8 },
+      { opposite:true, labels:{ style:{ colors:'#8ea1bb' }}, title:{ text:'cm/bln · hari', style:{ color:'#8ea1bb', fontSize:'10px' }}, min:0, max:60 }
+    ],
+    colors: ['#2ee66b','#38bdf8','#f5b942'],
+    plotOptions: { bar: { borderRadius: 5, columnWidth: '45%' } },
+    stroke: { width: [0,2.5,2], curve: 'smooth', dashArray: [0,0,6] },
+    fill: { type: ['gradient','solid','solid'], gradient: { shadeIntensity:1, opacityFrom:0.9, opacityTo:0.35, stops:[0,100] } },
+    markers: { size: 4, strokeColors: '#071019', strokeWidth: 2 },
+    legend: { position:'top', horizontalAlign:'right', labels:{ colors:'#8ea1bb' }, fontSize:'11px' }
+  }));
+  CHARTS.coppice.render();
+}
+
+function renderLabChart() {
+  const el = document.getElementById('chLab'); if (!el) return;
+  if (CHARTS.lab) CHARTS.lab.destroy();
+  CHARTS.lab = new ApexCharts(el, apexBase({
+    chart: { type:'line', height:300, background:'transparent' },
+    series: [
+      { name:'GCV (kcal/kg)', type:'column', data:[4180,4210,4260,4240,4290,4270] },
+      { name:'Ash Content (%)', type:'line', data:[1.6,1.4,1.3,1.5,1.2,1.35] }
+    ],
+    xaxis: { categories:['LAB-0081','LAB-0083','LAB-0085','LAB-0087','LAB-0089','LAB-0091'], labels:{ style:{ colors:'#8ea1bb', fontSize:'10px' } } },
+    yaxis: [
+      { min:3800, max:4500, labels:{ style:{ colors:'#8ea1bb' }}, title:{ text:'GCV (kcal/kg)', style:{ color:'#8ea1bb', fontSize:'10px' }} },
+      { opposite:true, min:0, max:3, labels:{ style:{ colors:'#8ea1bb' }}, title:{ text:'Ash (%)', style:{ color:'#8ea1bb', fontSize:'10px' }} }
+    ],
+    colors: ['#2ee66b','#f5b942'],
+    plotOptions: { bar: { borderRadius: 5, columnWidth: '50%' } },
+    stroke: { width: [0, 2.5], curve: 'smooth' },
+    fill: { type: ['gradient','solid'], gradient: { shadeIntensity:1, opacityFrom:0.9, opacityTo:0.35, stops:[0,100] } },
+    markers: { size: 4, strokeColors: '#071019', strokeWidth: 2 },
+    legend: { position:'top', horizontalAlign:'right', labels:{ colors:'#8ea1bb' }, fontSize:'11px' }
+  }));
+  CHARTS.lab.render();
+}
+
+function renderHokChart() {
+  const el = document.getElementById('chHok'); if (!el) return;
+  if (CHARTS.hok) CHARTS.hok.destroy();
+  CHARTS.hok = new ApexCharts(el, apexBase({
+    chart: { type:'bar', height:300, background:'transparent' },
+    series: [{ name:'Hadir', data:[120,1860,2140,1680,28] }, { name:'Izin', data:[12,120,180,90,2] }],
+    xaxis: { categories:['Mandor','Buruh Tanam','Buruh Pemeliharaan','Buruh Panen','Operator Timbang'],
+      labels: { style:{ colors:'#8ea1bb', fontSize:'10px' }, rotate: -25 } },
+    yaxis: { labels:{ style:{ colors:'#8ea1bb' } } },
+    colors: ['#2ee66b','#38bdf8'],
+    plotOptions: { bar: { borderRadius: 5, columnWidth: '60%' } },
+    fill: { type:'gradient', gradient:{ shadeIntensity:1, opacityFrom:0.9, opacityTo:0.35, stops:[0,100] } },
+    legend: { position:'top', horizontalAlign:'right', labels:{ colors:'#8ea1bb' }, fontSize:'11px' }
+  }));
+  CHARTS.hok.render();
+}
+
+function renderCostChart() {
+  const el = document.getElementById('chCost'); if (!el) return;
+  if (CHARTS.cost) CHARTS.cost.destroy();
+  CHARTS.cost = new ApexCharts(el, apexBase({
+    chart: { type:'donut', height:300, background:'transparent' },
+    series: [28,34,16,14,8],
+    labels: ['Pupuk & Pestisida','Upah Tenaga Kerja','BBM & Sewa Alat','Logistik Angkut','Perawatan Lain'],
+    colors: ['#2ee66b','#38bdf8','#f5b942','#a78bfa','#2dd4bf'],
+    plotOptions: { pie: { donut: { size:'62%' } } },
+    stroke: { width: 2, colors: ['#0a1524'] },
+    legend: { position:'right', labels:{ colors:'#8ea1bb' }, fontSize:'11px' }
+  }));
+  CHARTS.cost.render();
+}
+
+function renderForecastChart() {
+  const el = document.getElementById('chForecast'); if (!el) return;
+  if (CHARTS.forecast) CHARTS.forecast.destroy();
+  CHARTS.forecast = new ApexCharts(el, apexBase({
+    chart: { type:'line', height:340, background:'transparent' },
+    series: [
+      { name:'Realisasi Historis', type:'area', data:[9800,10200,10800,11200,10900,9408,null,null,null,null,null,null] },
+      { name:'Prediksi 1–6 Bulan', type:'line', data:[null,null,null,null,null,9408,10100,10800,11200,11500,11300,10600] },
+      { name:'Batas Atas (90%)', type:'line', data:[null,null,null,null,null,9408,10750,11450,11900,12250,12050,11300] },
+      { name:'Batas Bawah (90%)', type:'line', data:[null,null,null,null,null,9408,9450,10150,10500,10750,10550,9900] }
+    ],
+    xaxis: { categories:['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
+      labels:{ style:{ colors:'#8ea1bb' } } },
+    yaxis: { labels:{ style:{ colors:'#8ea1bb' }, formatter: v => v ? v.toLocaleString('id-ID') : '' },
+      title:{ text:'Ton kering / bulan', style:{ color:'#8ea1bb', fontSize:'10px' }} },
+    colors: ['#2ee66b','#38bdf8','#38bdf8','#38bdf8'],
+    stroke: { curve:'smooth', width:[3,2.5,0,0], dashArray:[0,7,0,0] },
+    fill: { type:['gradient','solid','solid','solid'],
+      gradient: { shadeIntensity:1, opacityFrom:0.5, opacityTo:0, stops:[0,100] } },
+    markers: { size:[4,4,0,0], strokeColors:'#071019', strokeWidth:2 },
+    legend: { position:'top', horizontalAlign:'right', labels:{ colors:'#8ea1bb' }, fontSize:'11px',
+      customLegendItems: ['Realisasi Historis','Prediksi 1–6 Bulan'] }
+  }));
+  CHARTS.forecast.render();
+}
+
+/* ============================================================
+   CALCULATORS
+   ============================================================ */
+function calcAccess() {
+  const blok = document.getElementById('accBlock').value;
+  const veh = document.getElementById('accVeh').value;
+  const seed = blok.charCodeAt(0) + blok.charCodeAt(1);
+  const dist = (8 + (seed % 140) / 10).toFixed(1);
+  const menit = Math.round(dist * 2.3);
+  let kelas, warna;
+  if (veh.includes('Tronton')) { kelas='TRUK TRONTON LAYAK'; warna='#8bf0b3'; }
+  else if (veh.includes('Engkel')) { kelas='TRUK ENGKEL LAYAK'; warna='#9adcff'; }
+  else { kelas='COLT DIESEL LAYAK'; warna='#ffd68a'; }
+  document.getElementById('accResult').innerHTML = `
+    <div class="rlabel">Jarak ke Jembatan Timbang Pabrik</div>
+    <div class="rval">${dist} km</div>
+    <div class="rnote">Blok <b>${blok.split(' — ')[0]}</b> · Kelas jalan: <b style="color:${warna}">${kelas}</b> · Estimasi ${menit} menit</div>`;
+}
+
+function calcDensity() {
+  const scheme = parseFloat(document.getElementById('densityScheme').value);
+  const area = parseFloat(document.getElementById('densityArea').value) || 0;
+  const perHa = Math.round(10000 / (1 * scheme));
+  const total = perHa * area;
+  const cad = total * 0.05;
+  document.getElementById('densityResult').innerHTML = `
+    <div class="rlabel">Estimasi Kebutuhan Bibit</div>
+    <div class="rval">${fmt(total)} <span style="font-size:13px;color:#8bf0b3">batang</span></div>
+    <div class="rnote">Populasi ${fmt(perHa)} pohon/Ha · Cadangan 5% = ${fmt(cad)} btg · Total <b style="color:#8bf0b3">${fmt(total + cad)} btg</b></div>`;
+}
+
+function calcHarvest() {
+  const kg = parseFloat(document.getElementById('hvKg').value) || 0;
+  const pop = parseFloat(document.getElementById('hvPop').value) || 0;
+  const wetPerHa = kg * pop;
+  const dry = wetPerHa * (1 - 0.55) / (1 - 0.13);
+  document.getElementById('hvResult').innerHTML = `
+    <div class="rlabel">Produktivitas Total</div>
+    <div class="rval">${(wetPerHa/1000).toFixed(2).replace('.',',')} <span style="font-size:13px;color:#8bf0b3">Ton/Ha/Siklus</span></div>
+    <div class="rnote">Basah: ${fmt(wetPerHa)} kg/Ha · Estimasi kering: <b style="color:#8bf0b3">${(dry/1000).toFixed(2).replace('.',',')} Ton/Ha</b></div>`;
+}
+
+function calcLoss() {
+  const w = parseFloat(document.getElementById('wlWet').value) || 0;
+  const m1 = parseFloat(document.getElementById('wlMc1').value) || 0;
+  const m2 = parseFloat(document.getElementById('wlMc2').value) || 0;
+  const dry = w * (1 - m1/100) / (1 - m2/100);
+  const loss = w - dry;
+  document.getElementById('wlResult').innerHTML = `
+    <div class="rlabel">Berat Kering Target</div>
+    <div class="rval">${fmt(dry)} <span style="font-size:13px;color:#8bf0b3">kg</span></div>
+    <div class="rnote">Susut bobot: <b style="color:#ffd68a">${fmt(loss)} kg (${((loss/w)*100).toFixed(1).replace('.',',')}%)</b> · Rasio 1 : ${(dry/w).toFixed(3).replace('.',',')}</div>`;
+}
+
+function updateHPP() {
+  const opex = +document.getElementById('opexRange').value;
+  const capex = +document.getElementById('capexRange').value;
+  const prod = +document.getElementById('prodRange').value;
+  document.getElementById('opexLbl').textContent = fmt(opex);
+  document.getElementById('capexLbl').textContent = fmt(capex);
+  document.getElementById('prodLbl').textContent = prod.toFixed(1).replace('.',',');
+  const hpp = (opex + capex) / prod;
+  document.getElementById('hppVal').textContent = 'Rp ' + fmt(hpp) + ' /Ton';
+  const sell = 2100000;
+  const margin = ((sell - hpp) / sell * 100);
+  const note = document.getElementById('hppNote');
+  let grade, color;
+  if (hpp <= 650000) { grade='SANGAT EFISIEN'; color='#8bf0b3'; }
+  else if (hpp <= 1200000) { grade='DALAM BATAS WAJAR'; color='#ffd68a'; }
+  else { grade='PERLU EFISIENSI'; color='#ff9aa5'; }
+  note.innerHTML = `(OPEX + CAPEX) ÷ Produktivitas · <b style="color:${color}">${grade}</b> — margin terhadap harga jual Rp 2.100.000/Ton: <b style="color:${color}">${margin.toFixed(1).replace('.',',')}%</b>`;
+}
+
+/* ============================================================
+   EXPORTS
+   ============================================================ */
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(DB, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'minerva-data-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click(); toast('JSON diekspor');
+}
+function exportCSV() {
+  const rows = [['id','area','status','pop','age','prod']];
+  DB.blocks.forEach(b => rows.push([b.id, b.area, b.status, b.pop, b.age, b.prod]));
+  const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'minerva-blocks.csv';
+  a.click(); toast('CSV diekspor');
+}
+
+/* ============================================================
+   QR + YARD
+   ============================================================ */
+(function drawQR() {
+  const c = document.getElementById('qrCanvas'); if (!c) return;
+  const ctx = c.getContext('2d');
+  const N = 25, cell = 150 / N;
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 150, 150);
+  ctx.fillStyle = '#0a1524';
+  let seed = 20250702;
+  const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const inFinder = (x < 7 && y < 7) || (x >= N-7 && y < 7) || (x < 7 && y >= N-7);
+    if (inFinder) continue;
+    if (rnd() > 0.52) ctx.fillRect(x*cell, y*cell, cell*0.92, cell*0.92);
+  }
+  const finder = (fx, fy) => {
+    ctx.fillStyle = '#0a1524'; ctx.fillRect(fx*cell, fy*cell, 7*cell, 7*cell);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect((fx+1)*cell, (fy+1)*cell, 5*cell, 5*cell);
+    ctx.fillStyle = '#0a1524'; ctx.fillRect((fx+2)*cell, (fy+2)*cell, 3*cell, 3*cell);
+  };
+  finder(0,0); finder(N-7,0); finder(0,N-7);
+  ctx.fillStyle = 'rgba(46,230,107,.95)';
+  ctx.fillRect(150/2 - 13, 150/2 - 13, 26, 26);
+  ctx.fillStyle = '#04180c'; ctx.font = 'bold 11px Inter, sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('MG', 75, 76);
+})();
+
+(function yard() {
+  const grid = document.getElementById('yardGrid'); if (!grid) return;
+  let html = '';
+  for (let i = 0; i < 40; i++) {
+    const r = Math.random();
+    let bg, label, title;
+    if (r < 0.38) { bg = 'linear-gradient(145deg,#3df582,#0b7a44)'; label='OK'; title=`Slot ${i+1} · MC 13% · Siap giling`; }
+    else if (r < 0.66) { bg = 'linear-gradient(145deg,#ffd070,#b47b0b)'; label='RD'; title=`Slot ${i+1} · MC 19% · Re-drying`; }
+    else if (r < 0.82) { bg = 'linear-gradient(145deg,#ff8b96,#a01c2b)'; label='!'; title=`Slot ${i+1} · MC 27% · Tunda`; }
+    else { bg = 'rgba(148,163,184,.14)'; label=''; title=`Slot ${i+1} · Kosong`; }
+    html += `<div class="yard-cell" style="background:${bg}" title="${title}">${label}</div>`;
+  }
+  grid.innerHTML = html;
+})();
+
+/* ============================================================
+   KPI EDITABLE
+   ============================================================ */
+document.querySelectorAll('.kpi-val[contenteditable]').forEach(el => {
+  el.addEventListener('blur', () => { saveDB(); toast('KPI diperbarui'); });
+  el.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } });
+});
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+const PANEL_META = {
+  p1:['Dashboard Eksekutif & Monitoring Utama','Ringkasan KPI · Komposisi Lahan · Notifikasi · Pasokan Pabrik'],
+  p2:['Pemetaan GIS & Manajemen Lahan','Esri World Imagery · Topografi · Profil Blok · Legalitas'],
+  p3:['Pembibitan & Propagasi (Nursery)','Batch Tracking · Germinasi · Log Input · Rilis Bibit'],
+  p4:['Penanaman & Pemeliharaan SRF','Kerapatan Tanam · Survival Rate · Pemupukan · Hama Penyakit'],
+  p5:['Pemanenan & Manajemen Terubusan','Rotasi Panen · Spesifikasi Tebang · Regenerasi Tunas'],
+  p6:['Pasca-Panen & Pengendalian Mutu','Moisture Tracking · Uji Laboratorium · Susut Bobot'],
+  p7:['Logistik & Penerimaan Pabrik','Surat Jalan Digital · Jembatan Timbang · Yard Management'],
+  p8:['Tenaga Kerja & Biaya Operasional','Presensi Geofencing · Penggajian · Cost Ledger · HPP'],
+  p9:['Analitik Prediktif & Integrasi ERP','Forecasting Panen · Ekspor Data · Dolibarr API'],
+  p10:['Pengaturan Sistem, Akses & Sinkronisasi','RBAC · Offline-First PWA · Audit Trail']
+};
+
+const CHART_RENDERERS = {
+  p1: [renderStatusChart, renderBlockAreaChart, renderQuotaGauge, renderPopChart, renderSupplyChart],
+  p2: [renderSoilChart],
+  p3: [renderNurseryChart],
+  p4: [renderSurvivalChart],
+  p5: [renderCoppiceChart],
+  p6: [renderLabChart],
+  p8: [renderHokChart, renderCostChart],
+  p9: [renderForecastChart]
+};
+
+const MAP_RENDERERS = {
+  // p1 TIDAK lagi memiliki peta — hanya p2
+  p2: () => { if (!mapP2) initMapP2(); else setTimeout(()=>mapP2.invalidateSize(), 100); }
+};
+
+function buildPanel(panel) {
+  (CHART_RENDERERS[panel] || []).forEach(fn => fn());
+  if (MAP_RENDERERS[panel]) MAP_RENDERERS[panel]();
+}
+
+document.getElementById('nav').addEventListener('click', e => {
+  const btn = e.target.closest('.nav-item');
+  if (!btn) return;
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const id = btn.dataset.panel;
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('panelTitle').textContent = PANEL_META[id][0];
+  document.getElementById('panelCrumb').textContent = PANEL_META[id][1];
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => buildPanel(id), 60);
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+document.getElementById('today').textContent =
+  new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
+
+renderEditableTable('tblBlocks', 'blocks');
+renderEditableTable('tblNursery', 'nursery');
+renderEditableTable('tblFertilizer', 'fertilizer');
+renderEditableTable('tblWeigh', 'weigh');
+renderEditableTable('tblPayroll', 'payroll');
+renderEditableTable('tblAudit', 'audit');
+renderRbac();
+
+updateBlocksDerived();
+calcAccess();
+calcDensity();
+calcHarvest();
+calcLoss();
+updateHPP();
+
+setTimeout(() => buildPanel('p1'), 100);
+</script>
+</body>
+</html>
