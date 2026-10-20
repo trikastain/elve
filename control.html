@@ -1,0 +1,2137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PT Elvenium Agro Inovasi — Biomass Pellet Plant Control Center</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.2/dist/apexcharts.min.js"></script>
+<style>
+:root{
+  --bg:#0a0d14; --line:rgba(148,163,184,.14); --txt:#eef2f8; --muted:#93a2b8;
+  --amber:#f59e0b; --amber2:#b45309; --amber-l:#fcd34d;
+  --cyan:#22d3ee; --cyan2:#0e7490;
+  --lime:#a3e635; --lime2:#4d7c0f;
+  --ember:#fb7185; --ember2:#9f1239;
+  --violet:#a78bfa; --teal:#2dd4bf;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  background:
+    radial-gradient(1200px 620px at 90% -12%, rgba(245,158,11,.13), transparent 62%),
+    radial-gradient(900px 520px at 0% 112%, rgba(34,211,238,.10), transparent 62%),
+    var(--bg); color:var(--txt); font-size:14px; -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(148,163,184,.22);border-radius:9px}
+::-webkit-scrollbar-thumb:hover{background:rgba(245,158,11,.45)}
+
+.app{display:grid;grid-template-columns:274px 1fr;min-height:100vh}
+.sidebar{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;
+  background:linear-gradient(180deg,rgba(26,20,12,.97),rgba(8,11,18,.99));
+  border-right:1px solid var(--line);padding:18px 14px;gap:14px;overflow-y:auto}
+.brand{display:flex;gap:11px;align-items:center;padding:4px 6px 14px;border-bottom:1px solid var(--line)}
+.logo{width:44px;height:44px;border-radius:13px;flex:0 0 44px;
+  background:linear-gradient(145deg,#fcd34d,#f59e0b 50%,#b45309);display:grid;place-items:center;
+  font-weight:800;font-size:15px;color:#241300;box-shadow:0 8px 22px rgba(245,158,11,.35),
+  inset 0 1px 0 rgba(255,255,255,.45);letter-spacing:-.5px}
+.brand h1{font-size:12.5px;line-height:1.25;font-weight:800;letter-spacing:.2px}
+.brand p{font-size:10.3px;color:var(--muted);margin-top:3px}
+nav{display:flex;flex-direction:column;gap:3px;flex:1}
+.nav-item{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:transparent;
+  border:1px solid transparent;color:#adb9cb;padding:9px 10px;border-radius:10px;cursor:pointer;
+  font-size:11.8px;font-family:inherit;transition:.18s;line-height:1.3}
+.nav-item .ico{width:24px;height:24px;flex:0 0 24px;border-radius:7px;display:grid;place-items:center;
+  font-size:11px;background:rgba(148,163,184,.1);color:#a3b1c4;transition:.18s}
+.nav-item:hover{background:rgba(148,163,184,.07);color:#eef2f8}
+.nav-item.active{background:linear-gradient(90deg,rgba(245,158,11,.18),rgba(245,158,11,.02));
+  border-color:rgba(245,158,11,.32);color:#fff;font-weight:600;box-shadow:inset 2px 0 0 var(--amber)}
+.nav-item.active .ico{background:linear-gradient(145deg,#fcd34d,#b45309);color:#241300;font-weight:700}
+.side-foot{border-top:1px solid var(--line);padding-top:12px;font-size:10.4px;color:var(--muted);
+  display:flex;flex-direction:column;gap:8px}
+.pill-live{display:inline-flex;align-items:center;gap:6px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--lime);animation:pulse 2s infinite;flex:0 0 7px}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(163,230,53,.55)}70%{box-shadow:0 0 0 9px rgba(163,230,53,0)}100%{box-shadow:0 0 0 0 rgba(163,230,53,0)}}
+.mg-mini{display:flex;gap:8px;align-items:center;padding:8px 9px;border-radius:10px;
+  border:1px solid rgba(45,212,191,.28);background:linear-gradient(135deg,rgba(45,212,191,.12),rgba(45,212,191,.02));
+  cursor:pointer;transition:.18s}
+.mg-mini:hover{background:linear-gradient(135deg,rgba(45,212,191,.2),rgba(45,212,191,.04))}
+.mg-mini .lg{width:26px;height:26px;flex:0 0 26px;border-radius:8px;display:grid;place-items:center;
+  font-size:9.5px;font-weight:800;background:linear-gradient(145deg,#2ee66b,#0b7a44);color:#04180c}
+.mg-mini div{font-size:9.7px;line-height:1.35}
+.mg-mini b{font-size:10.5px;color:#8bf0b3}
+.mg-mini.vd{border-color:rgba(34,211,238,.3);background:linear-gradient(135deg,rgba(34,211,238,.12),rgba(34,211,238,.02))}
+.mg-mini.vd:hover{background:linear-gradient(135deg,rgba(34,211,238,.2),rgba(34,211,238,.04))}
+.mg-mini.vd .lg{background:linear-gradient(145deg,#2dd4bf,#0b7a44);color:#04180c}
+.mg-mini.vd b{color:#8be9dc}
+
+main{padding:0 0 44px;min-width:0}
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;
+  gap:16px;padding:14px 26px;backdrop-filter:blur(16px);
+  background:linear-gradient(180deg,rgba(10,13,20,.94),rgba(10,13,20,.68));
+  border-bottom:1px solid var(--line);flex-wrap:wrap}
+.topbar h2{font-size:16.5px;font-weight:700}
+.topbar .crumb{font-size:11px;color:var(--muted);margin-top:3px}
+.topbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:11px;padding:6px 11px;border-radius:999px;
+  border:1px solid var(--line);background:rgba(148,163,184,.07);color:#c8d3e0}
+.chip.lime{border-color:rgba(163,230,53,.35);background:linear-gradient(135deg,rgba(163,230,53,.16),rgba(163,230,53,.03));color:#d9f99d}
+.chip.amber{border-color:rgba(245,158,11,.38);background:linear-gradient(135deg,rgba(245,158,11,.18),rgba(245,158,11,.03));color:#fcd34d}
+.chip.cyan{border-color:rgba(34,211,238,.35);background:linear-gradient(135deg,rgba(34,211,238,.16),rgba(34,211,238,.03));color:#a5f3fc}
+.avatar{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:11.5px;font-weight:800;
+  background:linear-gradient(145deg,#fcd34d,#b45309);color:#241300;box-shadow:0 6px 16px rgba(245,158,11,.3)}
+
+.panel{display:none;padding:22px 26px 0;animation:fade .32s ease}
+.panel.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+
+.card{background:linear-gradient(155deg,rgba(34,30,22,.92),rgba(12,15,23,.94));
+  border:1px solid var(--line);border-radius:16px;padding:16px 18px;
+  box-shadow:0 16px 36px -22px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.045);
+  position:relative;overflow:hidden}
+.card::after{content:'';position:absolute;inset:0;border-radius:16px;pointer-events:none;
+  background:radial-gradient(420px 140px at 100% 0%,rgba(245,158,11,.08),transparent 70%)}
+.card h3{font-size:12.5px;font-weight:700;letter-spacing:.35px;text-transform:uppercase;
+  color:#d6dfeb;display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.card h3::before{content:'';width:3px;height:13px;border-radius:3px;
+  background:linear-gradient(180deg,var(--amber),var(--amber2))}
+.card h3 .right{margin-left:auto;font-size:10.5px;font-weight:500;color:var(--muted);text-transform:none}
+.sub{font-size:11px;color:var(--muted);line-height:1.55}
+.sub b{color:#cbd6e4}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:13px;margin-bottom:16px}
+.kpi{position:relative;border-radius:15px;padding:14px 15px 13px;overflow:hidden;
+  border:1px solid var(--line);background:linear-gradient(158deg,rgba(38,32,22,.95),rgba(10,13,20,.96));
+  box-shadow:0 16px 34px -24px #000, inset 0 1px 0 rgba(255,255,255,.05);transition:.22s}
+.kpi:hover{transform:translateY(-3px);border-color:rgba(245,158,11,.35)}
+.kpi::before{content:'';position:absolute;top:-42px;right:-42px;width:110px;height:110px;border-radius:50%;
+  background:radial-gradient(circle,rgba(245,158,11,.26),transparent 68%)}
+.kpi.c::before{background:radial-gradient(circle,rgba(34,211,238,.24),transparent 68%)}
+.kpi.l::before{background:radial-gradient(circle,rgba(163,230,53,.24),transparent 68%)}
+.kpi.v::before{background:radial-gradient(circle,rgba(167,139,250,.24),transparent 68%)}
+.kpi.e::before{background:radial-gradient(circle,rgba(251,113,133,.24),transparent 68%)}
+.kpi-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;position:relative;z-index:2}
+.kpi-label{font-size:10.1px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600;line-height:1.4}
+.kpi-ico{width:26px;height:26px;flex:0 0 26px;border-radius:8px;display:grid;place-items:center;font-size:12px;
+  background:linear-gradient(145deg,rgba(245,158,11,.22),rgba(245,158,11,.05));
+  border:1px solid rgba(245,158,11,.28);color:#fcd34d}
+.kpi.c .kpi-ico{background:linear-gradient(145deg,rgba(34,211,238,.22),rgba(34,211,238,.05));border-color:rgba(34,211,238,.28);color:#a5f3fc}
+.kpi.l .kpi-ico{background:linear-gradient(145deg,rgba(163,230,53,.22),rgba(163,230,53,.05));border-color:rgba(163,230,53,.28);color:#d9f99d}
+.kpi.v .kpi-ico{background:linear-gradient(145deg,rgba(167,139,250,.22),rgba(167,139,250,.05));border-color:rgba(167,139,250,.28);color:#c8b6ff}
+.kpi.e .kpi-ico{background:linear-gradient(145deg,rgba(251,113,133,.22),rgba(251,113,133,.05));border-color:rgba(251,113,133,.28);color:#ffb3bd}
+.kpi-val{font-size:21px;font-weight:800;letter-spacing:-.8px;margin-top:9px;position:relative;z-index:2;line-height:1.1;
+  padding:2px 4px;border-radius:5px;transition:.15s;display:inline-block}
+.kpi-val:hover{background:rgba(245,158,11,.09);box-shadow:0 0 0 1px rgba(245,158,11,.32)}
+.kpi-val:focus{outline:none;background:rgba(245,158,11,.15);box-shadow:0 0 0 2px rgba(245,158,11,.5)}
+.kpi-val small{font-size:11px;font-weight:600;color:var(--muted);margin-left:3px}
+.kpi-sub{font-size:10.4px;color:var(--muted);margin-top:5px;position:relative;z-index:2}
+.kpi-bar{height:4px;border-radius:4px;background:rgba(148,163,184,.14);margin-top:11px;overflow:hidden;position:relative;z-index:2}
+.kpi-bar i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#b45309,#f59e0b,#fcd34d);box-shadow:0 0 12px rgba(245,158,11,.6)}
+.kpi.c .kpi-bar i{background:linear-gradient(90deg,#0e7490,#22d3ee,#a5f3fc);box-shadow:0 0 12px rgba(34,211,238,.6)}
+.kpi.l .kpi-bar i{background:linear-gradient(90deg,#4d7c0f,#a3e635,#d9f99d);box-shadow:0 0 12px rgba(163,230,53,.6)}
+.kpi.v .kpi-bar i{background:linear-gradient(90deg,#6d4bd6,#a78bfa,#d9cbff);box-shadow:0 0 12px rgba(167,139,250,.6)}
+.kpi.e .kpi-bar i{background:linear-gradient(90deg,#9f1239,#fb7185,#ffb3bd);box-shadow:0 0 12px rgba(251,113,133,.6)}
+
+.grid{display:grid;gap:14px;margin-bottom:16px}
+.g-2{grid-template-columns:1fr 1fr}
+.g-3{grid-template-columns:repeat(3,1fr)}
+.g-21{grid-template-columns:1.6fr 1fr}
+.g-12{grid-template-columns:1fr 1.45fr}
+
+/* ============ SCADA LINE ============ */
+.scada{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding:8px 2px 14px;scrollbar-width:thin}
+.scada-node{flex:1 0 118px;min-width:112px;position:relative;padding:13px 10px 12px;border-radius:12px;
+  border:1px solid var(--line);background:linear-gradient(165deg,rgba(38,32,22,.95),rgba(10,13,20,.95));
+  text-align:center;transition:.2s}
+.scada-node.run{border-color:rgba(163,230,53,.4);box-shadow:inset 0 0 0 1px rgba(163,230,53,.12),0 8px 22px -16px rgba(163,230,53,.7)}
+.scada-node.warn{border-color:rgba(245,158,11,.5);box-shadow:inset 0 0 0 1px rgba(245,158,11,.15),0 8px 22px -16px rgba(245,158,11,.8)}
+.scada-node.stop{border-color:rgba(251,113,133,.5);box-shadow:inset 0 0 0 1px rgba(251,113,133,.15),0 8px 22px -16px rgba(251,113,133,.8)}
+.scada-node .sn-ico{font-size:19px;line-height:1;filter:drop-shadow(0 3px 6px #000)}
+.scada-node .sn-name{font-size:10.6px;font-weight:700;margin-top:7px;line-height:1.25}
+.scada-node .sn-detail{font-size:9.2px;color:var(--muted);margin-top:3px;line-height:1.35}
+.scada-node .sn-led{position:absolute;top:9px;right:9px;width:7px;height:7px;border-radius:50%}
+.scada-node.run .sn-led{background:#a3e635;box-shadow:0 0 9px #a3e635;animation:pulse 2s infinite}
+.scada-node.warn .sn-led{background:#f59e0b;box-shadow:0 0 9px #f59e0b;animation:pulse 1.3s infinite}
+.scada-node.stop .sn-led{background:#fb7185;box-shadow:0 0 9px #fb7185;animation:pulse .9s infinite}
+.scada-link{flex:0 0 26px;display:grid;place-items:center;position:relative;min-width:22px}
+.scada-link::before{content:'';position:absolute;left:0;right:0;top:50%;height:2px;
+  background:linear-gradient(90deg,rgba(245,158,11,.15),rgba(245,158,11,.7),rgba(245,158,11,.15));
+  background-size:200% 100%;animation:flow 2.2s linear infinite}
+@keyframes flow{0%{background-position:120% 0}100%{background-position:-120% 0}}
+.scada-link span{position:relative;z-index:2;font-size:9px;color:#fcd34d;
+  background:#0f131c;border:1px solid rgba(245,158,11,.35);border-radius:20px;padding:1px 5px;white-space:nowrap}
+
+/* ============ MISC ============ */
+.alert-list{display:flex;flex-direction:column;gap:9px;max-height:400px;overflow-y:auto;padding-right:4px}
+.alert{display:flex;gap:11px;padding:11px 12px;border-radius:11px;border:1px solid var(--line);
+  background:linear-gradient(120deg,rgba(148,163,184,.06),rgba(148,163,184,.015));border-left-width:3px;transition:.18s}
+.alert:hover{transform:translateX(3px)}
+.alert.crit{border-left-color:var(--ember);background:linear-gradient(120deg,rgba(251,113,133,.13),rgba(251,113,133,.02))}
+.alert.warn{border-left-color:var(--amber);background:linear-gradient(120deg,rgba(245,158,11,.13),rgba(245,158,11,.02))}
+.alert.info{border-left-color:var(--cyan);background:linear-gradient(120deg,rgba(34,211,238,.12),rgba(34,211,238,.02))}
+.alert.ok{border-left-color:var(--lime);background:linear-gradient(120deg,rgba(163,230,53,.12),rgba(163,230,53,.02))}
+.alert .ai{width:26px;height:26px;flex:0 0 26px;border-radius:8px;display:grid;place-items:center;font-size:12px;background:rgba(0,0,0,.3)}
+.alert strong{font-size:11.7px;display:block;margin-bottom:2px}
+.alert span{font-size:10.4px;color:var(--muted);line-height:1.45}
+
+.tbl{width:100%;border-collapse:collapse;font-size:11.5px}
+.tbl th{text-align:left;font-size:9.7px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);
+  padding:8px 10px;border-bottom:1px solid var(--line);font-weight:700;white-space:nowrap}
+.tbl td{padding:8px 10px;border-bottom:1px solid rgba(148,163,184,.07);color:#cdd8e6;white-space:nowrap}
+.tbl tbody tr{transition:.15s}
+.tbl tbody tr:hover{background:rgba(245,158,11,.06)}
+.tbl td[contenteditable]{outline:none;border-radius:5px;transition:.15s;min-width:40px;cursor:text}
+.tbl td[contenteditable]:hover{background:rgba(245,158,11,.07);box-shadow:inset 0 0 0 1px rgba(245,158,11,.2)}
+.tbl td[contenteditable]:focus{background:rgba(245,158,11,.13);box-shadow:inset 0 0 0 2px rgba(245,158,11,.5);color:#fff}
+.tbl .act{text-align:center;width:46px}
+.tbl-scroll{max-height:330px;overflow:auto}
+
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:9.7px;font-weight:700;
+  padding:3px 8px;border-radius:999px;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap}
+.b-lime{background:rgba(163,230,53,.16);color:#d9f99d;border:1px solid rgba(163,230,53,.3)}
+.b-amber{background:rgba(245,158,11,.16);color:#fcd34d;border:1px solid rgba(245,158,11,.3)}
+.b-ember{background:rgba(251,113,133,.16);color:#ffb3bd;border:1px solid rgba(251,113,133,.3)}
+.b-cyan{background:rgba(34,211,238,.16);color:#a5f3fc;border:1px solid rgba(34,211,238,.3)}
+.b-violet{background:rgba(167,139,250,.16);color:#c8b6ff;border:1px solid rgba(167,139,250,.3)}
+.b-gray{background:rgba(148,163,184,.14);color:#bcc8d8;border:1px solid rgba(148,163,184,.24)}
+
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:10.1px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700}
+input[type=text],input[type=number],input[type=date],select{
+  width:100%;padding:9px 11px;border-radius:9px;font-family:inherit;font-size:12.2px;
+  background:linear-gradient(160deg,rgba(12,15,23,.96),rgba(22,26,36,.9));
+  border:1px solid var(--line);color:var(--txt);outline:none;transition:.18s}
+input:focus,select:focus{border-color:rgba(245,158,11,.55);box-shadow:0 0 0 3px rgba(245,158,11,.13)}
+input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:5px;outline:none;
+  background:linear-gradient(90deg,var(--amber2),var(--amber))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:radial-gradient(circle at 32% 30%,#fef3c7,#f59e0b 55%,#b45309);
+  box-shadow:0 0 12px rgba(245,158,11,.7);cursor:pointer;border:2px solid #1a1206}
+.form-grid{display:grid;gap:12px;grid-template-columns:repeat(2,1fr)}
+.form-grid.three{grid-template-columns:repeat(3,1fr)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  padding:9px 16px;border-radius:10px;font-family:inherit;font-size:12px;font-weight:700;
+  cursor:pointer;border:1px solid transparent;transition:.18s;text-decoration:none;
+  background:linear-gradient(145deg,#fcd34d,#f59e0b 55%,#b45309);color:#241300;
+  box-shadow:0 10px 24px -12px rgba(245,158,11,.8)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 14px 28px -12px rgba(245,158,11,.95)}
+.btn.ghost{background:linear-gradient(145deg,rgba(148,163,184,.13),rgba(148,163,184,.05));color:#d7e1ec;border-color:var(--line);box-shadow:none}
+.btn.ghost:hover{border-color:rgba(245,158,11,.42);color:#fff}
+.btn.cyan{background:linear-gradient(145deg,#22d3ee,#0e7490);color:#04161c;box-shadow:none}
+.btn.small{padding:6px 11px;font-size:11px}
+.btn.danger{background:linear-gradient(145deg,#fb7185,#9f1239);color:#fff;box-shadow:none}
+
+.result-box{border-radius:12px;padding:14px 16px;margin-top:12px;
+  background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(180,83,9,.04));
+  border:1px solid rgba(245,158,11,.32)}
+.result-box .rlabel{font-size:10.4px;text-transform:uppercase;letter-spacing:.6px;color:#fcd34d;font-weight:700}
+.result-box .rval{font-size:21px;font-weight:800;letter-spacing:-.9px;margin-top:4px}
+.result-box .rnote{font-size:10.4px;color:var(--muted);margin-top:4px;line-height:1.55}
+.result-box.warn{background:linear-gradient(135deg,rgba(251,113,133,.14),rgba(159,18,57,.04));border-color:rgba(251,113,133,.34)}
+.result-box.warn .rlabel{color:#ffb3bd}
+.result-box.ok{background:linear-gradient(135deg,rgba(163,230,53,.14),rgba(77,124,15,.04));border-color:rgba(163,230,53,.32)}
+.result-box.ok .rlabel{color:#d9f99d}
+
+.gauge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.gauge{text-align:center;padding:14px 10px;border-radius:13px;border:1px solid var(--line);
+  background:linear-gradient(160deg,rgba(38,32,22,.72),rgba(10,13,20,.86))}
+.gauge .glabel{font-size:10.4px;color:var(--muted);margin-top:8px;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+
+.qr-box{background:linear-gradient(160deg,#fff,#e2e8f0);border-radius:13px;padding:11px;display:inline-block;
+  box-shadow:0 14px 30px -14px rgba(0,0,0,.8)}
+.sync-row{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid rgba(148,163,184,.07);font-size:11.5px}
+.sync-row:last-child{border-bottom:none}
+.doc-item{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid rgba(148,163,184,.08)}
+.doc-item:last-child{border-bottom:none}
+.doc-ico{width:30px;height:30px;flex:0 0 30px;border-radius:9px;display:grid;place-items:center;font-size:12px;
+  background:linear-gradient(145deg,rgba(34,211,238,.2),rgba(34,211,238,.04));border:1px solid rgba(34,211,238,.26);color:#a5f3fc}
+.progress{height:7px;border-radius:7px;background:rgba(148,163,184,.14);overflow:hidden;margin-top:7px}
+.progress i{display:block;height:100%;border-radius:7px;background:linear-gradient(90deg,#b45309,#f59e0b,#fcd34d);box-shadow:0 0 10px rgba(245,158,11,.55)}
+.progress.lime i{background:linear-gradient(90deg,#4d7c0f,#a3e635,#d9f99d);box-shadow:0 0 10px rgba(163,230,53,.55)}
+.progress.cyan i{background:linear-gradient(90deg,#0e7490,#22d3ee,#a5f3fc);box-shadow:0 0 10px rgba(34,211,238,.55)}
+.progress.ember i{background:linear-gradient(90deg,#9f1239,#fb7185,#ffb3bd);box-shadow:0 0 10px rgba(251,113,133,.55)}
+
+.matrix td,.matrix th{text-align:center}
+.matrix td:first-child,.matrix th:first-child{text-align:left}
+.tick{color:#a3e635;font-weight:800;cursor:pointer}
+.cross{color:rgba(148,163,184,.32);cursor:pointer}
+
+.yard-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin-top:6px}
+.yard-cell{aspect-ratio:1;border-radius:6px;display:grid;place-items:center;font-size:8.5px;font-weight:800;
+  color:#241300;cursor:pointer;border:1px solid rgba(0,0,0,.25);transition:.18s}
+.yard-cell:hover{transform:scale(1.14);z-index:3;box-shadow:0 8px 18px rgba(0,0,0,.6)}
+
+.machine{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid rgba(148,163,184,.07)}
+.machine:last-child{border-bottom:none}
+.machine .mi{width:32px;height:32px;flex:0 0 32px;border-radius:9px;display:grid;place-items:center;font-size:13px;
+  background:linear-gradient(145deg,rgba(245,158,11,.2),rgba(245,158,11,.04));border:1px solid rgba(245,158,11,.26);color:#fcd34d}
+.machine .mname{font-size:11.8px;font-weight:600}
+.machine .mmeta{font-size:10.2px;color:var(--muted);margin-top:2px}
+
+.intg-head{display:flex;gap:12px;align-items:center;padding-bottom:13px;border-bottom:1px solid var(--line);margin-bottom:13px;flex-wrap:wrap}
+.intg-logo{width:42px;height:42px;flex:0 0 42px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:13px;
+  color:#04180c;box-shadow:0 8px 20px rgba(0,0,0,.35)}
+.intg-logo.mg{background:linear-gradient(145deg,#2ee66b,#0b7a44);box-shadow:0 8px 20px rgba(46,230,107,.3)}
+.intg-logo.vd{background:linear-gradient(145deg,#2dd4bf,#0b7a44);box-shadow:0 8px 20px rgba(45,212,191,.3)}
+.intg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.intg-grid > div{padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:rgba(148,163,184,.045)}
+.intg-grid .k{display:block;font-size:9.6px;text-transform:uppercase;letter-spacing:.55px;color:var(--muted);font-weight:700}
+.intg-grid b{display:block;font-size:11.8px;margin-top:4px;color:#eef2f8}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;color:#fcd34d;background:rgba(245,158,11,.11);padding:1px 5px;border-radius:4px}
+
+.recipe-bar{display:flex;height:34px;border-radius:10px;overflow:hidden;border:1px solid var(--line);margin-top:8px}
+.recipe-bar > div{display:grid;place-items:center;font-size:10.5px;font-weight:800;color:#241300;transition:.25s}
+
+.apexcharts-tooltip{background:rgba(10,13,20,.96)!important;border:1px solid rgba(245,158,11,.35)!important;color:#eef2f8!important}
+.apexcharts-tooltip-title{background:rgba(245,158,11,.12)!important;border-bottom:1px solid rgba(245,158,11,.3)!important}
+.apexcharts-legend-text{color:#93a2b8!important;font-size:10.5px!important}
+
+.toast{position:fixed;bottom:20px;right:20px;background:linear-gradient(145deg,#fcd34d,#f59e0b 55%,#b45309);color:#241300;
+  padding:12px 20px;border-radius:10px;font-weight:700;font-size:12px;box-shadow:0 10px 30px rgba(245,158,11,.5);
+  z-index:9999;opacity:0;transform:translateY(20px);transition:.25s;pointer-events:none;max-width:360px}
+.toast.show{opacity:1;transform:none}
+
+@media(max-width:1400px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:1180px){.g-21,.g-12,.g-2,.g-3{grid-template-columns:1fr}.intg-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){
+  .app{grid-template-columns:1fr}
+  .sidebar{position:relative;height:auto}
+  nav{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .panel{padding:16px}.topbar{padding:12px 16px}
+  .gauge-grid{grid-template-columns:1fr}
+  .yard-grid{grid-template-columns:repeat(5,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">EA</div>
+      <div><h1>PT ELVENIUM AGRO INOVASI</h1><p>Sukabumi · Biomass Pellet Plant</p></div>
+    </div>
+    <nav id="nav">
+      <button class="nav-item active" data-panel="p1"><span class="ico">◈</span>Plant Control Center</button>
+      <button class="nav-item" data-panel="p2"><span class="ico">▤</span>Inbound &amp; Raw Yard</button>
+      <button class="nav-item" data-panel="p3"><span class="ico">🪓</span>Chipper &amp; Shredder</button>
+      <button class="nav-item" data-panel="p4"><span class="ico">🔥</span>Dryer &amp; Thermal</button>
+      <button class="nav-item" data-panel="p5"><span class="ico">⚒</span>Hammer Mill &amp; Condition</button>
+      <button class="nav-item" data-panel="p6"><span class="ico">⭕</span>Pellet Press &amp; Cooler</button>
+      <button class="nav-item" data-panel="p7"><span class="ico">◐</span>QC &amp; Laboratory</button>
+      <button class="nav-item" data-panel="p8"><span class="ico">📦</span>Packing &amp; Outbound</button>
+      <button class="nav-item" data-panel="p9"><span class="ico">⚙</span>Maintenance &amp; OEE</button>
+      <button class="nav-item" data-panel="p10"><span class="ico">⚡</span>Energy, HPP &amp; ERP</button>
+    </nav>
+    <div class="side-foot">
+      <div class="pill-live"><span class="dot"></span> SCADA &amp; IoT telemetry aktif</div>
+      <div class="mg-mini" onclick="syncMinerva()" title="Tarik data estate dari Minerva">
+        <div class="lg">MG</div>
+        <div><b>Minerva Estate</b><br><span id="sideMg">—</span></div>
+      </div>
+      <div class="mg-mini vd" onclick="syncVerdantia()" title="Tarik data logistik dari Verdantia">
+        <div class="lg">VD</div>
+        <div><b>Verdantia Logistik</b><br><span id="sideVd">—</span></div>
+      </div>
+      <button class="btn ghost small" style="width:100%;margin-top:4px" onclick="resetDB()">↻ Reset Data Demo</button>
+    </div>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <div>
+        <h2 id="panelTitle">Plant Control Center &amp; Executive Production Dashboard</h2>
+        <div class="crumb" id="panelCrumb">Pabrik Pellet Biomass · Kapasitas 22 Ton/jam · PLTU Pelabuhan Ratu &amp; Ekspor</div>
+      </div>
+      <div class="topbar-right">
+        <span class="chip lime"><span class="dot"></span>Line Running</span>
+        <span class="chip cyan">🗓 <span id="today"></span></span>
+        <span class="chip amber">🔥 Dryer 320°C</span>
+        <div class="avatar">EA</div>
+      </div>
+    </div>
+
+    <!-- ================= PANEL 1 — PLANT CONTROL CENTER ================= -->
+    <section class="panel active" id="p1">
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi-top"><span class="kpi-label">Produksi Hari Ini</span><span class="kpi-ico">◈</span></div>
+          <div class="kpi-val" contenteditable="true" data-kpi="prodToday">428 <small>Ton</small></div>
+          <div class="kpi-sub">Target 460 Ton · capaian 93,0%</div>
+          <div class="kpi-bar"><i style="width:93%"></i></div>
+        </div>
+        <div class="kpi l">
+          <div class="kpi-top"><span class="kpi-label">OEE Pabrik</span><span class="kpi-ico">◍</span></div>
+          <div class="kpi-val" contenteditable="true" data-kpi="oee">86,2 <small>%</small></div>
+          <div class="kpi-sub">A 92,4% · P 94,1% · Q 99,2%</div>
+          <div class="kpi-bar"><i style="width:86%"></i></div>
+        </div>
+        <div class="kpi c">
+          <div class="kpi-top"><span class="kpi-label">Energi Spesifik</span><span class="kpi-ico">⚡</span></div>
+          <div class="kpi-val" contenteditable="true" data-kpi="energy">78,4 <small>kWh/Ton</small></div>
+          <div class="kpi-sub">Benchmark ≤ 85 kWh/Ton</div>
+          <div class="kpi-bar"><i style="width:78%"></i></div>
+        </div>
+        <div class="kpi v">
+          <div class="kpi-top"><span class="kpi-label">Yield Konversi</span><span class="kpi-ico">◐</span></div>
+          <div class="kpi-val" contenteditable="true" data-kpi="yield">68,2 <small>%</small></div>
+          <div class="kpi-sub">Basah → pellet kering</div>
+          <div class="kpi-bar"><i style="width:68%"></i></div>
+        </div>
+        <div class="kpi c">
+          <div class="kpi-top"><span class="kpi-label">MC Serbuk ke Press</span><span class="kpi-ico">💧</span></div>
+          <div class="kpi-val" contenteditable="true" data-kpi="mcFeed">11,4 <small>%</small></div>
+          <div class="kpi-sub">Target 10–12%</div>
+          <div class="kpi-bar"><i style="width:88%"></i></div>
+        </div>
+        <div class="kpi e">
+          <div class="kpi-top"><span class="kpi-label">Safety Alarm Aktif</span><span class="kpi-ico">⚠</span></div>
+          <div class="kpi-val" contenteditable="true" data-kpi="alarms">2 <small>alarm</small></div>
+          <div class="kpi-sub">1 warning · 1 critical</div>
+          <div class="kpi-bar"><i style="width:34%"></i></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px">
+        <h3>Live Processing Line Status <span class="right">SCADA-style · Chipper → Packing</span></h3>
+        <div class="scada" id="scadaLine"></div>
+        <div class="legend-inline" style="display:flex;gap:14px;flex-wrap:wrap;font-size:10.5px;color:var(--muted);margin-top:6px">
+          <span><i style="width:9px;height:9px;border-radius:3px;display:inline-block;background:#a3e635;margin-right:6px"></i>Beroperasi</span>
+          <span><i style="width:9px;height:9px;border-radius:3px;display:inline-block;background:#f59e0b;margin-right:6px"></i>Waspada</span>
+          <span><i style="width:9px;height:9px;border-radius:3px;display:inline-block;background:#fb7185;margin-right:6px"></i>Henti</span>
+        </div>
+      </div>
+
+      <div class="grid g-21">
+        <div class="card">
+          <h3>Tren Produksi &amp; Yield <span class="right">Ton / hari</span></h3>
+          <div id="chProd" style="min-height:310px"></div>
+        </div>
+        <div class="card">
+          <h3>Safety Alerts Pabrik</h3>
+          <div class="alert-list">
+            <div class="alert crit"><div class="ai">🔥</div><div><strong>Suhu inlet dryer melonjak — 362°C</strong><span>Ambang aman 350°C. Risiko ledakan debu. Damper diturunkan otomatis.</span></div></div>
+            <div class="alert warn"><div class="ai">⚡</div><div><strong>Over-amperage motor Pellet Press #1</strong><span>Arus 148 A (normal 120–135 A). Periksa beban umpan &amp; kondisi die.</span></div></div>
+            <div class="alert warn"><div class="ai">⭕</div><div><strong>Clogging terdeteksi di die press #2</strong><span>Tekanan naik 18%. Siklus purging otomatis dijalankan.</span></div></div>
+            <div class="alert info"><div class="ai">🪓</div><div><strong>Pisau chipper mendekati batas aus</strong><span>Jam pakai 286 jam dari ambang 300 jam. Jadwalkan re-sharpening.</span></div></div>
+            <div class="alert ok"><div class="ai">✓</div><div><strong>Sinkronisasi Minerva &amp; Verdantia berhasil</strong><span>12 blok estate &amp; 6 tiket timbang tersinkron 06:12 WIB.</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid g-3">
+        <div class="card">
+          <h3>Rincian OEE <span class="right">Availability · Performance · Quality</span></h3>
+          <div id="chOee" style="min-height:300px"></div>
+        </div>
+        <div class="card">
+          <h3>Kualitas Real-Time <span class="right">GCV &amp; Moisture</span></h3>
+          <div id="chRealtime" style="min-height:300px"></div>
+        </div>
+        <div class="card">
+          <h3>Komposisi Bahan Baku <span class="right">Recipe aktif</span></h3>
+          <div id="chRecipe" style="min-height:300px"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 2 — INBOUND & RAW YARD ================= -->
+    <section class="panel" id="p2">
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi c"><div class="kpi-top"><span class="kpi-label">Truk Masuk Hari Ini</span><span class="kpi-ico">🚚</span></div><div class="kpi-val">34 <small>unit</small></div><div class="kpi-sub">2.418 Ton bahan baku</div><div class="kpi-bar"><i style="width:82%"></i></div></div>
+        <div class="kpi l"><div class="kpi-top"><span class="kpi-label">Antrean Timbang</span><span class="kpi-ico">⚖</span></div><div class="kpi-val">7 <small>truk</small></div><div class="kpi-sub">Rata-rata tunggu 22 menit</div><div class="kpi-bar"><i style="width:45%"></i></div></div>
+        <div class="kpi"><div class="kpi-top"><span class="kpi-label">MC Masuk Rata-rata</span><span class="kpi-ico">💧</span></div><div class="kpi-val">42,6 <small>%</small></div><div class="kpi-sub">Rentang normal 40–60%</div><div class="kpi-bar"><i style="width:71%"></i></div></div>
+        <div class="kpi v"><div class="kpi-top"><span class="kpi-label">Isi Yard Bahan Baku</span><span class="kpi-ico">▦</span></div><div class="kpi-val">3.820 <small>Ton</small></div><div class="kpi-sub">Buffer minimum 4.500 Ton</div><div class="kpi-bar"><i style="width:64%"></i></div></div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px">
+        <h3>Integrasi Mitra Pemasok <span class="right">Minerva Estate &amp; Verdantia Logistics</span></h3>
+        <div class="grid g-2" style="margin:0">
+          <div>
+            <div class="intg-head">
+              <div class="intg-logo mg">MG</div>
+              <div style="flex:1">
+                <strong style="font-size:12.5px">PT Minerva Green Agro</strong>
+                <div class="sub">Estate Sukabumi · 12 blok · pemasok biomassa basah</div>
+              </div>
+              <span class="badge b-gray" id="mgStatus">Belum tersinkron</span>
+            </div>
+            <div class="intg-grid" style="grid-template-columns:1fr 1fr">
+              <div><span class="k">Blok Siap Panen</span><b id="mgReady">—</b></div>
+              <div><span class="k">Estimasi Basah</span><b id="mgTonnage">—</b></div>
+            </div>
+            <button class="btn small" style="margin-top:11px;width:100%" onclick="syncMinerva()">⟳ Tarik Data Minerva</button>
+          </div>
+          <div>
+            <div class="intg-head">
+              <div class="intg-logo vd">VD</div>
+              <div style="flex:1">
+                <strong style="font-size:12.5px">PT Verdantia Agri Nature</strong>
+                <div class="sub">Logistik inbound · jembatan timbang digital</div>
+              </div>
+              <span class="badge b-gray" id="vdStatus">Belum tersinkron</span>
+            </div>
+            <div class="intg-grid" style="grid-template-columns:1fr 1fr">
+              <div><span class="k">Tiket Timbang</span><b id="vdTickets">—</b></div>
+              <div><span class="k">Nett Diterima</span><b id="vdNett">—</b></div>
+            </div>
+            <button class="btn small cyan" style="margin-top:11px;width:100%" onclick="syncVerdantia()">⟳ Tarik Data Verdantia</button>
+          </div>
+        </div>
+        <div class="sub" id="intgNote" style="margin-top:12px">Klik tombol tarik data untuk memuat profil blok estate dan tiket timbang inbound.</div>
+      </div>
+
+      <div class="grid g-21">
+        <div class="card">
+          <h3>Jembatan Timbang &amp; Antrean Truk <span class="right">Editable</span></h3>
+          <div id="tblWeigh"></div>
+        </div>
+        <div class="card">
+          <h3>Inbound Moisture Testing</h3>
+          <div class="form-grid">
+            <div class="field"><label>Gross (kg)</label><input type="number" id="ibGross" value="19240" oninput="calcInbound()"></div>
+            <div class="field"><label>Tare (kg)</label><input type="number" id="ibTare" value="7180" oninput="calcInbound()"></div>
+            <div class="field"><label>MC Terukur (%)</label><input type="number" id="ibMc" value="42.6" step="0.1" oninput="calcInbound()"></div>
+            <div class="field"><label>Harga Dasar (Rp/Ton)</label><input type="number" id="ibPrice" value="485000" step="5000" oninput="calcInbound()"></div>
+          </div>
+          <div class="result-box" id="ibResult">
+            <div class="rlabel">Nilai Pembayaran Supplier</div>
+            <div class="rval">—</div>
+            <div class="rnote">—</div>
+          </div>
+          <div class="sub" style="margin-top:10px">Basis potongan <b>MC 40%</b>; penalti 1,2% tonase per 1% kelebihan. Estimasi durasi drying dihitung dari selisih MC.</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Zonasi Log &amp; Biomass Yard <span class="right">Arahkan kursor untuk detail tumpukan</span></h3>
+        <div class="yard-grid" id="yardGrid"></div>
+        <div class="legend-inline" style="display:flex;gap:14px;flex-wrap:wrap;font-size:10.5px;color:var(--muted);margin-top:10px">
+          <span><i style="width:9px;height:9px;border-radius:3px;display:inline-block;background:#a3e635;margin-right:6px"></i>MC rendah (&lt;35%)</span>
+          <span><i style="width:9px;height:9px;border-radius:3px;display:inline-block;background:#fcd34d;margin-right:6px"></i>MC sedang (35–50%)</span>
+          <span><i style="width:9px;height:9px;border-radius:3px;display:inline-block;background:#fb7185;margin-right:6px"></i>MC tinggi (&gt;50%)</span>
+          <span><i style="width:9px;height:9px;border-radius:3px;display:inline-block;background:rgba(148,163,184,.18);margin-right:6px"></i>Kosong</span>
+        </div>
+      </div>
+
+      <div class="grid g-2" style="margin-top:16px">
+        <div class="card">
+          <h3>Manajemen Formulasi Bahan Baku <span class="right">Recipe &amp; Blending Control</span></h3>
+          <div class="field" style="margin-bottom:11px">
+            <label>Porsi Gamal (%) — <b id="blendGamalLbl" style="color:#fcd34d">70</b></label>
+            <input type="range" id="blendGamal" min="0" max="100" step="5" value="70" oninput="calcBlend()">
+          </div>
+          <div class="recipe-bar" id="blendBar"></div>
+          <div class="result-box" id="blendResult">
+            <div class="rlabel">Estimasi GCV Campuran</div>
+            <div class="rval">—</div>
+            <div class="rnote">—</div>
+          </div>
+          <div class="sub" style="margin-top:10px">GCV Gamal ≈ 4.320 kcal/kg · Kayu keras/limbah ≈ 3.880 kcal/kg. Target campuran ≥ 4.000 kcal/kg.</div>
+        </div>
+        <div class="card">
+          <h3>Kalkulator Kebutuhan Bahan Baku <span class="right">Basah → Pellet</span></h3>
+          <div class="form-grid">
+            <div class="field"><label>Target Pellet (Ton)</label><input type="number" id="fdTarget" value="400" oninput="calcFeedstock()"></div>
+            <div class="field"><label>MC Bahan Basah (%)</label><input type="number" id="fdMcIn" value="42.6" step="0.1" oninput="calcFeedstock()"></div>
+            <div class="field"><label>MC Pellet Akhir (%)</label><input type="number" id="fdMcOut" value="9.5" step="0.1" oninput="calcFeedstock()"></div>
+            <div class="field"><label>Yield Loss Proses (%)</label><input type="number" id="fdLoss" value="4" step="0.5" oninput="calcFeedstock()"></div>
+          </div>
+          <div class="result-box" id="fdResult">
+            <div class="rlabel">Kebutuhan Bahan Baku Basah</div>
+            <div class="rval">—</div>
+            <div class="rnote">—</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 3 — CHIPPER & SHREDDER ================= -->
+    <section class="panel" id="p3">
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi l"><div class="kpi-top"><span class="kpi-label">Throughput Chipper</span><span class="kpi-ico">🪓</span></div><div class="kpi-val">24,6 <small>Ton/jam</small></div><div class="kpi-sub">Kapasitas 25 Ton/jam</div><div class="kpi-bar"><i style="width:98%"></i></div></div>
+        <div class="kpi c"><div class="kpi-top"><span class="kpi-label">Beban Motor</span><span class="kpi-ico">⚡</span></div><div class="kpi-val">187 <small>kW</small></div><div class="kpi-sub">Rated 200 kW · 93,5%</div><div class="kpi-bar"><i style="width:93%"></i></div></div>
+        <div class="kpi e"><div class="kpi-top"><span class="kpi-label">Porsi Fines</span><span class="kpi-ico">▤</span></div><div class="kpi-val">8,4 <small>%</small></div><div class="kpi-sub">Ambang 10% · pisau aus</div><div class="kpi-bar"><i style="width:84%"></i></div></div>
+        <div class="kpi v"><div class="kpi-top"><span class="kpi-label">Umur Pisau Terpakai</span><span class="kpi-ico">⏱</span></div><div class="kpi-val">286 <small>jam</small></div><div class="kpi-sub">Ambang re-sharpening 300 jam</div><div class="kpi-bar"><i style="width:95%"></i></div></div>
+      </div>
+
+      <div class="grid g-21">
+        <div class="card">
+          <h3>Knife Wear Tracking <span class="right">Editable</span></h3>
+          <div id="tblKnives"></div>
+        </div>
+        <div class="card">
+          <h3>Feeder Rate Optimizer</h3>
+          <div class="field" style="margin-bottom:11px">
+            <label>Conveyor Feed Speed (m/menit) — <b id="feedLbl" style="color:#fcd34d">18</b></label>
+            <input type="range" id="feedRange" min="8" max="26" step="1" value="18" oninput="calcFeeder()">
+          </div>
+          <div class="result-box" id="feedResult">
+            <div class="rlabel">Estimasi Beban Motor</div>
+            <div class="rval">—</div>
+            <div class="rnote">—</div>
+          </div>
+          <div class="sub" style="margin-top:10px">Beban motor harus dijaga <b>≤ 95% rated power</b> agar pemotongan konsisten dan porsi fines minimal.</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Jam Kerja Pisau vs Porsi Fines <span class="right">Tren 10 periode</span></h3>
+        <div id="chKnife" style="min-height:310px"></div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Material Masuk Chipper <span class="right">Log bahan baku</span></h3>
+        <div class="sync-row"><span>🌳</span><span style="flex:1">Log Gamal (diameter 8–20 cm)</span><b>62%</b><span class="badge b-lime">Dominan</span></div>
+        <div class="sync-row"><span>🌳</span><span style="flex:1">Log Kaliandra</span><b>18%</b><span class="badge b-lime">Normal</span></div>
+        <div class="sync-row"><span>🪵</span><span style="flex:1">Limbah kayu keras</span><b>14%</b><span class="badge b-cyan">Normal</span></div>
+        <div class="sync-row"><span>🌿</span><span style="flex:1">Serbuk gergaji (sawdust)</span><b>6%</b><span class="badge b-amber">Campuran</span></div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 4 — DRYER & THERMAL ================= -->
+    <section class="panel" id="p4">
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi"><div class="kpi-top"><span class="kpi-label">Inlet Temperature</span><span class="kpi-ico">🔥</span></div><div class="kpi-val">320 <small>°C</small></div><div class="kpi-sub">Rentang 250–350°C</div><div class="kpi-bar"><i style="width:80%"></i></div></div>
+        <div class="kpi c"><div class="kpi-top"><span class="kpi-label">Outlet Moisture</span><span class="kpi-ico">💧</span></div><div class="kpi-val">11,4 <small>%</small></div><div class="kpi-sub">Target 10–12%</div><div class="kpi-bar"><i style="width:88%"></i></div></div>
+        <div class="kpi v"><div class="kpi-top"><span class="kpi-label">Konsumsi Bahan Bakar</span><span class="kpi-ico">⛽</span></div><div class="kpi-val">42 <small>kg/Ton evaporasi</small></div><div class="kpi-sub">Biomassa sisa &amp; kulit kayu</div><div class="kpi-bar"><i style="width:74%"></i></div></div>
+        <div class="kpi e"><div class="kpi-top"><span class="kpi-label">Spark Detection</span><span class="kpi-ico">⚠</span></div><div class="kpi-val">1 <small>aktivasi</small></div><div class="kpi-sub">Water misting otomatis 08:44</div><div class="kpi-bar"><i style="width:18%"></i></div></div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px">
+        <h3>Moisture Balance Control</h3>
+        <div class="gauge-grid">
+          <div class="gauge">
+            <svg width="112" height="112" viewBox="0 0 112 112">
+              <circle cx="56" cy="56" r="42" fill="none" stroke="rgba(148,163,184,.14)" stroke-width="10"/>
+              <circle cx="56" cy="56" r="42" fill="none" stroke="url(#ga)" stroke-width="10" stroke-linecap="round" stroke-dasharray="111.9 263.9" transform="rotate(-90 56 56)"/>
+              <defs><linearGradient id="ga"><stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#b45309"/></linearGradient></defs>
+              <text x="56" y="52" text-anchor="middle" fill="#eef2f8" font-size="20" font-weight="800" font-family="Inter,sans-serif">42,6%</text>
+              <text x="56" y="68" text-anchor="middle" fill="#93a2b8" font-size="8.5" font-family="Inter,sans-serif">INLET MC</text>
+            </svg>
+            <div class="glabel">Inlet Moisture</div>
+          </div>
+          <div class="gauge">
+            <svg width="112" height="112" viewBox="0 0 112 112">
+              <circle cx="56" cy="56" r="42" fill="none" stroke="rgba(148,163,184,.14)" stroke-width="10"/>
+              <circle cx="56" cy="56" r="42" fill="none" stroke="url(#gb)" stroke-width="10" stroke-linecap="round" stroke-dasharray="29.9 263.9" transform="rotate(-90 56 56)"/>
+              <defs><linearGradient id="gb"><stop offset="0%" stop-color="#a5f3fc"/><stop offset="100%" stop-color="#0e7490"/></linearGradient></defs>
+              <text x="56" y="52" text-anchor="middle" fill="#eef2f8" font-size="20" font-weight="800" font-family="Inter,sans-serif">11,4%</text>
+              <text x="56" y="68" text-anchor="middle" fill="#93a2b8" font-size="8.5" font-family="Inter,sans-serif">OUTLET MC</text>
+            </svg>
+            <div class="glabel">Outlet Moisture</div>
+          </div>
+          <div class="gauge">
+            <svg width="112" height="112" viewBox="0 0 112 112">
+              <circle cx="56" cy="56" r="42" fill="none" stroke="rgba(148,163,184,.14)" stroke-width="10"/>
+              <circle cx="56" cy="56" r="42" fill="none" stroke="url(#gc)" stroke-width="10" stroke-linecap="round" stroke-dasharray="184.7 263.9" transform="rotate(-90 56 56)"/>
+              <defs><linearGradient id="gc"><stop offset="0%" stop-color="#d9f99d"/><stop offset="100%" stop-color="#4d7c0f"/></linearGradient></defs>
+              <text x="56" y="52" text-anchor="middle" fill="#eef2f8" font-size="20" font-weight="800" font-family="Inter,sans-serif">70,2%</text>
+              <text x="56" y="68" text-anchor="middle" fill="#93a2b8" font-size="8.5" font-family="Inter,sans-serif">EFISIENSI</text>
+            </svg>
+            <div class="glabel">Efisiensi Penguapan</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid g-21">
+        <div class="card">
+          <h3>Suhu Dryer &amp; Aktivasi Spark System <span class="right">24 jam</span></h3>
+          <div id="chDryer" style="min-height:320px"></div>
+        </div>
+        <div class="card">
+          <h3>Kalkulator Beban Dryer</h3>
+          <div class="form-grid">
+            <div class="field"><label>Umpan Serbuk (Ton/jam)</label><input type="number" id="drFeed" value="20" step="0.5" oninput="calcDryer()"></div>
+            <div class="field"><label>MC Masuk (%)</label><input type="number" id="drMcIn" value="42.6" step="0.1" oninput="calcDryer()"></div>
+            <div class="field"><label>MC Keluar Target (%)</label><input type="number" id="drMcOut" value="11.4" step="0.1" oninput="calcDryer()"></div>
+            <div class="field"><label>Bahan Bakar (kg/jam)</label><input type="number" id="drFuel" value="840" step="10" oninput="calcDryer()"></div>
+          </div>
+          <div class="result-box" id="drResult">
+            <div class="rlabel">Laju Penguapan Air</div>
+            <div class="rval">—</div>
+            <div class="rnote">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Log Spark Detection &amp; Deluge System <span class="right">Editable</span></h3>
+        <div id="tblSpark"></div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 5 — HAMMER MILL & CONDITIONING ================= -->
+    <section class="panel" id="p5">
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi l"><div class="kpi-top"><span class="kpi-label">Ukuran Partikel</span><span class="kpi-ico">⚒</span></div><div class="kpi-val">3,2 <small>mm</small></div><div class="kpi-sub">Screen mesh 8 mm</div><div class="kpi-bar"><i style="width:80%"></i></div></div>
+        <div class="kpi c"><div class="kpi-top"><span class="kpi-label">Throughput Hammer Mill</span><span class="kpi-ico">◍</span></div><div class="kpi-val">21,4 <small>Ton/jam</small></div><div class="kpi-sub">Kapasitas 24 Ton/jam</div><div class="kpi-bar"><i style="width:89%"></i></div></div>
+        <div class="kpi"><div class="kpi-top"><span class="kpi-label">Suhu Conditioning</span><span class="kpi-ico">💨</span></div><div class="kpi-val">85 <small>°C</small></div><div class="kpi-sub">Rentang 80–90°C</div><div class="kpi-bar"><i style="width:85%"></i></div></div>
+        <div class="kpi v"><div class="kpi-top"><span class="kpi-label">Injeksi Steam</span><span class="kpi-ico">♨</span></div><div class="kpi-val">1,6 <small>%</small></div><div class="kpi-sub">Target 1–2% dari massa</div><div class="kpi-bar"><i style="width:80%"></i></div></div>
+      </div>
+
+      <div class="grid g-21">
+        <div class="card">
+          <h3>Hammer &amp; Screen Maintenance <span class="right">Editable</span></h3>
+          <div id="tblHammers"></div>
+        </div>
+        <div class="card">
+          <h3>Kondisi Pemukul &amp; Saringan</h3>
+          <div id="chHammer" style="min-height:290px"></div>
+        </div>
+      </div>
+
+      <div class="grid g-2" style="margin-top:16px">
+        <div class="card">
+          <h3>Pengondisian &amp; Injeksi Uap</h3>
+          <div class="field" style="margin-bottom:11px">
+            <label>Injeksi Steam (%) — <b id="steamLbl" style="color:#fcd34d">1,6</b></label>
+            <input type="range" id="steamRange" min="0" max="3" step="0.1" value="1.6" oninput="calcSteam()">
+          </div>
+          <div class="field" style="margin-bottom:11px">
+            <label>Suhu Conditioning (°C) — <b id="condLbl" style="color:#fcd34d">85</b></label>
+            <input type="range" id="condRange" min="60" max="100" step="1" value="85" oninput="calcSteam()">
+          </div>
+          <div class="result-box" id="steamResult">
+            <div class="rlabel">Estimasi Kualitas Pelet</div>
+            <div class="rval">—</div>
+            <div class="rnote">—</div>
+          </div>
+          <div class="sub" style="margin-top:10px">Suhu 80–90°C dengan steam 1–2% mengaktifkan lignin alami sebagai perekat (gelatinization).</div>
+        </div>
+        <div class="card">
+          <h3>Spesifikasi Screen Mesh</h3>
+          <div class="sync-row"><span>▦</span><span style="flex:1">Screen 6 mm — pelet halus</span><span class="badge b-cyan">Cadangan</span></div>
+          <div class="sync-row"><span>▦</span><span style="flex:1">Screen 8 mm — standar produksi</span><span class="badge b-lime">Aktif</span></div>
+          <div class="sync-row"><span>▦</span><span style="flex:1">Screen 10 mm — throughput tinggi</span><span class="badge b-gray">Tersedia</span></div>
+          <div class="sync-row"><span>⏱</span><span style="flex:1">Umur screen terpakai</span><b>412 jam</b></div>
+          <div class="sync-row"><span>🔧</span><span style="flex:1">Ambang penggantian</span><b>600 jam</b></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 6 — PELLET PRESS & COOLER ================= -->
+    <section class="panel" id="p6">
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi"><div class="kpi-top"><span class="kpi-label">Amperage Motor Press</span><span class="kpi-ico">⚡</span></div><div class="kpi-val">128 <small>A</small></div><div class="kpi-sub">Normal 120–135 A</div><div class="kpi-bar"><i style="width:76%"></i></div></div>
+        <div class="kpi e"><div class="kpi-top"><span class="kpi-label">Suhu Die</span><span class="kpi-ico">🌡</span></div><div class="kpi-val">91 <small>°C</small></div><div class="kpi-sub">Rentang 85–95°C</div><div class="kpi-bar"><i style="width:91%"></i></div></div>
+        <div class="kpi l"><div class="kpi-top"><span class="kpi-label">PDI Output</span><span class="kpi-ico">◍</span></div><div class="kpi-val">98,1 <small>%</small></div><div class="kpi-sub">Standar ≥ 97,5%</div><div class="kpi-bar"><i style="width:98%"></i></div></div>
+        <div class="kpi c"><div class="kpi-top"><span class="kpi-label">Suhu Setelah Cooler</span><span class="kpi-ico">❄</span></div><div class="kpi-val">38 <small>°C</small></div><div class="kpi-sub">Target ≤ 45°C</div><div class="kpi-bar"><i style="width:84%"></i></div></div>
+      </div>
+
+      <div class="grid g-21">
+        <div class="card">
+          <h3>Pellet Press Monitoring <span class="right">Real-time</span></h3>
+          <div class="machine"><div class="mi">⚡</div><div style="flex:1"><div class="mname">Arus Motor Utama</div><div class="mmeta">128 A · beban stabil</div></div><span class="badge b-lime">Normal</span></div>
+          <div class="machine"><div class="mi">🌡</div><div style="flex:1"><div class="mname">Suhu Die</div><div class="mmeta">91°C · lignin aktif optimal</div></div><span class="badge b-lime">Optimal</span></div>
+          <div class="machine"><div class="mi">🛢</div><div style="flex:1"><div class="mname">Auto-Greasing Roller</div><div class="mmeta">Siklus 4 jam · level grease 68%</div></div><span class="badge b-cyan">Aktif</span></div>
+          <div class="machine"><div class="mi">⭕</div><div style="flex:1"><div class="mname">Tekanan Die</div><div class="mmeta">Naik 18% — potensi clogging</div></div><span class="badge b-amber">Waspada</span></div>
+          <div class="machine"><div class="mi">❄</div><div style="flex:1"><div class="mname">Counterflow Cooler</div><div class="mmeta">Outlet 38°C · MC akhir 9,4%</div></div><span class="badge b-lime">Normal</span></div>
+          <div class="machine"><div class="mi">▤</div><div style="flex:1"><div class="mname">Vibrating Screener</div><div class="mmeta">Fines 2,1% — recycle ke hammer mill</div></div><span class="badge b-cyan">Recycle</span></div>
+        </div>
+        <div class="card">
+          <h3>Die &amp; Roller Lifespan</h3>
+          <div class="field" style="margin-bottom:14px">
+            <label style="display:flex;justify-content:space-between">
+              <span>Akumulasi Tonase Ring Die #2</span><b style="color:#fcd34d">8.420 / 12.000 Ton</b>
+            </label>
+            <div class="progress"><i style="width:70%"></i></div>
+          </div>
+          <div class="field" style="margin-bottom:14px">
+            <label style="display:flex;justify-content:space-between">
+              <span>Akumulasi Roller Shell</span><b style="color:#a5f3fc">6.180 / 9.000 Ton</b>
+            </label>
+            <div class="progress cyan"><i style="width:69%"></i></div>
+          </div>
+          <div class="field">
+            <label style="display:flex;justify-content:space-between">
+              <span>Umur Pakai Bearing Suhu Tinggi</span><b style="color:#d9f99d">4.120 / 6.000 jam</b>
+            </label>
+            <div class="progress lime"><i style="width:69%"></i></div>
+          </div>
+          <div class="result-box" style="margin-top:14px">
+            <div class="rlabel">Estimasi Penggantian Die</div>
+            <div class="rval" style="font-size:17px">± 28 hari lagi</div>
+            <div class="rnote">Berdasarkan laju produksi 428 Ton/hari dan sisa kapasitas die 3.580 Ton.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Riwayat Umur Pakai Die &amp; Roller <span class="right">Tonase per set</span></h3>
+        <div id="chDie" style="min-height:310px"></div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Kalkulator Cooling &amp; Fines Recycle</h3>
+        <div class="form-grid three">
+          <div class="field"><label>Output Press (Ton/jam)</label><input type="number" id="clTon" value="18.4" step="0.1" oninput="calcCooling()"></div>
+          <div class="field"><label>Suhu Masuk Cooler (°C)</label><input type="number" id="clIn" value="80" oninput="calcCooling()"></div>
+          <div class="field"><label>Suhu Keluar Cooler (°C)</label><input type="number" id="clOut" value="38" oninput="calcCooling()"></div>
+          <div class="field"><label>MC Masuk Cooler (%)</label><input type="number" id="clMcIn" value="10.8" step="0.1" oninput="calcCooling()"></div>
+          <div class="field"><label>MC Keluar Cooler (%)</label><input type="number" id="clMcOut" value="9.4" step="0.1" oninput="calcCooling()"></div>
+          <div class="field"><label>Fines Terpisah (%)</label><input type="number" id="clFines" value="2.1" step="0.1" oninput="calcCooling()"></div>
+        </div>
+        <div class="result-box" id="clResult">
+          <div class="rlabel">Beban Panas Cooler</div>
+          <div class="rval">—</div>
+          <div class="rnote">—</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 7 — QC & LABORATORY ================= -->
+    <section class="panel" id="p7">
+      <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr)">
+        <div class="kpi l"><div class="kpi-top"><span class="kpi-label">PDI</span><span class="kpi-ico">◍</span></div><div class="kpi-val">98,1 <small>%</small></div><div class="kpi-sub">Std ≥ 97,5%</div><div class="kpi-bar"><i style="width:98%"></i></div></div>
+        <div class="kpi"><div class="kpi-top"><span class="kpi-label">GCV</span><span class="kpi-ico">🔥</span></div><div class="kpi-val">4.210 <small>kcal/kg</small></div><div class="kpi-sub">Std ≥ 4.000</div><div class="kpi-bar"><i style="width:95%"></i></div></div>
+        <div class="kpi c"><div class="kpi-top"><span class="kpi-label">Ash Content</span><span class="kpi-ico">▤</span></div><div class="kpi-val">1,28 <small>%</small></div><div class="kpi-sub">Std ≤ 1,5%</div><div class="kpi-bar"><i style="width:85%"></i></div></div>
+        <div class="kpi v"><div class="kpi-top"><span class="kpi-label">Bulk Density</span><span class="kpi-ico">▦</span></div><div class="kpi-val">634 <small>kg/m³</small></div><div class="kpi-sub">Std ≥ 600</div><div class="kpi-bar"><i style="width:94%"></i></div></div>
+        <div class="kpi"><div class="kpi-top"><span class="kpi-label">Moisture</span><span class="kpi-ico">💧</span></div><div class="kpi-val">9,4 <small>%</small></div><div class="kpi-sub">Std 7–10%</div><div class="kpi-bar"><i style="width:94%"></i></div></div>
+      </div>
+
+      <div class="grid g-21">
+        <div class="card">
+          <h3>Profil Mutu vs Standar ISO 17225-2 <span class="right">Radar parameter</span></h3>
+          <div id="chQc" style="min-height:350px"></div>
+          <div class="legend-inline" style="display:flex;gap:14px;flex-wrap:wrap;font-size:10.5px;color:var(--muted);margin-top:8px">
+            <span><i style="width:9px;height:9px;border-radius:3px;display:inline-block;background:#a3e635;margin-right:6px"></i>Hasil uji aktual</span>
+            <span><i style="width:9px;height:9px;border-radius:3px;display:inline-block;background:#22d3ee;margin-right:6px"></i>Standar ISO 17225-2</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Auto-Generation Certificate of Analysis</h3>
+          <div class="form-grid">
+            <div class="field"><label>Batch / Lot</label><input type="text" id="coaBatch" value="ELV-2521"></div>
+            <div class="field"><label>Offtaker</label><input type="text" id="coaBuyer" value="PLN PLTU Pelabuhan Ratu"></div>
+            <div class="field"><label>PDI (%)</label><input type="number" id="coaPdi" value="98.1" step="0.1"></div>
+            <div class="field"><label>GCV (kcal/kg)</label><input type="number" id="coaGcv" value="4210"></div>
+            <div class="field"><label>Ash (%)</label><input type="number" id="coaAsh" value="1.28" step="0.01"></div>
+            <div class="field"><label>Bulk Density (kg/m³)</label><input type="number" id="coaBulk" value="634"></div>
+            <div class="field"><label>Moisture (%)</label><input type="number" id="coaMc" value="9.4" step="0.1"></div>
+            <div class="field"><label>Titik Sampling</label>
+              <select id="coaPoint"><option>Pellet Output</option><option>Pre-Loading</option><option>Dryer Output</option></select>
+            </div>
+          </div>
+          <button class="btn" style="margin-top:12px;width:100%" onclick="generateCoA()">◈ Terbitkan Certificate of Analysis</button>
+          <div class="result-box" id="coaResult">
+            <div class="rlabel">Status Sertifikasi</div>
+            <div class="rval" style="font-size:16px">Siap diterbitkan</div>
+            <div class="rnote">Semua parameter memenuhi ambang batas ISO 17225-2.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Riwayat Hasil Uji Laboratorium <span class="right">Editable</span></h3>
+        <div id="tblLab"></div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 8 — PACKING & OUTBOUND ================= -->
+    <section class="panel" id="p8">
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi l"><div class="kpi-top"><span class="kpi-label">Jumbo Bag</span><span class="kpi-ico">📦</span></div><div class="kpi-val">1.240 <small>bag</small></div><div class="kpi-sub">1.000 kg presisi</div><div class="kpi-bar"><i style="width:78%"></i></div></div>
+        <div class="kpi c"><div class="kpi-top"><span class="kpi-label">Small Bag</span><span class="kpi-ico">🛍</span></div><div class="kpi-val">8.420 <small>bag</small></div><div class="kpi-sub">15–25 kg komersial</div><div class="kpi-bar"><i style="width:64%"></i></div></div>
+        <div class="kpi"><div class="kpi-top"><span class="kpi-label">Stok Silo</span><span class="kpi-ico">▦</span></div><div class="kpi-val">4.120 <small>Ton</small></div><div class="kpi-sub">Kapasitas 6.000 Ton</div><div class="kpi-bar"><i style="width:69%"></i></div></div>
+        <div class="kpi v"><div class="kpi-top"><span class="kpi-label">Kepatuhan FIFO</span><span class="kpi-ico">◍</span></div><div class="kpi-val">96,8 <small>%</small></div><div class="kpi-sub">Target 100%</div><div class="kpi-bar"><i style="width:97%"></i></div></div>
+      </div>
+
+      <div class="grid g-21">
+        <div class="card">
+          <h3>Stok Silo &amp; Gudang Produk Jadi <span class="right">Ton</span></h3>
+          <div id="chSilo" style="min-height:310px"></div>
+        </div>
+        <div class="card">
+          <h3>Monitoring Suhu Internal Silo <span class="right">Self-heating prevention</span></h3>
+          <div id="chSiloTemp" style="min-height:310px"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Packing Line Status</h3>
+        <div class="sync-row"><span>📦</span><span style="flex:1">Stasiun Jumbo Bag (1.000 kg)</span><b>Aktif · 68 bag/jam</b><span class="badge b-lime">Beroperasi</span></div>
+        <div class="sync-row"><span>🛍</span><span style="flex:1">Stasiun Small Bag (15–25 kg)</span><b>Aktif · 420 bag/jam</b><span class="badge b-lime">Beroperasi</span></div>
+        <div class="sync-row"><span>⛲</span><span style="flex:1">Bulk / Silo Loading</span><b>3.180 Ton</b><span class="badge b-cyan">Dominan</span></div>
+        <div class="sync-row"><span>⚖</span><span style="flex:1">Akurasi Timbangan Packing</span><b>± 0,4%</b><span class="badge b-lime">Normal</span></div>
+      </div>
+
+      <div class="grid g-2" style="margin-top:16px">
+        <div class="card">
+          <h3>Surat Jalan &amp; Verifikasi Segel</h3>
+          <div style="text-align:center;padding:6px 0 12px"><div class="qr-box"><canvas id="qrDo" width="150" height="150"></canvas></div></div>
+          <div class="sync-row"><span>🆔</span><span style="flex:1">No. Surat Jalan</span><b>SJ-ELV-2418</b></div>
+          <div class="sync-row"><span>🏭</span><span style="flex:1">Batch</span><b>ELV-2521</b></div>
+          <div class="sync-row"><span>🚛</span><span style="flex:1">Nopol</span><b>B-9034-VAN</b></div>
+          <div class="sync-row"><span>🔒</span><span style="flex:1">Segel</span><b>SL-88214</b></div>
+        </div>
+        <div class="card">
+          <h3>Dispatch Outbound <span class="right">Editable</span></h3>
+          <div id="tblDispatch"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 9 — MAINTENANCE & OEE ================= -->
+    <section class="panel" id="p9">
+      <div class="grid g-21">
+        <div class="card">
+          <h3>Kalkulator OEE Pabrik</h3>
+          <div class="form-grid three">
+            <div class="field"><label>Planned Production Time (menit)</label><input type="number" id="oeePlan" value="1440" oninput="calcOee()"></div>
+            <div class="field"><label>Downtime (menit)</label><input type="number" id="oeeDown" value="110" oninput="calcOee()"></div>
+            <div class="field"><label>Ideal Cycle (Ton/menit)</label><input type="number" id="oeeCycle" value="0.38" step="0.01" oninput="calcOee()"></div>
+            <div class="field"><label>Output Aktual (Ton)</label><input type="number" id="oeeOutput" value="428" oninput="calcOee()"></div>
+            <div class="field"><label>Total Produksi (Ton)</label><input type="number" id="oeeTotal" value="436" oninput="calcOee()"></div>
+            <div class="field"><label>Produk Lolos QC (Ton)</label><input type="number" id="oeeGood" value="432" oninput="calcOee()"></div>
+          </div>
+          <div class="result-box" id="oeeResult">
+            <div class="rlabel">Overall Equipment Effectiveness</div>
+            <div class="rval">—</div>
+            <div class="rnote">—</div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>OEE Gauge <span class="right">Target ≥ 85%</span></h3>
+          <div id="chOeeGauge" style="min-height:300px"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Preventive Maintenance Schedule <span class="right">Editable</span></h3>
+        <div id="tblPm"></div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Inventori Suku Cadang Kritis <span class="right">Editable</span></h3>
+        <div id="tblSpares"></div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Log Downtime <span class="right">Editable</span></h3>
+        <div id="tblDowntime"></div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 10 — ENERGY, HPP & ERP ================= -->
+    <section class="panel" id="p10">
+      <div class="grid g-21">
+        <div class="card">
+          <h3>Kalkulator HPP Pabrikasi Real-Time</h3>
+          <div class="field" style="margin-bottom:11px">
+            <label>Biaya Bahan Baku (Rp/Ton pellet) — <b id="hppFeedLbl" style="color:#fcd34d">703.250</b></label>
+            <input type="range" id="hppFeed" min="300000" max="1400000" step="5000" value="703250" oninput="calcHpp()">
+          </div>
+          <div class="field" style="margin-bottom:11px">
+            <label>Biaya Listrik &amp; BBM (Rp/Ton) — <b id="hppEnergyLbl" style="color:#a5f3fc">286.000</b></label>
+            <input type="range" id="hppEnergy" min="80000" max="700000" step="5000" value="286000" oninput="calcHpp()">
+          </div>
+          <div class="field" style="margin-bottom:11px">
+            <label>Upah Labor Pabrik (Rp/Ton) — <b id="hppLaborLbl" style="color:#d9f99d">164.000</b></label>
+            <input type="range" id="hppLabor" min="40000" max="500000" step="5000" value="164000" oninput="calcHpp()">
+          </div>
+          <div class="field" style="margin-bottom:11px">
+            <label>Amortisasi Die &amp; Spare Parts (Rp/Ton) — <b id="hppAmortLbl" style="color:#c8b6ff">132.000</b></label>
+            <input type="range" id="hppAmort" min="20000" max="400000" step="5000" value="132000" oninput="calcHpp()">
+          </div>
+          <div class="result-box" id="hppBox">
+            <div class="rlabel">HPP Pabrikasi / Ton</div>
+            <div class="rval" id="hppVal">Rp 1.285.250 /Ton</div>
+            <div class="rnote" id="hppNote">—</div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Struktur HPP Pabrikasi <span class="right">Komposisi biaya</span></h3>
+          <div id="chHpp" style="min-height:330px"></div>
+        </div>
+      </div>
+
+      <div class="grid g-2" style="margin-top:16px">
+        <div class="card">
+          <h3>Efisiensi Konsumsi Energi Spesifik</h3>
+          <div class="form-grid">
+            <div class="field"><label>Listrik Terpakai (kWh)</label><input type="number" id="enKwh" value="78400" oninput="calcEnergy()"></div>
+            <div class="field"><label>Output Pellet (Ton)</label><input type="number" id="enTon" value="1000" oninput="calcEnergy()"></div>
+            <div class="field"><label>Bahan Bakar Tungku (kg)</label><input type="number" id="enFuel" value="42000" step="100" oninput="calcEnergy()"></div>
+            <div class="field"><label>Air Diuapkan (Ton)</label><input type="number" id="enEvap" value="348" step="1" oninput="calcEnergy()"></div>
+          </div>
+          <div class="result-box" id="enResult">
+            <div class="rlabel">Intensitas Energi</div>
+            <div class="rval">—</div>
+            <div class="rnote">—</div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Konsumsi Energi per Tahap <span class="right">kWh/Ton pellet</span></h3>
+          <div id="chEnergy" style="min-height:280px"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Integrasi ERP Eksternal (Dolibarr / SAP)</h3>
+        <div class="sync-row"><span>📦</span><span style="flex:1">Push jurnal pemakaian bahan baku → Modul Stock/Inventory</span><span class="badge b-lime">Tersinkron</span></div>
+        <div class="sync-row"><span>🏭</span><span style="flex:1">Push hasil produksi → Modul Inventory Stock</span><span class="badge b-lime">Tersinkron</span></div>
+        <div class="sync-row"><span>📒</span><span style="flex:1">Push biaya produksi &amp; listrik → Modul Cost Accounting</span><span class="badge b-amber">Antrean 8</span></div>
+        <div class="sync-row"><span>🔗</span><span style="flex:1">Endpoint API</span><b style="font-size:10.5px">https://erp.elvenium.co.id/api</b></div>
+        <div class="sync-row"><span>🕐</span><span style="flex:1">Sinkronisasi terakhir</span><b id="erpLast">—</b></div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Log Audit &amp; Keamanan Sistem <span class="right">Editable</span></h3>
+        <div id="tblAudit"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast" id="toast">Tersimpan</div>
+
+<script>
+/* ============================================================
+   PT ELVENIUM AGRO INOVASI — Biomass Pellet Plant Control Center
+   Bridge: minerva.html (mga_db_v5) + verdantia (van_db_v1)
+   ============================================================ */
+
+const fmt = n => Math.round(+n || 0).toLocaleString('id-ID');
+const fmt1 = n => (+n || 0).toFixed(1).replace('.', ',');
+const fmt2 = n => (+n || 0).toFixed(2).replace('.', ',');
+const esc = s => String(s ?? '').replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+const toast = (msg='Tersimpan') => {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), 1800);
+};
+
+/* ============================================================
+   DATABASE DEMO
+   ============================================================ */
+const DEFAULT_DB = {
+  weigh: [
+    {tiket:'WB-2418', supplier:'Minerva A3',       gross:19240, tare:7180, nett:12060, mc:41.2, status:'Diterima'},
+    {tiket:'WB-2419', supplier:'Koperasi Cibadak', gross:20110, tare:7240, nett:12870, mc:44.8, status:'Diterima'},
+    {tiket:'WB-2420', supplier:'Gapoktan Ciemas',  gross:18870, tare:7150, nett:11720, mc:52.4, status:'Re-drying'},
+    {tiket:'WB-2421', supplier:'Minerva C1',       gross:19560, tare:7230, nett:12330, mc:38.6, status:'Diterima'},
+    {tiket:'WB-2422', supplier:'UD Serbuk Jaya',   gross:17990, tare:7100, nett:10890, mc:58.2, status:'Ditolak'},
+    {tiket:'WB-2423', supplier:'Minerva A1',       gross:20340, tare:7260, nett:13080, mc:40.1, status:'Diterima'}
+  ],
+  knives: [
+    {posisi:'Knife Set A', jamPakai:286, batas:300, fines:8.4, status:'Segera Ganti'},
+    {posisi:'Knife Set B', jamPakai:142, batas:300, fines:5.1, status:'Baik'},
+    {posisi:'Knife Set C', jamPakai:64,  batas:300, fines:3.8, status:'Baik'},
+    {posisi:'Bed Knife',   jamPakai:198, batas:250, fines:6.2, status:'Baik'},
+    {posisi:'Anvil Plate', jamPakai:410, batas:500, fines:7.1, status:'Baik'}
+  ],
+  spark: [
+    {waktu:'08:44:12', zona:'Duct Dryer Inlet',  aksi:'Water misting aktif 12 detik', status:'Selesai'},
+    {waktu:'Kemarin 21:18', zona:'Cyclone Discharge', aksi:'Deluge aktif 8 detik', status:'Selesai'},
+    {waktu:'Kemarin 14:02', zona:'Duct Dryer Outlet', aksi:'Sensor reset manual', status:'Selesai'},
+    {waktu:'2 hari lalu 09:36', zona:'Bag Filter', aksi:'Water misting aktif 6 detik', status:'Selesai'}
+  ],
+  hammers: [
+    {posisi:'Hammer Set A', jamPakai:680, batas:900,  screen:'8 mm', status:'Baik'},
+    {posisi:'Hammer Set B', jamPakai:412, batas:900,  screen:'8 mm', status:'Baik'},
+    {posisi:'Screen Mesh 8 mm', jamPakai:412, batas:600, screen:'—', status:'Baik'},
+    {posisi:'Screen Mesh 6 mm', jamPakai:580, batas:600, screen:'—', status:'Segera Ganti'}
+  ],
+  lab: [
+    {kode:'LAB-0101', batch:'ELV-2516', titik:'Pellet Output', gcv:4190, mc:9.8, ash:1.42, pdi:97.9, bulk:628, status:'Lolos'},
+    {kode:'LAB-0102', batch:'ELV-2517', titik:'Pre-Loading',   gcv:4210, mc:9.4, ash:1.28, pdi:98.2, bulk:634, status:'Lolos'},
+    {kode:'LAB-0103', batch:'ELV-2518', titik:'Pellet Output', gcv:4060, mc:11.4,ash:1.61, pdi:96.8, bulk:612, status:'Deviasi'},
+    {kode:'LAB-0104', batch:'ELV-2519', titik:'Dryer Output',  gcv:3940, mc:14.2,ash:1.88, pdi:0,    bulk:0,   status:'Lolos'},
+    {kode:'LAB-0105', batch:'ELV-2520', titik:'Pre-Loading',   gcv:4240, mc:9.1, ash:1.19, pdi:98.6, bulk:641, status:'Lolos'}
+  ],
+  dispatch: [
+    {sj:'SJ-ELV-2418', batch:'ELV-2521', tujuan:'PLTU Pelabuhan Ratu', tonase:24, segel:'SL-88214', status:'Dimuat'},
+    {sj:'SJ-ELV-2419', batch:'ELV-2520', tujuan:'Pelabuhan Ratu (Ekspor)', tonase:26, segel:'SL-88215', status:'Siap'},
+    {sj:'SJ-ELV-2420', batch:'ELV-2519', tujuan:'Industri Semen Cibinong', tonase:18, segel:'SL-88216', status:'Terjadwal'},
+    {sj:'SJ-ELV-2421', batch:'ELV-2517', tujuan:'PLTU Pelabuhan Ratu', tonase:22, segel:'SL-88217', status:'Selesai'}
+  ],
+  pm: [
+    {item:'Pengasahan pisau chipper', interval:'300 jam', terakhir:'2025-06-18', berikut:'2025-07-01', status:'Jatuh Tempo'},
+    {item:'Ganti screen hammer mill', interval:'600 jam', terakhir:'2025-05-30', berikut:'2025-07-10', status:'Terjadwal'},
+    {item:'Ganti oli gearbox dryer',  interval:'2.000 jam', terakhir:'2025-04-12', berikut:'2025-08-01', status:'Terjadwal'},
+    {item:'Bersihkan cyclone',        interval:'Mingguan', terakhir:'2025-06-28', berikut:'2025-07-05', status:'Terjadwal'},
+    {item:'Inspeksi ring die & roller',interval:'500 jam', terakhir:'2025-06-20', berikut:'2025-07-06', status:'Terjadwal'},
+    {item:'Kalibrasi jembatan timbang',interval:'6 bulan', terakhir:'2025-02-14', berikut:'2025-08-14', status:'Terjadwal'}
+  ],
+  spares: [
+    {part:'Pisau Chipper (set)', stok:4, minimum:3, satuan:'set', status:'Aman'},
+    {part:'Hammer Beater', stok:24, minimum:20, satuan:'pcs', status:'Aman'},
+    {part:'Ring Die 6 mm', stok:1, minimum:2, satuan:'pcs', status:'Kritis'},
+    {part:'Roller Shell', stok:3, minimum:2, satuan:'pcs', status:'Aman'},
+    {part:'Bearing Suhu Tinggi', stok:6, minimum:4, satuan:'pcs', status:'Aman'},
+    {part:'Screen Mesh 8 mm', stok:2, minimum:2, satuan:'pcs', status:'Aman'},
+    {part:'V-Belt Dryer', stok:1, minimum:2, satuan:'set', status:'Kritis'}
+  ],
+  downtime: [
+    {mesin:'Rotary Dryer',   mulai:'06:12', durasi:0.8, penyebab:'Kadar air feed tinggi', tindakan:'Penyesuaian damper', status:'Selesai'},
+    {mesin:'Pellet Press #2',mulai:'09:40', durasi:1.0, penyebab:'Ganti die & roller',    tindakan:'Preventive maintenance', status:'Selesai'},
+    {mesin:'Hammer Mill',    mulai:'13:05', durasi:0.5, penyebab:'Bearing overheat',      tindakan:'Pelumasan ulang', status:'Selesai'},
+    {mesin:'Chipper',        mulai:'15:20', durasi:0.0, penyebab:'Menunggu bahan baku',   tindakan:'—', status:'Berjalan'}
+  ],
+  audit: [
+    {waktu:'06:12:44', user:'Ahmad Mulyadi', role:'Plant Manager', aksi:'Sinkronisasi Minerva', objek:'12 blok estate', status:'Sukses'},
+    {waktu:'06:08:11', user:'Siti Nurhaliza', role:'QC',          aksi:'Input hasil lab',      objek:'Batch ELV-2521', status:'Sukses'},
+    {waktu:'05:57:03', user:'Budi Santoso',  role:'Operator',     aksi:'Validasi tiket timbang',objek:'WB-2423',       status:'Sukses'},
+    {waktu:'05:31:52', user:'Rahmat Hidayat',role:'Field',        aksi:'Presensi offline',     objek:'Yard — 14 pekerja', status:'Antrean Sync'},
+    {waktu:'04:58:41', user:'Andi Wijaya',   role:'QC',           aksi:'Koreksi kadar abu',    objek:'LAB-0103', status:'Direvisi'}
+  ],
+  rbac: [
+    {role:'Super Admin',                    kebun:1, inbound:1, proses:1, qc:1, gudang:1, keuangan:1},
+    {role:'Plant Manager',                  kebun:1, inbound:1, proses:1, qc:1, gudang:1, keuangan:1},
+    {role:'Operator Timbangan & Yard',      kebun:0, inbound:1, proses:0, qc:0, gudang:1, keuangan:0},
+    {role:'Operator Produksi / SCADA',      kebun:0, inbound:0, proses:1, qc:0, gudang:0, keuangan:0},
+    {role:'Petugas QC & Laboratorium',      kebun:0, inbound:1, proses:1, qc:1, gudang:0, keuangan:0},
+    {role:'Teknisi Maintenance',            kebun:0, inbound:0, proses:1, qc:0, gudang:0, keuangan:0},
+    {role:'Manajer Keuangan & Eksekutif',   kebun:1, inbound:1, proses:1, qc:1, gudang:1, keuangan:1}
+  ]
+};
+
+let DB = loadDB();
+function loadDB() {
+  try {
+    const saved = localStorage.getItem('elv_db_v1');
+    if (saved) return Object.assign(JSON.parse(JSON.stringify(DEFAULT_DB)), JSON.parse(saved));
+  } catch(e) {}
+  return JSON.parse(JSON.stringify(DEFAULT_DB));
+}
+function saveDB() {
+  try { localStorage.setItem('elv_db_v1', JSON.stringify(DB)); } catch(e) {}
+}
+function resetDB() {
+  if (!confirm('Reset semua data ke default demo?')) return;
+  localStorage.removeItem('elv_db_v1');
+  DB = JSON.parse(JSON.stringify(DEFAULT_DB));
+  location.reload();
+}
+
+/* ============================================================
+   SCADA LINE
+   ============================================================ */
+const STAGES = [
+  {ico:'🪓', name:'Chipper',        detail:'24,6 Ton/jam',  status:'run',  flow:'24,6 T/j'},
+  {ico:'🔥', name:'Rotary Dryer',   detail:'Inlet 320°C',   status:'run',  flow:'20,1 T/j'},
+  {ico:'⚒', name:'Hammer Mill',     detail:'Screen 8 mm',   status:'run',  flow:'21,4 T/j'},
+  {ico:'💨', name:'Conditioner',    detail:'Steam 85°C',    status:'run',  flow:'21,0 T/j'},
+  {ico:'⭕', name:'Pellet Press',   detail:'Die 6 mm · 91°C',status:'warn', flow:'18,4 T/j'},
+  {ico:'❄', name:'Cooler',          detail:'Outlet 38°C',   status:'run',  flow:'18,2 T/j'},
+  {ico:'▤', name:'Screener',        detail:'Fines 2,1%',    status:'run',  flow:'17,8 T/j'},
+  {ico:'📦', name:'Packing',        detail:'Util. 74,2%',   status:'run',  flow:'17,4 T/j'}
+];
+
+function renderScada() {
+  const el = document.getElementById('scadaLine');
+  if (!el) return;
+  let html = '';
+  STAGES.forEach((s, i) => {
+    html += `<div class="scada-node ${s.status}">
+      <div class="sn-led"></div>
+      <div class="sn-ico">${s.ico}</div>
+      <div class="sn-name">${s.name}</div>
+      <div class="sn-detail">${s.detail}</div>
+    </div>`;
+    if (i < STAGES.length - 1) html += `<div class="scada-link"><span>${s.flow}</span></div>`;
+  });
+  el.innerHTML = html;
+}
+
+/* ============================================================
+   EDITABLE TABLE ENGINE
+   ============================================================ */
+const SCHEMAS = {
+  weigh: {
+    columns:[
+      {key:'tiket',label:'No. Tiket',type:'text'},{key:'supplier',label:'Supplier',type:'text'},
+      {key:'gross',label:'Gross (kg)',type:'num'},{key:'tare',label:'Tare (kg)',type:'num'},
+      {key:'nett',label:'Nett (kg)',type:'num'},{key:'mc',label:'MC (%)',type:'num'},
+      {key:'status',label:'Status',type:'text'}
+    ],
+    defaults:{tiket:'NEW',supplier:'',gross:0,tare:0,nett:0,mc:0,status:'Diterima'},
+    afterChange: () => toast('Data timbang diperbarui')
+  },
+  knives: {
+    columns:[
+      {key:'posisi',label:'Posisi Pisau',type:'text'},{key:'jamPakai',label:'Jam Pakai',type:'num'},
+      {key:'batas',label:'Batas (jam)',type:'num'},{key:'fines',label:'Fines (%)',type:'num'},
+      {key:'status',label:'Status',type:'text'}
+    ],
+    defaults:{posisi:'',jamPakai:0,batas:300,fines:0,status:'Baik'},
+    afterChange: () => { renderKnifeChart(); toast('Data pisau diperbarui'); }
+  },
+  spark: {
+    columns:[
+      {key:'waktu',label:'Waktu',type:'text'},{key:'zona',label:'Zona',type:'text'},
+      {key:'aksi',label:'Aksi Sistem',type:'text'},{key:'status',label:'Status',type:'text'}
+    ],
+    defaults:{waktu:'',zona:'',aksi:'',status:'Selesai'},
+    afterChange: () => toast('Log spark system diperbarui')
+  },
+  hammers: {
+    columns:[
+      {key:'posisi',label:'Komponen',type:'text'},{key:'jamPakai',label:'Jam Pakai',type:'num'},
+      {key:'batas',label:'Batas (jam)',type:'num'},{key:'screen',label:'Screen',type:'text'},
+      {key:'status',label:'Status',type:'text'}
+    ],
+    defaults:{posisi:'',jamPakai:0,batas:900,screen:'8 mm',status:'Baik'},
+    afterChange: () => { renderHammerChart(); toast('Data hammer diperbarui'); }
+  },
+  lab: {
+    columns:[
+      {key:'kode',label:'Kode Uji',type:'text'},{key:'batch',label:'Batch',type:'text'},
+      {key:'titik',label:'Titik Sampling',type:'text'},{key:'gcv',label:'GCV (kcal/kg)',type:'num'},
+      {key:'mc',label:'MC (%)',type:'num'},{key:'ash',label:'Ash (%)',type:'num'},
+      {key:'pdi',label:'PDI (%)',type:'num'},{key:'bulk',label:'Bulk (kg/m³)',type:'num'},
+      {key:'status',label:'Status',type:'text'}
+    ],
+    defaults:{kode:'NEW',batch:'',titik:'Pellet Output',gcv:0,mc:0,ash:0,pdi:0,bulk:0,status:'Lolos'},
+    afterChange: () => toast('Hasil lab diperbarui')
+  },
+  dispatch: {
+    columns:[
+      {key:'sj',label:'No. Surat Jalan',type:'text'},{key:'batch',label:'Batch',type:'text'},
+      {key:'tujuan',label:'Tujuan',type:'text'},{key:'tonase',label:'Tonase (Ton)',type:'num'},
+      {key:'segel',label:'Segel',type:'text'},{key:'status',label:'Status',type:'text'}
+    ],
+    defaults:{sj:'SJ-NEW',batch:'',tujuan:'',tonase:0,segel:'',status:'Terjadwal'},
+    afterChange: () => toast('Dispatch diperbarui')
+  },
+  pm: {
+    columns:[
+      {key:'item',label:'Item Perawatan',type:'text'},{key:'interval',label:'Interval',type:'text'},
+      {key:'terakhir',label:'Terakhir',type:'text'},{key:'berikut',label:'Berikutnya',type:'text'},
+      {key:'status',label:'Status',type:'text'}
+    ],
+    defaults:{item:'',interval:'',terakhir:'',berikut:'',status:'Terjadwal'},
+    afterChange: () => toast('Jadwal PM diperbarui')
+  },
+  spares: {
+    columns:[
+      {key:'part',label:'Suku Cadang',type:'text'},{key:'stok',label:'Stok',type:'num'},
+      {key:'minimum',label:'Minimum',type:'num'},{key:'satuan',label:'Satuan',type:'text'},
+      {key:'status',label:'Status',type:'text'}
+    ],
+    defaults:{part:'',stok:0,minimum:0,satuan:'pcs',status:'Aman'},
+    afterChange: () => toast('Inventori suku cadang diperbarui')
+  },
+  downtime: {
+    columns:[
+      {key:'mesin',label:'Mesin',type:'text'},{key:'mulai',label:'Mulai',type:'text'},
+      {key:'durasi',label:'Durasi (jam)',type:'num'},{key:'penyebab',label:'Penyebab',type:'text'},
+      {key:'tindakan',label:'Tindakan',type:'text'},{key:'status',label:'Status',type:'text'}
+    ],
+    defaults:{mesin:'',mulai:'',durasi:0,penyebab:'',tindakan:'',status:'Selesai'},
+    afterChange: () => toast('Log downtime diperbarui')
+  },
+  audit: {
+    columns:[
+      {key:'waktu',label:'Waktu',type:'text'},{key:'user',label:'Pengguna',type:'text'},
+      {key:'role',label:'Peran',type:'text'},{key:'aksi',label:'Aktivitas',type:'text'},
+      {key:'objek',label:'Objek',type:'text'},{key:'status',label:'Status',type:'text'}
+    ],
+    defaults:{waktu:'',user:'',role:'',aksi:'',objek:'',status:'Sukses'},
+    afterChange: () => toast('Log audit diperbarui')
+  }
+};
+
+function renderEditableTable(containerId, dataKey) {
+  const cont = document.getElementById(containerId);
+  if (!cont) return;
+  const schema = SCHEMAS[dataKey];
+  const data = DB[dataKey] || [];
+
+  let html = '<div class="tbl-scroll"><table class="tbl"><thead><tr>';
+  schema.columns.forEach(c => html += `<th>${c.label}</th>`);
+  html += '<th class="act">Hapus</th></tr></thead><tbody>';
+
+  data.forEach((row, i) => {
+    html += `<tr data-idx="${i}">`;
+    schema.columns.forEach(c => {
+      const v = row[c.key] ?? '';
+      const shown = (c.type === 'num' && v !== '' && !isNaN(v)) ? fmt(v) : v;
+      html += `<td contenteditable="true" data-key="${c.key}" data-type="${c.type}">${esc(shown)}</td>`;
+    });
+    html += `<td class="act"><button class="btn danger small" data-del="${i}">✕</button></td></tr>`;
+  });
+  html += '</tbody></table></div>';
+  html += `<div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <button class="btn small" data-add="${dataKey}">+ Tambah Baris</button>
+    <span class="sub">Klik sel untuk edit · tersimpan otomatis</span></div>`;
+  cont.innerHTML = html;
+
+  cont.querySelectorAll('[data-del]').forEach(b => b.onclick = () => {
+    if (!confirm('Hapus baris ini?')) return;
+    DB[dataKey].splice(+b.dataset.del, 1);
+    saveDB(); renderEditableTable(containerId, dataKey);
+    schema.afterChange && schema.afterChange();
+  });
+
+  cont.querySelector('[data-add]').onclick = () => {
+    DB[dataKey].push(Object.assign({}, schema.defaults));
+    saveDB(); renderEditableTable(containerId, dataKey);
+    schema.afterChange && schema.afterChange();
+  };
+
+  cont.querySelectorAll('td[contenteditable]').forEach(td => {
+    td.addEventListener('blur', () => {
+      const idx = +td.closest('tr').dataset.idx;
+      const key = td.dataset.key;
+      const type = td.dataset.type;
+      let val = td.textContent.trim();
+      if (type === 'num') {
+        const cleaned = val.replace(/[^0-9,.\-]/g, '').replace(/\./g, '').replace(',', '.');
+        val = parseFloat(cleaned) || 0;
+        td.textContent = fmt(val);
+      }
+      if (DB[dataKey][idx][key] !== val) {
+        DB[dataKey][idx][key] = val;
+        saveDB();
+        schema.afterChange && schema.afterChange();
+      }
+    });
+    td.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); td.blur(); } });
+  });
+}
+
+function renderRbac() {
+  const cont = document.getElementById('tblRbac');
+  if (!cont) return;
+  const cols = [
+    {key:'kebun',label:'Kebun'},{key:'inbound',label:'Inbound'},
+    {key:'proses',label:'Proses'},{key:'qc',label:'QC'},
+    {key:'gudang',label:'Gudang'},{key:'keuangan',label:'Keuangan'}
+  ];
+  let html = '<div class="tbl-scroll"><table class="tbl matrix"><thead><tr><th>Peran</th>';
+  cols.forEach(c => html += `<th>${c.label}</th>`);
+  html += '</tr></thead><tbody>';
+  DB.rbac.forEach((r, i) => {
+    html += `<tr><td contenteditable="true" data-idx="${i}">${esc(r.role)}</td>`;
+    cols.forEach(c => {
+      html += `<td class="${r[c.key] ? 'tick' : 'cross'}" data-tog="${c.key}" data-idx="${i}">${r[c.key] ? '✔' : '✕'}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  cont.innerHTML = html;
+
+  cont.querySelectorAll('[data-tog]').forEach(td => td.onclick = () => {
+    const i = +td.dataset.idx;
+    DB.rbac[i][td.dataset.tog] = DB.rbac[i][td.dataset.tog] ? 0 : 1;
+    saveDB(); renderRbac(); toast('Hak akses diperbarui');
+  });
+  cont.querySelectorAll('td[contenteditable]').forEach(td => {
+    td.addEventListener('blur', () => {
+      DB.rbac[+td.dataset.idx].role = td.textContent.trim();
+      saveDB();
+    });
+  });
+}
+
+/* ============================================================
+   CHART ENGINE
+   ============================================================ */
+const CHARTS = {};
+function mk(id, opts) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (CHARTS[id]) CHARTS[id].destroy();
+  CHARTS[id] = new ApexCharts(el, opts);
+  CHARTS[id].render();
+}
+function base(extra={}) {
+  return Object.assign({
+    chart:{ height:300, fontFamily:'Inter, system-ui, sans-serif', foreColor:'#93a2b8',
+      toolbar:{ show:false }, background:'transparent' },
+    theme:{ mode:'dark' },
+    dataLabels:{ enabled:false },
+    grid:{ borderColor:'rgba(148,163,184,.1)', strokeDashArray:3 },
+    legend:{ labels:{ colors:'#93a2b8' } },
+    tooltip:{ theme:'dark' }
+  }, extra);
+}
+const GRAD = { type:'gradient', gradient:{ shadeIntensity:1, opacityFrom:.92, opacityTo:.35, stops:[0,100] } };
+
+/* ---- P1 ---- */
+function renderProdChart() {
+  mk('chProd', base({
+    chart:{ type:'bar', height:310, background:'transparent' },
+    series:[
+      { name:'Produksi Pellet (Ton)', type:'column', data:[398,412,436,421,408,442,428] },
+      { name:'Yield Konversi (%)', type:'line', data:[66.2,67.4,68.8,67.9,66.5,69.1,68.2] }
+    ],
+    xaxis:{ categories:['Sen','Sel','Rab','Kam','Jum','Sab','Min'],
+      labels:{ style:{ colors:'#93a2b8' } } },
+    yaxis:[
+      { labels:{ style:{ colors:'#93a2b8' }, formatter:v => v.toLocaleString('id-ID') },
+        title:{ text:'Ton', style:{ color:'#93a2b8', fontSize:'10px' } }, min:0, max:500 },
+      { opposite:true, labels:{ style:{ colors:'#93a2b8' }, formatter:v => v + '%' },
+        title:{ text:'Yield %', style:{ color:'#93a2b8', fontSize:'10px' } }, min:60, max:75 }
+    ],
+    colors:['#f59e0b','#22d3ee'],
+    plotOptions:{ bar:{ borderRadius:5, columnWidth:'52%' } },
+    stroke:{ width:[0,2.5], curve:'smooth' },
+    fill:{ type:['gradient','solid'], gradient:{ shadeIntensity:1, opacityFrom:.92, opacityTo:.35, stops:[0,100] } },
+    markers:{ size:4, strokeColors:'#0a0d14', strokeWidth:2 },
+    legend:{ position:'top', horizontalAlign:'right', labels:{ colors:'#93a2b8' }, fontSize:'11px' }
+  }));
+}
+
+function renderOeeChart() {
+  mk('chOee', base({
+    chart:{ type:'radialBar', height:300, background:'transparent' },
+    series:[92.4, 94.1, 99.2, 86.2],
+    labels:['Availability','Performance','Quality','OEE'],
+    colors:['#a3e635','#22d3ee','#f59e0b','#a78bfa'],
+    plotOptions:{ radialBar:{
+      hollow:{ size:'28%' },
+      track:{ background:'rgba(148,163,184,.12)' },
+      dataLabels:{
+        name:{ fontSize:'10px', color:'#93a2b8' },
+        value:{ fontSize:'13px', fontWeight:800, color:'#eef2f8', formatter:v => fmt1(v)+'%' }
+      }
+    } },
+    stroke:{ lineCap:'round' },
+    legend:{ show:true, position:'bottom', labels:{ colors:'#93a2b8' }, fontSize:'10.5px' }
+  }));
+}
+
+function renderRealtime() {
+  mk('chRealtime', base({
+    chart:{ type:'line', height:300, background:'transparent' },
+    series:[
+      { name:'GCV (kcal/kg)', data:[4180,4200,4190,4210,4220,4200,4210] },
+      { name:'MC Serbuk (%)', data:[11.8,11.6,11.9,11.4,11.2,11.6,11.4] }
+    ],
+    xaxis:{ categories:['06:00','08:00','10:00','12:00','14:00','16:00','18:00'],
+      labels:{ style:{ colors:'#93a2b8', fontSize:'10px' } } },
+    yaxis:[
+      { min:3900, max:4400, labels:{ style:{ colors:'#93a2b8' }}, title:{ text:'GCV', style:{ color:'#93a2b8', fontSize:'10px' }} },
+      { opposite:true, min:8, max:16, labels:{ style:{ colors:'#93a2b8' }, formatter:v => v + '%' }, title:{ text:'MC', style:{ color:'#93a2b8', fontSize:'10px' }} }
+    ],
+    colors:['#a3e635','#22d3ee'],
+    stroke:{ curve:'smooth', width:2.5 },
+    markers:{ size:3, strokeColors:'#0a0d14', strokeWidth:2 },
+    legend:{ position:'top', horizontalAlign:'right', labels:{ colors:'#93a2b8' }, fontSize:'11px' }
+  }));
+}
+
+function renderRecipeChart() {
+  const g = +document.getElementById('blendGamal')?.value || 70;
+  mk('chRecipe', base({
+    chart:{ type:'donut', height:300, background:'transparent' },
+    series:[g, 100-g],
+    labels:['Gamal','Kayu Keras / Limbah'],
+    colors:['#a3e635','#f59e0b'],
+    plotOptions:{ pie:{ donut:{ size:'62%', labels:{
+      show:true,
+      value:{ fontSize:'15px', fontWeight:800, color:'#eef2f8', formatter:v => fmt1(v) + '%' },
+      total:{ show:true, label:'Recipe', fontSize:'11px', color:'#93a2b8',
+        formatter:w => 'GCV ' + fmt(gcvBlend(g)) }
+    } } } },
+    stroke:{ width:2, colors:['#0a0d14'] },
+    legend:{ position:'bottom', labels:{ colors:'#93a2b8' }, fontSize:'11px' }
+  }));
+}
+
+function gcvBlend(gamalPct) {
+  const gcvG = 4320, gcvK = 3880;
+  return Math.round(gcvG * (gamalPct/100) + gcvK * (1 - gamalPct/100));
+}
+
+/* ---- P3 ---- */
+function renderKnifeChart() {
+  mk('chKnife', base({
+    chart:{ type:'line', height:310, background:'transparent' },
+    series:[
+      { name:'Jam Kerja Pisau', type:'column', data:[40,72,110,148,186,224,262,286,300,320] },
+      { name:'Porsi Fines (%)', type:'line', data:[2.8,3.4,4.1,5.0,5.9,6.8,7.7,8.4,9.2,10.6] }
+    ],
+    xaxis:{ categories:['0','1','2','3','4','5','6','7','8','9'], title:{ text:'Periode', style:{ color:'#93a2b8', fontSize:'10px' } },
+      labels:{ style:{ colors:'#93a2b8' } } },
+    yaxis:[
+      { labels:{ style:{ colors:'#93a2b8' }}, title:{ text:'Jam', style:{ color:'#93a2b8', fontSize:'10px' }}, min:0, max:350 },
+      { opposite:true, labels:{ style:{ colors:'#93a2b8' }, formatter:v => v + '%' }, title:{ text:'Fines %', style:{ color:'#93a2b8', fontSize:'10px' }}, min:0, max:12 }
+    ],
+    colors:['#f59e0b','#fb7185'],
+    plotOptions:{ bar:{ borderRadius:4, columnWidth:'48%' } },
+    stroke:{ width:[0,2.5], curve:'smooth' },
+    fill:{ type:['gradient','solid'], gradient:{ shadeIntensity:1, opacityFrom:.9, opacityTo:.35, stops:[0,100] } },
+    annotations:{ yaxis:[{ y:300, borderColor:'#fb7185', label:{ text:'Batas re-sharpening', style:{ color:'#ffb3bd', background:'rgba(251,113,133,.15)', fontSize:'10px' } } }] },
+    markers:{ size:4, strokeColors:'#0a0d14', strokeWidth:2 },
+    legend:{ position:'top', horizontalAlign:'right', labels:{ colors:'#93a2b8' }, fontSize:'11px' }
+  }));
+}
+
+/* ---- P4 ---- */
+function renderDryerChart() {
+  const hrs = Array.from({length:12}, (_,i) => (i*2) + ':00');
+  mk('chDryer', base({
+    chart:{ type:'line', height:320, background:'transparent' },
+    series:[
+      { name:'Inlet Temp (°C)', data:[298,305,312,318,320,324,362,338,326,318,312,306] },
+      { name:'Outlet Temp (°C)', data:[72,74,76,78,79,80,88,84,82,80,78,76] }
+    ],
+    xaxis:{ categories: hrs, labels:{ style:{ colors:'#93a2b8', fontSize:'10px' } } },
+    yaxis:{ min:50, max:400, labels:{ style:{ colors:'#93a2b8' }, formatter:v => v + '°C' } },
+    colors:['#f59e0b','#22d3ee'],
+    stroke:{ curve:'smooth', width:2.5 },
+    annotations:{ yaxis:[
+      { y:350, borderColor:'#fb7185', label:{ text:'Batas aman 350°C', style:{ color:'#ffb3bd', background:'rgba(251,113,133,.15)', fontSize:'10px' } } },
+      { y:250, borderColor:'rgba(148,163,184,.35)', label:{ text:'Minimum 250°C', style:{ color:'#93a2b8', background:'rgba(148,163,184,.12)', fontSize:'10px' } } }
+    ] },
+    markers:{ size:3, strokeColors:'#0a0d14', strokeWidth:2 },
+    legend:{ position:'top', horizontalAlign:'right', labels:{ colors:'#93a2b8' }, fontSize:'11px' }
+  }));
+}
+
+/* ---- P5 ---- */
+function renderHammerChart() {
+  const cats = DB.hammers.map(h => h.posisi);
+  const used = DB.hammers.map(h => +h.jamPakai || 0);
+  const limit = DB.hammers.map(h => +h.batas || 0);
+  mk('chHammer', base({
+    chart:{ type:'bar', height:290, background:'transparent' },
+    series:[
+      { name:'Jam Pakai', data: used },
+      { name:'Batas', data: limit }
+    ],
+    xaxis:{ categories: cats, labels:{ style:{ colors:'#93a2b8', fontSize:'9.5px' }, rotate:-18 } },
+    yaxis:{ labels:{ style:{ colors:'#93a2b8' } } },
+    colors:['#f59e0b','rgba(34,211,238,.45)'],
+    plotOptions:{ bar:{ borderRadius:5, columnWidth:'55%', horizontal:true } },
+    fill:{ type:['gradient','solid'], gradient:{ shadeIntensity:1, opacityFrom:.92, opacityTo:.35, stops:[0,100] } },
+    legend:{ position:'top', horizontalAlign:'right', labels:{ colors:'#93a2b8' }, fontSize:'11px' }
+  }));
+}
+
+/* ---- P6 ---- */
+function renderDieChart() {
+  mk('chDie', base({
+    chart:{ type:'bar', height:310, background:'transparent' },
+    series:[
+      { name:'Ring Die (Ton)', data:[11800, 12400, 11200, 8420] },
+      { name:'Roller Shell (Ton)', data:[8800, 9200, 8600, 6180] }
+    ],
+    xaxis:{ categories:['Set #1','Set #2','Set #3','Set #4 (aktif)'], labels:{ style:{ colors:'#93a2b8' } } },
+    yaxis:{ labels:{ style:{ colors:'#93a2b8' }, formatter:v => v.toLocaleString('id-ID') } },
+    colors:['#f59e0b','#22d3ee'],
+    plotOptions:{ bar:{ borderRadius:5, columnWidth:'55%' } },
+    fill:GRAD,
+    legend:{ position:'top', horizontalAlign:'right', labels:{ colors:'#93a2b8' }, fontSize:'11px' }
+  }));
+}
+
+/* ---- P7 ---- */
+function renderQcChart() {
+  mk('chQc', base({
+    chart:{ type:'radar', height:350, background:'transparent' },
+    series:[
+      { name:'Hasil Uji Aktual', data:[4210, 9.4, 1.28, 98.1, 634] },
+      { name:'Standar ISO 17225-2', data:[4000, 10, 1.5, 97.5, 600] }
+    ],
+    xaxis:{ categories:['GCV (kcal/kg)','Moisture (%)','Ash (%)','PDI (%)','Bulk Density'] },
+    yaxis:{ show:false, min:0, max:110 },
+    colors:['#a3e635','#22d3ee'],
+    stroke:{ width:2 },
+    fill:{ opacity:[0.3, 0.12] },
+    markers:{ size:4, strokeColors:'#0a0d14', strokeWidth:2 },
+    plotOptions:{ radar:{ polygons:{ fill:{ colors:['rgba(245,158,11,.06)','rgba(34,211,238,.05)'] }, stroke:{ colors:['rgba(148,163,184,.2)'] } } } },
+    legend:{ position:'bottom', labels:{ colors:'#93a2b8' }, fontSize:'11px' }
+  }));
+}
+
+/* ---- P8 ---- */
+function renderSiloChart() {
+  mk('chSilo', base({
+    chart:{ type:'bar', height:310, background:'transparent' },
+    series:[{ name:'Stok (Ton)', data:[2480, 1640, 980, 620, 480] }],
+    xaxis:{ categories:['Silo A','Silo B','Gudang Bulk 1','Gudang Jumbo Bag','Gudang Small Bag'],
+      labels:{ style:{ colors:'#93a2b8', fontSize:'10px' }, rotate:-18 } },
+    yaxis:{ labels:{ style:{ colors:'#93a2b8' }, formatter:v => v.toLocaleString('id-ID') } },
+    colors:['#f59e0b'],
+    plotOptions:{ bar:{ borderRadius:5, horizontal:true, barHeight:'58%' } },
+    fill:GRAD,
+    legend:{ show:false },
+    dataLabels:{ enabled:true, style:{ colors:['#241300'], fontSize:'10px', fontWeight:700 } }
+  }));
+}
+
+function renderSiloTemp() {
+  const hrs = Array.from({length:12}, (_,i) => (i*2) + ':00');
+  mk('chSiloTemp', base({
+    chart:{ type:'line', height:310, background:'transparent' },
+    series:[
+      { name:'Silo A', data:[38,37,38,39,41,43,44,43,42,41,40,39] },
+      { name:'Silo B', data:[42,43,45,47,48,49,50,49,48,47,46,45] },
+      { name:'Gudang Bulk', data:[34,34,35,35,36,37,37,36,36,35,35,34] }
+    ],
+    xaxis:{ categories: hrs, labels:{ style:{ colors:'#93a2b8', fontSize:'10px' } } },
+    yaxis:{ min:25, max:60, labels:{ style:{ colors:'#93a2b8' }, formatter:v => v + '°C' } },
+    colors:['#22d3ee','#fb7185','#a3e635'],
+    stroke:{ curve:'smooth', width:2.5 },
+    annotations:{ yaxis:[{ y:55, borderColor:'#fb7185', label:{ text:'Ambang bahaya 55°C', style:{ color:'#ffb3bd', background:'rgba(251,113,133,.15)', fontSize:'10px' } } }] },
+    markers:{ size:3, strokeColors:'#0a0d14', strokeWidth:2 },
+    legend:{ position:'top', horizontalAlign:'right', labels:{ colors:'#93a2b8' }, fontSize:'11px' }
+  }));
+}
+
+/* ---- P9 ---- */
+function renderOeeGauge() {
+  const v = +(document.getElementById('oeeResult')?.dataset.oee || 86.2);
+  mk('chOeeGauge', base({
+    chart:{ type:'radialBar', height:300, background:'transparent' },
+    series:[v], labels:['OEE'],
+    colors:[ v >= 85 ? '#a3e635' : v >= 70 ? '#f59e0b' : '#fb7185' ],
+    plotOptions:{ radialBar:{
+      hollow:{ size:'62%' },
+      track:{ background:'rgba(148,163,184,.14)', strokeWidth:'100%' },
+      dataLabels:{
+        name:{ fontSize:'12px', color:'#93a2b8', offsetY:20 },
+        value:{ fontSize:'32px', fontWeight:800, color:'#eef2f8', offsetY:-10, formatter:v => fmt1(v)+'%' }
+      }
+    } },
+    fill:{ type:'gradient', gradient:{ shadeIntensity:1, opacityFrom:.95, opacityTo:.5, stops:[0,100] } },
+    stroke:{ lineCap:'round' }
+  }));
+}
+
+/* ---- P10 ---- */
+function renderHppChart() {
+  const feed = +document.getElementById('hppFeed').value;
+  const energy = +document.getElementById('hppEnergy').value;
+  const labor = +document.getElementById('hppLabor').value;
+  const amort = +document.getElementById('hppAmort').value;
+  mk('chHpp', base({
+    chart:{ type:'donut', height:330, background:'transparent' },
+    series:[feed, energy, labor, amort],
+    labels:['Bahan Baku','Listrik & BBM','Upah Labor','Amortisasi Die & Spare'],
+    colors:['#a3e635','#22d3ee','#f59e0b','#a78bfa'],
+    plotOptions:{ pie:{ donut:{ size:'62%', labels:{
+      show:true,
+      value:{ fontSize:'15px', fontWeight:800, color:'#eef2f8', formatter:v => 'Rp ' + fmt(v) },
+      total:{ show:true, label:'HPP / Ton', fontSize:'11px', color:'#93a2b8',
+        formatter:w => 'Rp ' + fmt(w.globals.seriesTotals.reduce((a,b)=>a+b,0)) }
+    } } } },
+    stroke:{ width:2, colors:['#0a0d14'] },
+    legend:{ position:'bottom', labels:{ colors:'#93a2b8' }, fontSize:'11px' }
+  }));
+}
+
+function renderEnergyChart() {
+  mk('chEnergy', base({
+    chart:{ type:'bar', height:280, background:'transparent' },
+    series:[{ name:'kWh/Ton', data:[18.4, 24.2, 16.8, 9.6, 6.2, 3.2] }],
+    xaxis:{ categories:['Chipper','Dryer','Hammer Mill','Press','Cooler','Packing'],
+      labels:{ style:{ colors:'#93a2b8', fontSize:'10px' }, rotate:-18 } },
+    yaxis:{ labels:{ style:{ colors:'#93a2b8' }, formatter:v => v + ' kWh' } },
+    colors:['#22d3ee'],
+    plotOptions:{ bar:{ borderRadius:5, columnWidth:'55%', distributed:true } },
+    fill:GRAD,
+    legend:{ show:false },
+    dataLabels:{ enabled:true, style:{ colors:['#04161c'], fontSize:'10px', fontWeight:700 } }
+  }));
+}
+
+/* ============================================================
+   KALKULATOR
+   ============================================================ */
+function calcInbound() {
+  const gross = +document.getElementById('ibGross').value || 0;
+  const tare  = +document.getElementById('ibTare').value || 0;
+  const mc    = +document.getElementById('ibMc').value || 0;
+  const price = +document.getElementById('ibPrice').value || 0;
+  const nett  = Math.max(0, gross - tare);
+  const baseMc = 40;
+  const excess = Math.max(0, mc - baseMc);
+  const penaltyPct = excess * 1.2;
+  const effTon = (nett * (1 - penaltyPct/100)) / 1000;
+  const value = effTon * price;
+  const dryTon = nett * (1 - mc/100) / (1 - 0.114);
+  const dryingHours = Math.max(0, (nett/1000) * (mc - 11.4) * 0.024);
+  document.getElementById('ibResult').innerHTML = `
+    <div class="rlabel">Nilai Pembayaran Supplier</div>
+    <div class="rval">Rp ${fmt(value)}</div>
+    <div class="rnote">
+      Nett <b>${fmt(nett)} kg</b> · Kelebihan MC <b>${fmt1(excess)}%</b> · Penalti
+      <b style="color:#ffb3bd">${fmt1(penaltyPct)}%</b><br>
+      Setara kering: <b style="color:#fcd34d">${fmt(dryTon)} kg</b> ·
+      Estimasi drying: <b>± ${fmt1(dryingHours)} jam</b>
+    </div>`;
+}
+
+function calcFeedstock() {
+  const target = +document.getElementById('fdTarget').value || 0;
+  const mcIn   = +document.getElementById('fdMcIn').value || 0;
+  const mcOut  = +document.getElementById('fdMcOut').value || 0;
+  const loss   = +document.getElementById('fdLoss').value || 0;
+  const dryMass = target * (1 - mcOut/100);
+  const wetNeeded = dryMass / (1 - mcIn/100) / (1 - loss/100);
+  const waterEvap = wetNeeded - dryMass - (target - dryMass);
+  const eff = (target / wetNeeded) * 100;
+  document.getElementById('fdResult').innerHTML = `
+    <div class="rlabel">Kebutuhan Bahan Baku Basah</div>
+    <div class="rval">${fmt(wetNeeded)} <span style="font-size:13px;color:#fcd34d">Ton</span></div>
+    <div class="rnote">
+      Untuk ${fmt(target)} Ton pellet · Yield <b style="color:#fcd34d">${fmt1(eff)}%</b> ·
+      Air diuapkan <b>${fmt(waterEvap)} Ton</b> · Rasio <b>${fmt2(wetNeeded/target)} : 1</b>
+    </div>`;
+}
+
+function calcBlend() {
+  const g = +document.getElementById('blendGamal').value;
+  document.getElementById('blendGamalLbl').textContent = g;
+  const bar = document.getElementById('blendBar');
+  bar.innerHTML = `
+    <div style="width:${g}%;background:linear-gradient(145deg,#d9f99d,#a3e635)">${g}% Gamal</div>
+    <div style="width:${100-g}%;background:linear-gradient(145deg,#fcd34d,#f59e0b)">${100-g}% Kayu Keras</div>`;
+  const gcv = gcvBlend(g);
+  const ok = gcv >= 4000;
+  const box = document.getElementById('blendResult');
+  box.className = ok ? 'result-box ok' : 'result-box warn';
+  box.innerHTML = `
+    <div class="rlabel">Estimasi GCV Campuran</div>
+    <div class="rval">${fmt(gcv)} <span style="font-size:13px;color:#d9f99d">kcal/kg</span></div>
+    <div class="rnote">Status: <b style="color:${ok ? '#d9f99d' : '#ffb3bd'}">${ok ? 'MEMENUHI TARGET ≥ 4.000' : 'DI BAWAH TARGET'}</b>
+      · Rasio ${g} : ${100-g}</div>`;
+  renderRecipeChart();
+}
+
+function calcFeeder() {
+  const v = +document.getElementById('feedRange').value;
+  document.getElementById('feedLbl').textContent = v;
+  const load = Math.min(200, 60 + v * 7.05);
+  const throughput = Math.min(25, 8 + v * 0.92);
+  const pct = (load/200) * 100;
+  const box = document.getElementById('feedResult');
+  box.className = pct > 95 ? 'result-box warn' : 'result-box ok';
+  box.innerHTML = `
+    <div class="rlabel">Estimasi Beban Motor</div>
+    <div class="rval">${fmt1(load)} <span style="font-size:13px;color:#fcd34d">kW</span>
+      <span style="font-size:12px;color:${pct > 95 ? '#ffb3bd' : '#d9f99d'}">(${fmt1(pct)}%)</span></div>
+    <div class="rnote">Throughput ≈ <b>${fmt1(throughput)} Ton/jam</b> ·
+      ${pct > 95 ? '<b style="color:#ffb3bd">Beban berlebih — turunkan feed speed</b>' : '<b style="color:#d9f99d">Beban dalam batas aman</b>'}</div>`;
+}
+
+function calcDryer() {
+  const feed = +document.getElementById('drFeed').value || 0;
+  const mcIn = +document.getElementById('drMcIn').value || 0;
+  const mcOut = +document.getElementById('drMcOut').value || 0;
+  const fuel = +document.getElementById('drFuel').value || 0;
+  const dryMass = feed * (1 - mcOut/100);
+  const wetOut = dryMass / (1 - mcIn/100);
+  const waterEvap = wetOut - feed;
+  const fuelPerEvap = waterEvap > 0 ? fuel / waterEvap : 0;
+  const box = document.getElementById('drResult');
+  box.className = 'result-box';
+  box.innerHTML = `
+    <div class="rlabel">Laju Penguapan Air</div>
+    <div class="rval">${fmt1(waterEvap * 1000)} <span style="font-size:13px;color:#fcd34d">kg/jam</span></div>
+    <div class="rnote">Umpan basah <b>${fmt1(wetOut)} Ton/jam</b> · Konsumsi bahan bakar
+      <b style="color:${fuelPerEvap > 55 ? '#ffb3bd' : '#d9f99d'}">${fmt1(fuelPerEvap)} kg/kg evaporasi</b></div>`;
+}
+
+function calcSteam() {
+  const s = +document.getElementById('steamRange').value;
+  const t = +document.getElementById('condRange').value;
+  document.getElementById('steamLbl').textContent = fmt1(s);
+  document.getElementById('condLbl').textContent = t;
+  const optTemp = t >= 80 && t <= 90;
+  const optSteam = s >= 1 && s <= 2;
+  const pdiEst = 95 + (optTemp ? 2.4 : 0.6) + (optSteam ? 1.2 : 0.2);
+  const box = document.getElementById('steamResult');
+  box.className = (optTemp && optSteam) ? 'result-box ok' : 'result-box warn';
+  box.innerHTML = `
+    <div class="rlabel">Estimasi Kualitas Pelet</div>
+    <div class="rval">${fmt1(pdiEst)} <span style="font-size:13px;color:#d9f99d">PDI (%)</span></div>
+    <div class="rnote">
+      Suhu ${t}°C ${optTemp ? '✓ optimal' : '✕ di luar 80–90°C'} ·
+      Steam ${fmt1(s)}% ${optSteam ? '✓ optimal' : '✕ di luar 1–2%'}<br>
+      <b style="color:${optTemp && optSteam ? '#d9f99d' : '#ffb3bd'}">
+      ${optTemp && optSteam ? 'Gelatinisasi lignin optimal' : 'Sesuaikan parameter untuk hasil terbaik'}</b>
+    </div>`;
+}
+
+function calcCooling() {
+  const ton = +document.getElementById('clTon').value || 0;
+  const tin = +document.getElementById('clIn').value || 0;
+  const tout = +document.getElementById('clOut').value || 0;
+  const mcIn = +document.getElementById('clMcIn').value || 0;
+  const mcOut = +document.getElementById('clMcOut').value || 0;
+  const fines = +document.getElementById('clFines').value || 0;
+  const cp = 1.6;
+  const heat = ton * 1000 * cp * (tin - tout) / 1000;
+  const mcDrop = mcIn - mcOut;
+  const netOutput = ton * (1 - fines/100);
+  const box = document.getElementById('clResult');
+  box.className = tout <= 45 ? 'result-box ok' : 'result-box warn';
+  box.innerHTML = `
+    <div class="rlabel">Beban Panas Cooler</div>
+    <div class="rval">${fmt(heat)} <span style="font-size:13px;color:#a5f3fc">MJ/jam</span></div>
+    <div class="rnote">ΔT <b>${fmt1(tin - tout)}°C</b> · Penurunan MC <b>${fmt1(mcDrop)}%</b> ·
+      Output bersih <b style="color:#d9f99d">${fmt1(netOutput)} Ton/jam</b> ·
+      Fines recycle <b>${fmt1(fines)}%</b></div>`;
+}
+
+function calcOee() {
+  const plan = +document.getElementById('oeePlan').value || 1;
+  const down = +document.getElementById('oeeDown').value || 0;
+  const cycle = +document.getElementById('oeeCycle').value || 0.01;
+  const output = +document.getElementById('oeeOutput').value || 0;
+  const total = +document.getElementById('oeeTotal').value || 1;
+  const good = +document.getElementById('oeeGood').value || 0;
+
+  const runTime = Math.max(0, plan - down);
+  const availability = (runTime / plan) * 100;
+  const performance = Math.min(100, (output / (runTime * cycle)) * 100);
+  const quality = Math.min(100, (good / (total || 1)) * 100);
+  const oee = (availability/100) * (performance/100) * (quality/100) * 100;
+
+  const box = document.getElementById('oeeResult');
+  const grade = oee >= 85 ? ['KELAS DUNIA','#d9f99d'] : oee >= 70 ? ['WAJAR','#fcd34d'] : ['PERLU PERBAIKAN','#ffb3bd'];
+  box.className = oee >= 85 ? 'result-box ok' : oee >= 70 ? 'result-box' : 'result-box warn';
+  box.dataset.oee = oee;
+  box.innerHTML = `
+    <div class="rlabel">Overall Equipment Effectiveness</div>
+    <div class="rval">${fmt1(oee)}% <span style="font-size:12px;color:${grade[1]}">${grade[0]}</span></div>
+    <div class="rnote">
+      Availability <b>${fmt1(availability)}%</b> ×
+      Performance <b>${fmt1(performance)}%</b> ×
+      Quality <b>${fmt1(quality)}%</b>
+    </div>`;
+  renderOeeGauge();
+}
+
+function calcHpp() {
+  const feed = +document.getElementById('hppFeed').value;
+  const energy = +document.getElementById('hppEnergy').value;
+  const labor = +document.getElementById('hppLabor').value;
+  const amort = +document.getElementById('hppAmort').value;
+  document.getElementById('hppFeedLbl').textContent = fmt(feed);
+  document.getElementById('hppEnergyLbl').textContent = fmt(energy);
+  document.getElementById('hppLaborLbl').textContent = fmt(labor);
+  document.getElementById('hppAmortLbl').textContent = fmt(amort);
+  const total = feed + energy + labor + amort;
+  document.getElementById('hppVal').textContent = 'Rp ' + fmt(total) + ' /Ton';
+  const sell = 1450000;
+  const margin = ((sell - total) / sell) * 100;
+  let grade, color;
+  if (margin >= 20) { grade = 'SEHAT'; color = '#d9f99d'; }
+  else if (margin >= 8) { grade = 'WAJAR'; color = '#fcd34d'; }
+  else { grade = 'PERLU EFISIENSI'; color = '#ffb3bd'; }
+  document.getElementById('hppNote').innerHTML =
+    `Margin terhadap harga jual PLTU Rp ${fmt(sell)}/Ton: <b style="color:${color}">${fmt1(margin)}%</b> — <b style="color:${color}">${grade}</b>`;
+  renderHppChart();
+}
+
+function calcEnergy() {
+  const kwh = +document.getElementById('enKwh').value || 0;
+  const ton = +document.getElementById('enTon').value || 1;
+  const fuel = +document.getElementById('enFuel').value || 0;
+  const evap = +document.getElementById('enEvap').value || 1;
+  const kwhPerTon = kwh / (ton || 1);
+  const fuelPerEvap = fuel / (evap || 1);
+  const grade = kwhPerTon <= 85 ? ['EFISIEN','#d9f99d'] : kwhPerTon <= 100 ? ['WAJAR','#fcd34d'] : ['PERLU AUDIT','#ffb3bd'];
+  document.getElementById('enResult').innerHTML = `
+    <div class="rlabel">Intensitas Energi</div>
+    <div class="rval">${fmt1(kwhPerTon)} <span style="font-size:13px;color:#a5f3fc">kWh/Ton</span></div>
+    <div class="rnote">
+      Konsumsi bahan bakar <b>${fmt1(fuelPerEvap)} kg/kg evaporasi</b> ·
+      Status listrik: <b style="color:${grade[1]}">${grade[0]}</b>
+    </div>`;
+}
+
+/* ============================================================
+   INTEGRASI MINERVA (mga_db_v5)
+   ============================================================ */
+const MINERVA_KEY = 'mga_db_v5';
+const VERDANTIA_KEY = 'van_db_v1';
+const HARVEST_REQ_KEY = 'elv_harvest_request_v1';
+
+function syncMinerva() {
+  let data = null;
+  try {
+    const raw = localStorage.getItem(MINERVA_KEY);
+    if (raw) data = JSON.parse(raw);
+  } catch(e) { data = null; }
+
+  const mgStatus = document.getElementById('mgStatus');
+  const sideMg = document.getElementById('sideMg');
+
+  if (data && Array.isArray(data.blocks) && data.blocks.length) {
+    const blocks = data.blocks.map(b => ({
+      id: b.id,
+      area: +b.area || 0,
+      status: b.status || 'tumbuh',
+      pop: +b.pop || 0,
+      prod: parseFloat(String(b.prod || '0').replace(',', '.')) || 0
+    }));
+    const ready = blocks.filter(b => b.status === 'siap');
+    const wet = ready.reduce((s,b) => s + b.area * (b.prod || 26), 0);
+    const dry = wet * 0.52;
+
+    if (mgStatus) { mgStatus.textContent = 'Terhubung'; mgStatus.className = 'badge b-lime'; }
+    if (sideMg) sideMg.textContent = 'Terhubung · ' + ready.length + ' blok siap';
+    document.getElementById('mgReady').textContent = ready.length + ' blok (' + ready.map(b=>b.id).join(', ') + ')';
+    document.getElementById('mgTonnage').textContent = fmt(wet) + ' Ton basah ≈ ' + fmt(dry) + ' Ton kering';
+    document.getElementById('intgNote').innerHTML =
+      '✓ Data <b>PT Minerva Green Agro</b> tersinkron: ' + blocks.length +
+      ' blok estate, ' + ready.length + ' blok siap panen. Pasokan kering dihitung pada rasio susut 48% (MC 56% → MC 13%).';
+
+    /* push kebutuhan bahan baku balik ke Minerva */
+    try {
+      const req = {
+        from:'PT Elvenium Agro Inovasi',
+        createdAt:new Date().toISOString(),
+        kebutuhanBasahTon: Math.round(wet),
+        prioritasBlok: ready.map(b => ({ blok:b.id, area:b.area, estimasi:Math.round(b.area*(b.prod||26)) }))
+      };
+      localStorage.setItem(HARVEST_REQ_KEY, JSON.stringify(req));
+    } catch(e) {}
+
+    toast('✓ Data Minerva tersinkron — ' + blocks.length + ' blok');
+  } else {
+    if (mgStatus) { mgStatus.textContent = 'Mode Simulasi'; mgStatus.className = 'badge b-amber'; }
+    if (sideMg) sideMg.textContent = 'Mode simulasi';
+    document.getElementById('mgReady').textContent = '4 blok (A1, A3, C1, D2)';
+    document.getElementById('mgTonnage').textContent = '96.842 Ton basah (estimasi)';
+    document.getElementById('intgNote').innerHTML =
+      '⚠ Berkas <code>minerva.html</code> belum dijalankan pada origin yang sama — bridge localStorage ' +
+      '<code>mga_db_v5</code> tidak tersedia. Menampilkan estimasi simulasi. Buka Minerva terlebih dahulu lalu tarik ulang.';
+    toast('⚠ Bridge Minerva tidak tersedia — memakai simulasi');
+  }
+}
+
+/* ============================================================
+   INTEGRASI VERDANTIA (van_db_v1)
+   ============================================================ */
+function syncVerdantia() {
+  let data = null;
+  try {
+    const raw = localStorage.getItem(VERDANTIA_KEY);
+    if (raw) data = JSON.parse(raw);
+  } catch(e) { data = null; }
+
+  const vdStatus = document.getElementById('vdStatus');
+  const sideVd = document.getElementById('sideVd');
+
+  if (data && Array.isArray(data.weigh) && data.weigh.length) {
+    /* adopsi tiket timbang inbound Verdantia */
+    DB.weigh = data.weigh.map(w => ({
+      tiket: w.tiket || 'WB-NEW',
+      supplier: w.supplier || w.blok || '—',
+      gross: +w.gross || 0,
+      tare: +w.tare || 0,
+      nett: +w.nett || 0,
+      mc: +w.mc || 0,
+      status: w.status || 'Diterima'
+    }));
+    saveDB();
+    renderEditableTable('tblWeigh', 'weigh');
+
+    const totalNett = DB.weigh.reduce((s,w) => s + (+w.nett || 0), 0);
+    if (vdStatus) { vdStatus.textContent = 'Terhubung'; vdStatus.className = 'badge b-lime'; }
+    if (sideVd) sideVd.textContent = 'Terhubung · ' + DB.weigh.length + ' tiket';
+    document.getElementById('vdTickets').textContent = DB.weigh.length + ' tiket';
+    document.getElementById('vdNett').textContent = fmt(totalNett) + ' kg (' + fmt(totalNett/1000) + ' Ton)';
+
+    toast('✓ Data Verdantia tersinkron — ' + DB.weigh.length + ' tiket timbang');
+  } else {
+    if (vdStatus) { vdStatus.textContent = 'Mode Simulasi'; vdStatus.className = 'badge b-amber'; }
+    if (sideVd) sideVd.textContent = 'Mode simulasi';
+    document.getElementById('vdTickets').textContent = DB.weigh.length + ' tiket (demo)';
+    const tn = DB.weigh.reduce((s,w) => s + (+w.nett || 0), 0);
+    document.getElementById('vdNett').textContent = fmt(tn) + ' kg (' + fmt(tn/1000) + ' Ton)';
+    toast('⚠ Bridge Verdantia tidak tersedia — memakai data demo');
+  }
+}
+
+/* ============================================================
+   CoA GENERATOR
+   ============================================================ */
+function generateCoA() {
+  const batch = document.getElementById('coaBatch').value.trim() || '—';
+  const buyer = document.getElementById('coaBuyer').value.trim() || '—';
+  const pdi = +document.getElementById('coaPdi').value;
+  const gcv = +document.getElementById('coaGcv').value;
+  const ash = +document.getElementById('coaAsh').value;
+  const bulk = +document.getElementById('coaBulk').value;
+  const mc = +document.getElementById('coaMc').value;
+  const point = document.getElementById('coaPoint').value;
+
+  const checks = [
+    { n:'PDI', ok: pdi >= 97.5, v: pdi + ' %', std:'≥ 97,5%' },
+    { n:'GCV', ok: gcv >= 4000, v: gcv + ' kcal/kg', std:'≥ 4.000' },
+    { n:'Ash', ok: ash <= 1.5, v: ash + ' %', std:'≤ 1,5%' },
+    { n:'Bulk Density', ok: bulk >= 600, v: bulk + ' kg/m³', std:'≥ 600' },
+    { n:'Moisture', ok: mc >= 7 && mc <= 10, v: mc + ' %', std:'7–10%' }
+  ];
+  const allOk = checks.every(c => c.ok);
+  const box = document.getElementById('coaResult');
+  box.className = allOk ? 'result-box ok' : 'result-box warn';
+  box.innerHTML = `
+    <div class="rlabel">${allOk ? 'CoA Siap Diterbitkan' : 'CoA Ditolak — Parameter Deviasi'}</div>
+    <div class="rval" style="font-size:15px">${esc(batch)} · ${esc(buyer)}</div>
+    <div class="rnote" style="margin-top:6px">
+      Titik sampling: <b>${esc(point)}</b><br>
+      ${checks.map(c => `<span style="color:${c.ok ? '#d9f99d' : '#ffb3bd'}">${c.ok ? '✓' : '✕'} ${c.n}
+        <b>${c.v}</b> (std ${c.std})</span>`).join(' &nbsp;·&nbsp; ')}
+    </div>`;
+  toast(allOk ? '✓ CoA diterbitkan untuk ' + batch : '⚠ CoA ditolak — parameter deviasi');
+}
+
+/* ============================================================
+   YARD & QR
+   ============================================================ */
+function renderYard() {
+  const grid = document.getElementById('yardGrid');
+  if (!grid) return;
+  let html = '';
+  let seed = 20250702;
+  const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+  for (let i = 0; i < 40; i++) {
+    const r = rnd();
+    let bg, label, title;
+    const mc = 28 + Math.round(rnd() * 34);
+    if (r < 0.22) {
+      bg = 'linear-gradient(145deg,#d9f99d,#65a30d)'; label = 'G'; title = `Slot ${i+1} · Gamal · MC ${mc}% · ${Math.round(80+rnd()*60)} Ton`;
+    } else if (r < 0.42) {
+      bg = 'linear-gradient(145deg,#a5f3fc,#0e7490)'; label = 'K'; title = `Slot ${i+1} · Kaliandra · MC ${mc}% · ${Math.round(40+rnd()*40)} Ton`;
+    } else if (r < 0.62) {
+      bg = 'linear-gradient(145deg,#fcd34d,#b45309)'; label = 'L'; title = `Slot ${i+1} · Limbah kayu · MC ${mc}% · ${Math.round(30+rnd()*40)} Ton`;
+    } else if (r < 0.74) {
+      bg = 'linear-gradient(145deg,#fdba74,#c2410c)'; label = 'S'; title = `Slot ${i+1} · Sawdust · MC ${mc}% · ${Math.round(20+rnd()*30)} Ton`;
+    } else {
+      bg = 'rgba(148,163,184,.14)'; label = ''; title = `Slot ${i+1} · Kosong`;
+    }
+    html += `<div class="yard-cell" style="background:${bg}" title="${title}">${label}</div>`;
+  }
+  grid.innerHTML = html;
+}
+
+function drawQR(canvasId, seedBase) {
+  const c = document.getElementById(canvasId);
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const N = 25, cell = 150 / N;
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 150, 150);
+  ctx.fillStyle = '#0a0d14';
+  let seed = seedBase || 20250702;
+  const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const inFinder = (x < 7 && y < 7) || (x >= N-7 && y < 7) || (x < 7 && y >= N-7);
+    if (inFinder) continue;
+    if (rnd() > 0.52) ctx.fillRect(x*cell, y*cell, cell*0.92, cell*0.92);
+  }
+  const finder = (fx, fy) => {
+    ctx.fillStyle = '#0a0d14'; ctx.fillRect(fx*cell, fy*cell, 7*cell, 7*cell);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect((fx+1)*cell, (fy+1)*cell, 5*cell, 5*cell);
+    ctx.fillStyle = '#0a0d14'; ctx.fillRect((fx+2)*cell, (fy+2)*cell, 3*cell, 3*cell);
+  };
+  finder(0,0); finder(N-7,0); finder(0,N-7);
+  ctx.fillStyle = 'rgba(245,158,11,.95)';
+  ctx.fillRect(63, 63, 26, 26);
+  ctx.fillStyle = '#241300';
+  ctx.font = 'bold 11px Inter, sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('EA', 76, 76);
+}
+
+/* ============================================================
+   NAVIGASI
+   ============================================================ */
+const PANEL_META = {
+  p1:['Plant Control Center & Executive Production Dashboard','SCADA Line Status · OEE · Energi Spesifik · Safety Alerts'],
+  p2:['Inbound Raw Material & Yard','Weighbridge · Moisture Testing · Zonasi Yard · Recipe & Blending'],
+  p3:['Pre-Treatment & Size Reduction Line','Chipper & Shredder · Knife Wear · Feeder Rate Optimization'],
+  p4:['Drying System & Thermal Control','Rotary Dryer · Furnace · Moisture Balance · Spark Detection'],
+  p5:['Hammer Mill & Conditioning','Particle Size · Hammer Wear · Steam Injection · Lignin Activation'],
+  p6:['Pellet Mill, Cooler & Screener','Amperage · Die Temperature · Die Lifespan · Cooling · Fines Recycle'],
+  p7:['Quality Control & Laboratory','ISO 17225-2 · PDI · GCV · Ash · Bulk Density · Certificate of Analysis'],
+  p8:['Packaging, Warehousing & Outbound','Jumbo Bag · Small Bag · Silo · FIFO · Surat Jalan & Segel'],
+  p9:['Maintenance & Asset Health (OEE)','OEE Calculator · Preventive Schedule · Spare Parts · Downtime'],
+  p10:['Energy, HPP Pabrikasi & ERP Integration','Energi Spesifik · HPP Real-Time · Push Jurnal ERP']
+};
+
+const CHART_RENDERERS = {
+  p1:[renderProdChart, renderOeeChart, renderRealtime, renderRecipeChart],
+  p3:[renderKnifeChart],
+  p4:[renderDryerChart],
+  p5:[renderHammerChart],
+  p6:[renderDieChart],
+  p7:[renderQcChart],
+  p8:[renderSiloChart, renderSiloTemp],
+  p9:[renderOeeGauge],
+  p10:[renderHppChart, renderEnergyChart]
+};
+
+function buildPanel(id) {
+  (CHART_RENDERERS[id] || []).forEach(fn => { try { fn(); } catch(e){} });
+}
+
+document.getElementById('nav').addEventListener('click', e => {
+  const btn = e.target.closest('.nav-item');
+  if (!btn) return;
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const id = btn.dataset.panel;
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('panelTitle').textContent = PANEL_META[id][0];
+  document.getElementById('panelCrumb').textContent = PANEL_META[id][1];
+  window.scrollTo({ top:0, behavior:'smooth' });
+  setTimeout(() => buildPanel(id), 70);
+});
+
+/* KPI editable */
+document.querySelectorAll('.kpi-val[contenteditable]').forEach(el => {
+  el.addEventListener('blur', () => { saveDB(); toast('KPI diperbarui'); });
+  el.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } });
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+document.getElementById('today').textContent =
+  new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
+
+renderScada();
+
+renderEditableTable('tblWeigh', 'weigh');
+renderEditableTable('tblKnives', 'knives');
+renderEditableTable('tblSpark', 'spark');
+renderEditableTable('tblHammers', 'hammers');
+renderEditableTable('tblLab', 'lab');
+renderEditableTable('tblDispatch', 'dispatch');
+renderEditableTable('tblPm', 'pm');
+renderEditableTable('tblSpares', 'spares');
+renderEditableTable('tblDowntime', 'downtime');
+renderEditableTable('tblAudit', 'audit');
+
+renderYard();
+drawQR('qrDo', 20250718);
+
+calcInbound();
+calcFeedstock();
+calcBlend();
+calcFeeder();
+calcDryer();
+calcSteam();
+calcCooling();
+calcOee();
+calcHpp();
+calcEnergy();
+
+const erpEl = document.getElementById('erpLast');
+if (erpEl) erpEl.textContent = new Date().toLocaleString('id-ID', {
+  day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'
+});
+
+setTimeout(() => buildPanel('p1'), 120);
+setTimeout(() => { syncMinerva(); syncVerdantia(); }, 500);
+</script>
+</body>
+</html>

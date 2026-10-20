@@ -1,0 +1,2080 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PT Verdantia Agri Nature — Biomass Pellet Command Center</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.2/dist/apexcharts.min.js"></script>
+<style>
+:root{
+  --bg:#070d16; --line:rgba(148,163,184,.14); --txt:#e8eef7; --muted:#8ea1bb;
+  --green:#2ee66b; --green2:#0ea85a; --amber:#f5b942; --blue:#38bdf8;
+  --red:#ff5c6c; --violet:#a78bfa; --teal:#2dd4bf;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  background:
+    radial-gradient(1200px 620px at 88% -12%, rgba(45,212,191,.12), transparent 62%),
+    radial-gradient(900px 520px at 2% 112%, rgba(46,230,107,.10), transparent 62%),
+    var(--bg); color:var(--txt); font-size:14px; -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(148,163,184,.22);border-radius:9px}
+::-webkit-scrollbar-thumb:hover{background:rgba(46,230,107,.45)}
+
+.app{display:grid;grid-template-columns:272px 1fr;min-height:100vh}
+.sidebar{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;
+  background:linear-gradient(180deg,rgba(13,26,32,.97),rgba(7,14,22,.99));
+  border-right:1px solid var(--line);padding:18px 14px;gap:14px;overflow-y:auto}
+.brand{display:flex;gap:11px;align-items:center;padding:4px 6px 14px;border-bottom:1px solid var(--line)}
+.logo{width:44px;height:44px;border-radius:13px;flex:0 0 44px;
+  background:linear-gradient(145deg,#2dd4bf,#0ea85a 55%,#0b7a44);display:grid;place-items:center;
+  font-weight:800;font-size:15px;color:#04180c;box-shadow:0 8px 22px rgba(45,212,191,.32),
+  inset 0 1px 0 rgba(255,255,255,.4);letter-spacing:-.5px}
+.brand h1{font-size:12.5px;line-height:1.25;font-weight:800;letter-spacing:.2px}
+.brand p{font-size:10.3px;color:var(--muted);margin-top:3px}
+nav{display:flex;flex-direction:column;gap:3px;flex:1}
+.nav-item{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:transparent;
+  border:1px solid transparent;color:#a9b8cd;padding:9px 10px;border-radius:10px;cursor:pointer;
+  font-size:12px;font-family:inherit;transition:.18s;line-height:1.3}
+.nav-item .ico{width:24px;height:24px;flex:0 0 24px;border-radius:7px;display:grid;place-items:center;
+  font-size:11px;background:rgba(148,163,184,.1);color:#9fb0c7;transition:.18s}
+.nav-item:hover{background:rgba(148,163,184,.07);color:#e8eef7}
+.nav-item.active{background:linear-gradient(90deg,rgba(45,212,191,.17),rgba(46,230,107,.02));
+  border-color:rgba(45,212,191,.3);color:#fff;font-weight:600;box-shadow:inset 2px 0 0 var(--teal)}
+.nav-item.active .ico{background:linear-gradient(145deg,#2dd4bf,#0b7a44);color:#04180c;font-weight:700}
+.side-foot{border-top:1px solid var(--line);padding-top:12px;font-size:10.4px;color:var(--muted);
+  display:flex;flex-direction:column;gap:8px}
+.pill-live{display:inline-flex;align-items:center;gap:6px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;flex:0 0 7px}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(46,230,107,.55)}70%{box-shadow:0 0 0 9px rgba(46,230,107,0)}100%{box-shadow:0 0 0 0 rgba(46,230,107,0)}}
+.mg-mini{display:flex;gap:8px;align-items:center;padding:8px 9px;border-radius:10px;
+  border:1px solid rgba(45,212,191,.28);background:linear-gradient(135deg,rgba(45,212,191,.13),rgba(45,212,191,.02))}
+.mg-mini .lg{width:26px;height:26px;flex:0 0 26px;border-radius:8px;display:grid;place-items:center;
+  font-size:10px;font-weight:800;background:linear-gradient(145deg,#2ee66b,#0b7a44);color:#04180c}
+.mg-mini div{font-size:9.8px;line-height:1.35}
+.mg-mini b{font-size:10.6px;color:#8bf0b3}
+
+main{padding:0 0 44px;min-width:0}
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;
+  gap:16px;padding:14px 26px;backdrop-filter:blur(16px);
+  background:linear-gradient(180deg,rgba(7,13,22,.94),rgba(7,13,22,.68));
+  border-bottom:1px solid var(--line);flex-wrap:wrap}
+.topbar h2{font-size:16.5px;font-weight:700}
+.topbar .crumb{font-size:11px;color:var(--muted);margin-top:3px}
+.topbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:11px;padding:6px 11px;border-radius:999px;
+  border:1px solid var(--line);background:rgba(148,163,184,.07);color:#c3d1e2}
+.chip.green{border-color:rgba(46,230,107,.35);background:linear-gradient(135deg,rgba(46,230,107,.18),rgba(46,230,107,.04));color:#8bf0b3}
+.chip.teal{border-color:rgba(45,212,191,.35);background:linear-gradient(135deg,rgba(45,212,191,.18),rgba(45,212,191,.04));color:#8be9dc}
+.chip.amber{border-color:rgba(245,185,66,.35);background:linear-gradient(135deg,rgba(245,185,66,.16),rgba(245,185,66,.03));color:#ffd68a}
+.avatar{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:11.5px;font-weight:800;
+  background:linear-gradient(145deg,#2dd4bf,#0e7490);color:#04121f;box-shadow:0 6px 16px rgba(45,212,191,.28)}
+
+.panel{display:none;padding:22px 26px 0;animation:fade .32s ease}
+.panel.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+
+.card{background:linear-gradient(155deg,rgba(22,38,50,.9),rgba(10,17,28,.93));
+  border:1px solid var(--line);border-radius:16px;padding:16px 18px;
+  box-shadow:0 16px 36px -22px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.045);
+  position:relative;overflow:hidden}
+.card::after{content:'';position:absolute;inset:0;border-radius:16px;pointer-events:none;
+  background:radial-gradient(420px 140px at 100% 0%,rgba(45,212,191,.07),transparent 70%)}
+.card h3{font-size:12.5px;font-weight:700;letter-spacing:.35px;text-transform:uppercase;
+  color:#cddbeb;display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.card h3::before{content:'';width:3px;height:13px;border-radius:3px;
+  background:linear-gradient(180deg,var(--teal),var(--green2))}
+.card h3 .right{margin-left:auto;font-size:10.5px;font-weight:500;color:var(--muted);text-transform:none}
+.sub{font-size:11px;color:var(--muted);line-height:1.55}
+.sub b{color:#c8d5e5}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:13px;margin-bottom:16px}
+.kpi{position:relative;border-radius:15px;padding:14px 15px 13px;overflow:hidden;
+  border:1px solid var(--line);background:linear-gradient(158deg,rgba(26,42,54,.94),rgba(9,15,25,.96));
+  box-shadow:0 16px 34px -24px #000, inset 0 1px 0 rgba(255,255,255,.05);transition:.22s}
+.kpi:hover{transform:translateY(-3px);border-color:rgba(45,212,191,.32)}
+.kpi::before{content:'';position:absolute;top:-42px;right:-42px;width:110px;height:110px;border-radius:50%;
+  background:radial-gradient(circle,rgba(46,230,107,.24),transparent 68%)}
+.kpi.a::before{background:radial-gradient(circle,rgba(245,185,66,.24),transparent 68%)}
+.kpi.b::before{background:radial-gradient(circle,rgba(56,189,248,.24),transparent 68%)}
+.kpi.v::before{background:radial-gradient(circle,rgba(167,139,250,.24),transparent 68%)}
+.kpi.t::before{background:radial-gradient(circle,rgba(45,212,191,.24),transparent 68%)}
+.kpi.r::before{background:radial-gradient(circle,rgba(255,92,108,.24),transparent 68%)}
+.kpi-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;position:relative;z-index:2}
+.kpi-label{font-size:10.2px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600;line-height:1.4}
+.kpi-ico{width:26px;height:26px;flex:0 0 26px;border-radius:8px;display:grid;place-items:center;font-size:12px;
+  background:linear-gradient(145deg,rgba(46,230,107,.22),rgba(46,230,107,.05));
+  border:1px solid rgba(46,230,107,.24);color:#7cf0a8}
+.kpi.a .kpi-ico{background:linear-gradient(145deg,rgba(245,185,66,.22),rgba(245,185,66,.05));border-color:rgba(245,185,66,.26);color:#ffd68a}
+.kpi.b .kpi-ico{background:linear-gradient(145deg,rgba(56,189,248,.22),rgba(56,189,248,.05));border-color:rgba(56,189,248,.26);color:#9adcff}
+.kpi.v .kpi-ico{background:linear-gradient(145deg,rgba(167,139,250,.22),rgba(167,139,250,.05));border-color:rgba(167,139,250,.26);color:#c8b6ff}
+.kpi.t .kpi-ico{background:linear-gradient(145deg,rgba(45,212,191,.22),rgba(45,212,191,.05));border-color:rgba(45,212,191,.26);color:#8be9dc}
+.kpi.r .kpi-ico{background:linear-gradient(145deg,rgba(255,92,108,.22),rgba(255,92,108,.05));border-color:rgba(255,92,108,.26);color:#ff9aa5}
+.kpi-val{font-size:21px;font-weight:800;letter-spacing:-.8px;margin-top:9px;position:relative;z-index:2;line-height:1.1;
+  padding:2px 4px;border-radius:5px;transition:.15s;display:inline-block}
+.kpi-val:hover{background:rgba(45,212,191,.08);box-shadow:0 0 0 1px rgba(45,212,191,.3)}
+.kpi-val:focus{outline:none;background:rgba(45,212,191,.14);box-shadow:0 0 0 2px rgba(45,212,191,.5)}
+.kpi-val small{font-size:11px;font-weight:600;color:var(--muted);margin-left:3px}
+.kpi-sub{font-size:10.4px;color:var(--muted);margin-top:5px;position:relative;z-index:2}
+.kpi-bar{height:4px;border-radius:4px;background:rgba(148,163,184,.14);margin-top:11px;overflow:hidden;position:relative;z-index:2}
+.kpi-bar i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#0ea85a,#2ee66b,#8bf0b3);box-shadow:0 0 12px rgba(46,230,107,.6)}
+.kpi.a .kpi-bar i{background:linear-gradient(90deg,#b47b0b,#f5b942,#ffe0a0)}
+.kpi.b .kpi-bar i{background:linear-gradient(90deg,#0b7ea8,#38bdf8,#a5e8ff)}
+.kpi.v .kpi-bar i{background:linear-gradient(90deg,#6d4bd6,#a78bfa,#d9cbff)}
+.kpi.t .kpi-bar i{background:linear-gradient(90deg,#0d8a7d,#2dd4bf,#a5f3ea)}
+.kpi.r .kpi-bar i{background:linear-gradient(90deg,#a01c2b,#ff5c6c,#ffb3ba)}
+
+.grid{display:grid;gap:14px;margin-bottom:16px}
+.g-2{grid-template-columns:1fr 1fr}
+.g-3{grid-template-columns:repeat(3,1fr)}
+.g-4{grid-template-columns:repeat(4,1fr)}
+.g-21{grid-template-columns:1.6fr 1fr}
+.g-12{grid-template-columns:1fr 1.5fr}
+
+.map-box{height:420px;border-radius:14px;overflow:hidden;border:1px solid var(--line);position:relative}
+.map-box .leaflet-container{background:#0a1524;height:100%}
+.map-box .leaflet-popup-content-wrapper{background:#0a1524;color:#e8eef7;border:1px solid rgba(45,212,191,.4);border-radius:10px}
+.map-box .leaflet-popup-tip{background:#0a1524;border:1px solid rgba(45,212,191,.4)}
+.map-box .leaflet-popup-content{font-size:11px;line-height:1.65;margin:10px 12px}
+.map-box .leaflet-popup-content b{color:#8be9dc}
+.legend-inline{display:flex;gap:14px;flex-wrap:wrap;font-size:10.5px;color:var(--muted);margin-top:10px}
+.legend-inline i{width:9px;height:9px;border-radius:3px;display:inline-block;margin-right:6px;vertical-align:middle}
+.truck-ico{font-size:16px;filter:drop-shadow(0 2px 4px #000);transition:transform .3s}
+.boat-ico{font-size:18px;filter:drop-shadow(0 2px 6px #000)}
+
+.alert-list{display:flex;flex-direction:column;gap:9px;max-height:410px;overflow-y:auto;padding-right:4px}
+.alert{display:flex;gap:11px;padding:11px 12px;border-radius:11px;border:1px solid var(--line);
+  background:linear-gradient(120deg,rgba(148,163,184,.06),rgba(148,163,184,.015));border-left-width:3px;transition:.18s}
+.alert:hover{transform:translateX(3px)}
+.alert.crit{border-left-color:var(--red);background:linear-gradient(120deg,rgba(255,92,108,.13),rgba(255,92,108,.02))}
+.alert.warn{border-left-color:var(--amber);background:linear-gradient(120deg,rgba(245,185,66,.13),rgba(245,185,66,.02))}
+.alert.info{border-left-color:var(--blue);background:linear-gradient(120deg,rgba(56,189,248,.12),rgba(56,189,248,.02))}
+.alert.ok{border-left-color:var(--green);background:linear-gradient(120deg,rgba(46,230,107,.12),rgba(46,230,107,.02))}
+.alert .ai{width:26px;height:26px;flex:0 0 26px;border-radius:8px;display:grid;place-items:center;font-size:12px;background:rgba(0,0,0,.3)}
+.alert strong{font-size:11.7px;display:block;margin-bottom:2px}
+.alert span{font-size:10.4px;color:var(--muted);line-height:1.45}
+
+.tbl{width:100%;border-collapse:collapse;font-size:11.5px}
+.tbl th{text-align:left;font-size:9.7px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);
+  padding:8px 10px;border-bottom:1px solid var(--line);font-weight:700;white-space:nowrap}
+.tbl td{padding:8px 10px;border-bottom:1px solid rgba(148,163,184,.07);color:#c8d5e5;white-space:nowrap}
+.tbl tbody tr{transition:.15s}
+.tbl tbody tr:hover{background:rgba(45,212,191,.06)}
+.tbl td[contenteditable]{outline:none;border-radius:5px;transition:.15s;min-width:40px;cursor:text}
+.tbl td[contenteditable]:hover{background:rgba(45,212,191,.07);box-shadow:inset 0 0 0 1px rgba(45,212,191,.2)}
+.tbl td[contenteditable]:focus{background:rgba(45,212,191,.13);box-shadow:inset 0 0 0 2px rgba(45,212,191,.5);color:#fff}
+.tbl .act{text-align:center;width:46px}
+.tbl-scroll{max-height:340px;overflow:auto}
+
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:9.7px;font-weight:700;
+  padding:3px 8px;border-radius:999px;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap}
+.b-green{background:rgba(46,230,107,.16);color:#7cf0a8;border:1px solid rgba(46,230,107,.3)}
+.b-amber{background:rgba(245,185,66,.16);color:#ffd68a;border:1px solid rgba(245,185,66,.3)}
+.b-red{background:rgba(255,92,108,.16);color:#ff9aa5;border:1px solid rgba(255,92,108,.3)}
+.b-blue{background:rgba(56,189,248,.16);color:#9adcff;border:1px solid rgba(56,189,248,.3)}
+.b-violet{background:rgba(167,139,250,.16);color:#c8b6ff;border:1px solid rgba(167,139,250,.3)}
+.b-teal{background:rgba(45,212,191,.16);color:#8be9dc;border:1px solid rgba(45,212,191,.3)}
+.b-gray{background:rgba(148,163,184,.14);color:#b8c6d8;border:1px solid rgba(148,163,184,.24)}
+
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:10.1px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700}
+input[type=text],input[type=number],input[type=date],select{
+  width:100%;padding:9px 11px;border-radius:9px;font-family:inherit;font-size:12.2px;
+  background:linear-gradient(160deg,rgba(9,16,28,.95),rgba(17,26,42,.9));
+  border:1px solid var(--line);color:var(--txt);outline:none;transition:.18s}
+input:focus,select:focus{border-color:rgba(45,212,191,.55);box-shadow:0 0 0 3px rgba(45,212,191,.13)}
+input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:5px;outline:none;
+  background:linear-gradient(90deg,var(--green2),var(--teal))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:radial-gradient(circle at 32% 30%,#b6ffd0,#2dd4bf 55%,#0b7a44);
+  box-shadow:0 0 12px rgba(45,212,191,.7);cursor:pointer;border:2px solid #06140c}
+.form-grid{display:grid;gap:12px;grid-template-columns:repeat(2,1fr)}
+.form-grid.three{grid-template-columns:repeat(3,1fr)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  padding:9px 16px;border-radius:10px;font-family:inherit;font-size:12px;font-weight:700;
+  cursor:pointer;border:1px solid transparent;transition:.18s;text-decoration:none;
+  background:linear-gradient(145deg,#2dd4bf,#0ea85a);color:#04180c;
+  box-shadow:0 10px 24px -12px rgba(45,212,191,.8)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 14px 28px -12px rgba(45,212,191,.95)}
+.btn.ghost{background:linear-gradient(145deg,rgba(148,163,184,.13),rgba(148,163,184,.05));color:#d3dfec;border-color:var(--line);box-shadow:none}
+.btn.ghost:hover{border-color:rgba(45,212,191,.4);color:#fff}
+.btn.blue{background:linear-gradient(145deg,#38bdf8,#1d4ed8);color:#04121f;box-shadow:none}
+.btn.small{padding:6px 11px;font-size:11px}
+.btn.danger{background:linear-gradient(145deg,#ff5c6c,#a01c2b);color:#fff;box-shadow:none}
+
+.result-box{border-radius:12px;padding:14px 16px;margin-top:12px;
+  background:linear-gradient(135deg,rgba(45,212,191,.14),rgba(14,168,90,.04));
+  border:1px solid rgba(45,212,191,.3)}
+.result-box .rlabel{font-size:10.4px;text-transform:uppercase;letter-spacing:.6px;color:#8be9dc;font-weight:700}
+.result-box .rval{font-size:21px;font-weight:800;letter-spacing:-.9px;margin-top:4px}
+.result-box .rnote{font-size:10.4px;color:var(--muted);margin-top:4px;line-height:1.55}
+.result-box.warn{background:linear-gradient(135deg,rgba(255,92,108,.14),rgba(160,28,43,.04));border-color:rgba(255,92,108,.32)}
+.result-box.warn .rlabel{color:#ff9aa5}
+
+.gauge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.gauge{text-align:center;padding:14px 10px;border-radius:13px;border:1px solid var(--line);
+  background:linear-gradient(160deg,rgba(24,36,56,.7),rgba(10,16,27,.85))}
+.gauge .glabel{font-size:10.4px;color:var(--muted);margin-top:8px;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+
+.qr-box{background:linear-gradient(160deg,#fff,#dbe7f3);border-radius:13px;padding:11px;display:inline-block;
+  box-shadow:0 14px 30px -14px rgba(0,0,0,.8)}
+.sync-row{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid rgba(148,163,184,.07);font-size:11.5px}
+.sync-row:last-child{border-bottom:none}
+.sync-row b{font-size:11.3px}
+.doc-item{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid rgba(148,163,184,.08)}
+.doc-item:last-child{border-bottom:none}
+.doc-ico{width:30px;height:30px;flex:0 0 30px;border-radius:9px;display:grid;place-items:center;font-size:12px;
+  background:linear-gradient(145deg,rgba(56,189,248,.2),rgba(56,189,248,.04));border:1px solid rgba(56,189,248,.26);color:#9adcff}
+.progress{height:7px;border-radius:7px;background:rgba(148,163,184,.14);overflow:hidden;margin-top:7px}
+.progress i{display:block;height:100%;border-radius:7px;background:linear-gradient(90deg,#0ea85a,#2ee66b,#8bf0b3);box-shadow:0 0 10px rgba(46,230,107,.55)}
+.progress.teal i{background:linear-gradient(90deg,#0d8a7d,#2dd4bf,#a5f3ea);box-shadow:0 0 10px rgba(45,212,191,.55)}
+.progress.amber i{background:linear-gradient(90deg,#b47b0b,#f5b942,#ffe0a0);box-shadow:0 0 10px rgba(245,185,66,.55)}
+
+.matrix td,.matrix th{text-align:center}
+.matrix td:first-child,.matrix th:first-child{text-align:left}
+.tick{color:#2ee66b;font-weight:800;cursor:pointer}
+.cross{color:rgba(148,163,184,.32);cursor:pointer}
+
+.stage-track{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stage{padding:12px;border-radius:12px;border:1px solid var(--line);background:linear-gradient(160deg,rgba(24,36,56,.7),rgba(10,16,27,.85));position:relative}
+.stage .sn{font-size:9.6px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);font-weight:700}
+.stage .st{font-size:12px;font-weight:700;margin-top:5px}
+.stage .sv{font-size:10.6px;color:var(--muted);margin-top:4px;line-height:1.5}
+.stage.done{border-color:rgba(46,230,107,.35);box-shadow:inset 0 0 0 1px rgba(46,230,107,.12)}
+.stage.done::after{content:'✓';position:absolute;top:9px;right:11px;color:#2ee66b;font-weight:800;font-size:12px}
+
+.machine{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid rgba(148,163,184,.07)}
+.machine:last-child{border-bottom:none}
+.machine .mi{width:32px;height:32px;flex:0 0 32px;border-radius:9px;display:grid;place-items:center;font-size:13px;
+  background:linear-gradient(145deg,rgba(45,212,191,.2),rgba(45,212,191,.04));border:1px solid rgba(45,212,191,.26);color:#8be9dc}
+.machine .mname{font-size:11.8px;font-weight:600}
+.machine .mmeta{font-size:10.2px;color:var(--muted);margin-top:2px}
+
+.intg{display:flex;flex-direction:column;gap:0}
+.intg-head{display:flex;gap:12px;align-items:center;padding-bottom:13px;border-bottom:1px solid var(--line);margin-bottom:13px}
+.intg-logo{width:42px;height:42px;flex:0 0 42px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:14px;
+  background:linear-gradient(145deg,#2ee66b,#0b7a44);color:#04180c;box-shadow:0 8px 20px rgba(46,230,107,.3)}
+.intg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.intg-grid > div{padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:rgba(148,163,184,.045)}
+.intg-grid .k{display:block;font-size:9.6px;text-transform:uppercase;letter-spacing:.55px;color:var(--muted);font-weight:700}
+.intg-grid b{display:block;font-size:12px;margin-top:4px;color:#e8eef7}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.6px;color:#8be9dc;background:rgba(45,212,191,.1);padding:1px 5px;border-radius:4px}
+
+.apexcharts-tooltip{background:rgba(8,14,24,.96)!important;border:1px solid rgba(45,212,191,.35)!important;color:#e8eef7!important}
+.apexcharts-tooltip-title{background:rgba(45,212,191,.12)!important;border-bottom:1px solid rgba(45,212,191,.3)!important}
+.apexcharts-legend-text{color:#8ea1bb!important;font-size:10.5px!important}
+
+.toast{position:fixed;bottom:20px;right:20px;background:linear-gradient(145deg,#2dd4bf,#0ea85a);color:#04180c;
+  padding:12px 20px;border-radius:10px;font-weight:700;font-size:12px;box-shadow:0 10px 30px rgba(45,212,191,.5);
+  z-index:9999;opacity:0;transform:translateY(20px);transition:.25s;pointer-events:none;max-width:340px}
+.toast.show{opacity:1;transform:none}
+
+@media(max-width:1400px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:1180px){.g-21,.g-12,.g-2,.g-3,.g-4{grid-template-columns:1fr}.intg-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){
+  .app{grid-template-columns:1fr}
+  .sidebar{position:relative;height:auto}
+  nav{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .panel{padding:16px}.topbar{padding:12px 16px}
+  .stage-track{grid-template-columns:1fr 1fr}
+  .gauge-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">VN</div>
+      <div><h1>PT VERDANTIA AGRI NATURE</h1><p>Sukabumi · Biomass Pellet Supply Chain</p></div>
+    </div>
+    <nav id="nav">
+      <button class="nav-item active" data-panel="p1"><span class="ico">◈</span>Control Tower</button>
+      <button class="nav-item" data-panel="p2"><span class="ico">⌖</span>Farm Network</button>
+      <button class="nav-item" data-panel="p3"><span class="ico">▤</span>Procurement &amp; Inbound</button>
+      <button class="nav-item" data-panel="p4"><span class="ico">⚙</span>Processing Plant</button>
+      <button class="nav-item" data-panel="p5"><span class="ico">◐</span>Quality &amp; Laboratory</button>
+      <button class="nav-item" data-panel="p6"><span class="ico">▦</span>Warehouse &amp; Inventory</button>
+      <button class="nav-item" data-panel="p7"><span class="ico">🚚</span>Fleet &amp; Transport</button>
+      <button class="nav-item" data-panel="p8"><span class="ico">⚓</span>Port &amp; Shipping</button>
+      <button class="nav-item" data-panel="p9"><span class="ico">⛃</span>Financials &amp; HPP</button>
+      <button class="nav-item" data-panel="p10"><span class="ico">⚡</span>System &amp; IoT</button>
+    </nav>
+    <div class="side-foot">
+      <div class="pill-live"><span class="dot"></span> Telemetri &amp; PWA aktif</div>
+      <div class="mg-mini">
+        <div class="lg">MG</div>
+        <div><b>Mitra Minerva</b><br><span id="mgSideStatus">Terhubung · estate 10.000 Ha</span></div>
+      </div>
+      <button class="btn ghost small" style="width:100%;margin-top:4px" onclick="resetDB()">↻ Reset Data Demo</button>
+    </div>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <div>
+        <h2 id="panelTitle">Control Tower &amp; Executive Dashboard</h2>
+        <div class="crumb" id="panelCrumb">End-to-End Supply Chain · PLTU Pelabuhan Ratu &amp; Pasar Ekspor</div>
+      </div>
+      <div class="topbar-right">
+        <span class="chip green"><span class="dot"></span>Online</span>
+        <span class="chip teal">🗓 <span id="today"></span></span>
+        <span class="chip amber">⚡ Kuota Offtaker 78,4%</span>
+        <div class="avatar">VD</div>
+      </div>
+    </div>
+
+    <!-- ================= PANEL 1 — CONTROL TOWER ================= -->
+    <section class="panel active" id="p1">
+      <div class="kpi-grid">
+        <div class="kpi g">
+          <div class="kpi-top"><span class="kpi-label">Pasokan Bahan Baku (Bln)</span><span class="kpi-ico">🌾</span></div>
+          <div class="kpi-val" contenteditable="true" data-kpi="feedstock">12.480 <small>Ton</small></div>
+          <div class="kpi-sub">Target 14.000 Ton/bulan</div>
+          <div class="kpi-bar"><i style="width:89%"></i></div>
+        </div>
+        <div class="kpi t">
+          <div class="kpi-top"><span class="kpi-label">Stok Pellet Silo &amp; Gudang</span><span class="kpi-ico">▦</span></div>
+          <div class="kpi-val" contenteditable="true" data-kpi="stock">6.240 <small>Ton</small></div>
+          <div class="kpi-sub">Kapasitas terpakai 62,4%</div>
+          <div class="kpi-bar"><i style="width:62%"></i></div>
+        </div>
+        <div class="kpi b">
+          <div class="kpi-top"><span class="kpi-label">Volume In-Transit</span><span class="kpi-ico">🚚</span></div>
+          <div class="kpi-val" contenteditable="true" data-kpi="transit">1.860 <small>Ton</small></div>
+          <div class="kpi-sub">34 truk · 2 tongkang</div>
+          <div class="kpi-bar"><i style="width:71%"></i></div>
+        </div>
+        <div class="kpi a">
+          <div class="kpi-top"><span class="kpi-label">Realisasi ke Offtaker</span><span class="kpi-ico">▣</span></div>
+          <div class="kpi-val" contenteditable="true" data-kpi="offtaker">78,4 <small>%</small></div>
+          <div class="kpi-sub">9.408 / 12.000 Ton</div>
+          <div class="kpi-bar"><i style="width:78%"></i></div>
+        </div>
+        <div class="kpi v">
+          <div class="kpi-top"><span class="kpi-label">HPP Gabungan</span><span class="kpi-ico">⛃</span></div>
+          <div class="kpi-val" contenteditable="true" data-kpi="hpp">1.284.500 <small>Rp/Ton</small></div>
+          <div class="kpi-sub">Target ≤ Rp 1.350.000</div>
+          <div class="kpi-bar"><i style="width:82%"></i></div>
+        </div>
+        <div class="kpi r">
+          <div class="kpi-top"><span class="kpi-label">Biaya Logistik</span><span class="kpi-ico">⛟</span></div>
+          <div class="kpi-val" contenteditable="true" data-kpi="logcost">312 <small>Rp/Ton-km</small></div>
+          <div class="kpi-sub">Benchmark ≤ Rp 350</div>
+          <div class="kpi-bar"><i style="width:66%"></i></div>
+        </div>
+      </div>
+
+      <div class="grid g-21">
+        <div class="card">
+          <h3>Live Logistics &amp; Fleet Map <span class="right">Esri World Imagery · telematika GPS real-time</span></h3>
+          <div class="map-box"><div id="mapLive" style="height:100%"></div></div>
+          <div class="legend-inline">
+            <span><i style="background:#2ee66b"></i>Kebun / Blok</span>
+            <span><i style="background:#8a6d45"></i>TPK Mitra</span>
+            <span><i style="background:#38bdf8"></i>Pabrik Pellet</span>
+            <span><i style="background:#f5b942"></i>Pelabuhan Ratu</span>
+            <span><i style="background:#a78bfa"></i>Rute Laut / Export</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Alert System Rantai Pasok</h3>
+          <div class="alert-list">
+            <div class="alert crit"><div class="ai">⏱</div><div><strong>Delay armada — Trip TRP-0412</strong><span>Truk B-9421-MGA tertahan 3,4 jam di Cisolok. ETA bergeser ke 14:20 WIB.</span></div></div>
+            <div class="alert crit"><div class="ai">⚓</div><div><strong>Demurrage risk — MV Nusantara Star</strong><span>Laytime tersisa 9 jam, loading rate 68% dari rencana. Potensi penalti Rp 84 juta.</span></div></div>
+            <div class="alert warn"><div class="ai">▦</div><div><strong>Stok bahan baku mendekati batas minimum</strong><span>Yard 3.820 Ton dari buffer 4.500 Ton. Perlu percepatan inbound.</span></div></div>
+            <div class="alert warn"><div class="ai">◐</div><div><strong>Deviasi mutu QC — Batch PLT-2518</strong><span>MC 11,4% (standar ≤ 10%). Alokasikan re-drying 2 siklus.</span></div></div>
+            <div class="alert info"><div class="ai">🌡</div><div><strong>Suhu tumpukan Silo B naik</strong><span>48°C (ambang 55°C). Aktifkan aerasi preventif.</span></div></div>
+            <div class="alert ok"><div class="ai">✓</div><div><strong>Sinkronisasi Minerva &amp; ERP berhasil</strong><span>12 blok estate + 1.284 transaksi tersinkron 06:12 WIB.</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid g-3">
+        <div class="card">
+          <h3>Kurva Rantai Pasok <span class="right">Ton / bulan</span></h3>
+          <div id="chFlow" style="min-height:300px"></div>
+        </div>
+        <div class="card">
+          <h3>Realisasi vs Target Offtaker <span class="right">PLTU &amp; Ekspor</span></h3>
+          <div id="chOfftaker" style="min-height:300px"></div>
+        </div>
+        <div class="card">
+          <h3>Pemenuhan Kuota <span class="right">Rolling 12 bulan</span></h3>
+          <div id="chQuota" style="min-height:300px"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px">
+        <h3>Indikator Mutu Konsinyasi Berjalan <span class="right">12 minggu terakhir</span></h3>
+        <div id="chQuality" style="min-height:300px"></div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 2 — FARM NETWORK ================= -->
+    <section class="panel" id="p2">
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi g"><div class="kpi-top"><span class="kpi-label">Luas In-House Estate</span><span class="kpi-ico">◈</span></div><div class="kpi-val">10.000 <small>Ha</small></div><div class="kpi-sub">Dikelola PT Minerva Green Agro</div><div class="kpi-bar"><i style="width:100%"></i></div></div>
+        <div class="kpi t"><div class="kpi-top"><span class="kpi-label">Mitra Plasma</span><span class="kpi-ico">🤝</span></div><div class="kpi-val">148 <small>KK</small></div><div class="kpi-sub">6 kelompok tani · 268,4 Ha</div><div class="kpi-bar"><i style="width:68%"></i></div></div>
+        <div class="kpi a"><div class="kpi-top"><span class="kpi-label">Kontribusi Mitra</span><span class="kpi-ico">◍</span></div><div class="kpi-val">22,6 <small>%</small></div><div class="kpi-sub">Target 25% pasokan</div><div class="kpi-bar"><i style="width:90%"></i></div></div>
+        <div class="kpi b"><div class="kpi-top"><span class="kpi-label">Titik TPK Aktif</span><span class="kpi-ico">⌖</span></div><div class="kpi-val">9 <small>TPK</small></div><div class="kpi-sub">3 baru · 6 beroperasi</div><div class="kpi-bar"><i style="width:75%"></i></div></div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px">
+        <h3>Integrasi PT Minerva Green Agro <span class="right">Mitra pemeliharaan lahan &amp; pemasok bahan baku</span></h3>
+        <div class="intg">
+          <div class="intg-head">
+            <div class="intg-logo">MG</div>
+            <div style="flex:1">
+              <strong style="font-size:13px">PT Minerva Green Agro — Command Center</strong>
+              <div class="sub">Estate Sukabumi · 12 blok · Gamal / Kaliandra / Lamtoro · pemasok utama biomassa basah</div>
+            </div>
+            <span class="badge b-green" id="mgStatus">Terhubung</span>
+          </div>
+          <div class="intg-grid">
+            <div><span class="k">Endpoint</span><b><code>minerva.html</code> · <code>mga_db_v5</code></b></div>
+            <div><span class="k">Protokol</span><b>Same-origin bridge + REST fallback</b></div>
+            <div><span class="k">Terakhir sinkron</span><b id="mgLastSync">—</b></div>
+            <div><span class="k">Blok siap panen</span><b id="mgReady">—</b></div>
+            <div><span class="k">Estimasi biomassa basah</span><b id="mgTonnage">—</b></div>
+            <div><span class="k">Populasi tanaman hidup</span><b id="mgPop">—</b></div>
+          </div>
+          <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:13px">
+            <button class="btn" onclick="syncMinerva()">⟳ Tarik Data dari Minerva</button>
+            <button class="btn ghost" onclick="pushHarvestPlan()">↗ Kirim Rencana Panen</button>
+            <a class="btn blue" href="minerva.html" target="_blank" rel="noopener">◈ Buka Command Center Minerva</a>
+          </div>
+          <div class="sub" id="mgNote" style="margin-top:10px">Menunggu sinkronisasi. Klik <b>Tarik Data dari Minerva</b> untuk memuat profil blok, status panen, dan estimasi tonase.</div>
+        </div>
+      </div>
+
+      <div class="grid g-21" style="margin-bottom:16px">
+        <div class="card">
+          <h3>GIS Blok Tanaman Energi <span class="right">Klik poligon untuk detail blok</span></h3>
+          <div class="map-box" style="height:400px"><div id="mapFarm" style="height:100%"></div></div>
+          <div class="legend-inline">
+            <span><i style="background:#2ee66b"></i>Siap Panen</span>
+            <span><i style="background:#f5b942"></i>Tumbuh</span>
+            <span><i style="background:#ff5c6c"></i>Persiapan</span>
+            <span><i style="background:#38bdf8"></i>Istirahat</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Prediksi Tonase per Blok <span class="right">Ton basah / siklus</span></h3>
+          <div id="chFarmBlocks" style="min-height:380px"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px">
+        <h3>Jaringan Pemasok &amp; Mitra Plasma <span class="right">Klik sel edit · tambah/hapus baris</span></h3>
+        <div id="tblOutgrowers"></div>
+      </div>
+
+      <div class="grid g-2">
+        <div class="card">
+          <h3>Kontrak Pasokan Bahan Baku <span class="right">Editable</span></h3>
+          <div id="tblContracts"></div>
+        </div>
+        <div class="card">
+          <h3>Jadwal Harvest &amp; Collection Point <span class="right">Editable</span></h3>
+          <div id="tblHarvest"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 3 — PROCUREMENT & INBOUND ================= -->
+    <section class="panel" id="p3">
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi b"><div class="kpi-top"><span class="kpi-label">Truk Aktif Inbound</span><span class="kpi-ico">🚚</span></div><div class="kpi-val">34 <small>unit</small></div><div class="kpi-sub">Utilisasi 82,4%</div><div class="kpi-bar"><i style="width:82%"></i></div></div>
+        <div class="kpi a"><div class="kpi-top"><span class="kpi-label">Antrean Timbang</span><span class="kpi-ico">⚖</span></div><div class="kpi-val">7 <small>truk</small></div><div class="kpi-sub">Rata-rata tunggu 22 menit</div><div class="kpi-bar"><i style="width:45%"></i></div></div>
+        <div class="kpi t"><div class="kpi-top"><span class="kpi-label">Rata-rata MC Masuk</span><span class="kpi-ico">💧</span></div><div class="kpi-val">27,8 <small>%</small></div><div class="kpi-sub">Basis potongan 20%</div><div class="kpi-bar"><i style="width:70%"></i></div></div>
+        <div class="kpi g"><div class="kpi-top"><span class="kpi-label">Tiket Hari Ini</span><span class="kpi-ico">▤</span></div><div class="kpi-val">126 <small>tiket</small></div><div class="kpi-sub">2.418 Ton diterima</div><div class="kpi-bar"><i style="width:88%"></i></div></div>
+      </div>
+
+      <div class="grid g-21">
+        <div class="card">
+          <h3>Integrasi Jembatan Timbang Digital <span class="right">Gross · Tare · Nett · Editable</span></h3>
+          <div id="tblWeigh" style="margin-bottom:6px"></div>
+          <div class="sub">Data tersinkron otomatis ke modul Inventory &amp; Accounting ERP Dolibarr.</div>
+        </div>
+        <div class="card">
+          <h3>Kalkulator Potongan Kadar Air</h3>
+          <div class="form-grid">
+            <div class="field"><label>Gross (kg)</label><input type="number" id="inGross" value="19240" oninput="calcInbound()"></div>
+            <div class="field"><label>Tare (kg)</label><input type="number" id="inTare" value="7180" oninput="calcInbound()"></div>
+            <div class="field"><label>MC Terukur (%)</label><input type="number" id="inMc" value="27.8" step="0.1" oninput="calcInbound()"></div>
+            <div class="field"><label>Harga Dasar (Rp/Ton)</label><input type="number" id="inPrice" value="485000" step="5000" oninput="calcInbound()"></div>
+          </div>
+          <div class="result-box" id="inResult">
+            <div class="rlabel">Nilai Pembayaran Supplier</div>
+            <div class="rval">—</div>
+            <div class="rnote">—</div>
+          </div>
+          <div class="sub" style="margin-top:10px">Rumus potongan: <b>MC di atas 20%</b> dikenakan penalti 1,5% tonase per 1% kelebihan MC.</div>
+        </div>
+      </div>
+
+      <div class="grid g-12" style="margin-top:16px">
+        <div class="card">
+          <h3>Digital Gate Pass</h3>
+          <div style="text-align:center;padding:6px 0 12px"><div class="qr-box"><canvas id="qrGate" width="150" height="150"></canvas></div></div>
+          <div class="sync-row"><span>🆔</span><span style="flex:1">No. Tiket</span><b>WB-2423</b></div>
+          <div class="sync-row"><span>🏞</span><span style="flex:1">Asal</span><b>A3 · Minerva Estate</b></div>
+          <div class="sync-row"><span>🚛</span><span style="flex:1">Nopol</span><b>B-9421-MGA</b></div>
+          <div class="sync-row"><span>⚖</span><span style="flex:1">Nett</span><b>13.080 kg</b></div>
+        </div>
+        <div class="card">
+          <h3>Dispatch Armada Pengumpul <span class="right">Editable</span></h3>
+          <div id="tblDispatch"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 4 — PROCESSING PLANT ================= -->
+    <section class="panel" id="p4">
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi g"><div class="kpi-top"><span class="kpi-label">Throughput Pabrik</span><span class="kpi-ico">⚙</span></div><div class="kpi-val">18,4 <small>Ton/jam</small></div><div class="kpi-sub">Kapasitas terpasang 22 Ton/jam</div><div class="kpi-bar"><i style="width:84%"></i></div></div>
+        <div class="kpi t"><div class="kpi-top"><span class="kpi-label">OEE</span><span class="kpi-ico">◍</span></div><div class="kpi-val">86,2 <small>%</small></div><div class="kpi-sub">Availability 92% · Performance 94%</div><div class="kpi-bar"><i style="width:86%"></i></div></div>
+        <div class="kpi b"><div class="kpi-top"><span class="kpi-label">Konsumsi Energi</span><span class="kpi-ico">⚡</span></div><div class="kpi-val">78,4 <small>kWh/Ton</small></div><div class="kpi-sub">Benchmark ≤ 85 kWh/Ton</div><div class="kpi-bar"><i style="width:78%"></i></div></div>
+        <div class="kpi r"><div class="kpi-top"><span class="kpi-label">Downtime Hari Ini</span><span class="kpi-ico">⚠</span></div><div class="kpi-val">1,8 <small>jam</small></div><div class="kpi-sub">Target ≤ 2,0 jam/hari</div><div class="kpi-bar"><i style="width:90%"></i></div></div>
+      </div>
+
+      <div class="grid g-21">
+        <div class="card">
+          <h3>Status Operasional Lini Produksi</h3>
+          <div id="machineList"></div>
+        </div>
+        <div class="card">
+          <h3>Kalkulator Energi &amp; Efisiensi</h3>
+          <div class="field" style="margin-bottom:11px"><label>Listrik Terpakai (kWh)</label><input type="number" id="enKwh" value="78400" oninput="calcEnergy()"></div>
+          <div class="field" style="margin-bottom:11px"><label>Output Pellet (Ton)</label><input type="number" id="enTon" value="1000" oninput="calcEnergy()"></div>
+          <div class="field" style="margin-bottom:11px"><label>Bahan Bakar Dryer (Ton biomassa)</label><input type="number" id="enFuel" value="42" step="0.5" oninput="calcEnergy()"></div>
+          <div class="result-box" id="enResult">
+            <div class="rlabel">Intensitas Energi</div>
+            <div class="rval">78,4 <span style="font-size:13px;color:#8be9dc">kWh/Ton</span></div>
+            <div class="rnote">Rasio bahan bakar: <b style="color:#8be9dc">4,20%</b> dari output</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid g-2" style="margin-top:16px">
+        <div class="card">
+          <h3>Log Input vs Output Produksi <span class="right">Rasio konversi</span></h3>
+          <div id="chConvert" style="min-height:300px"></div>
+        </div>
+        <div class="card">
+          <h3>Downtime &amp; Maintenance Log <span class="right">Editable</span></h3>
+          <div id="tblDowntime"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 5 — QUALITY & LAB ================= -->
+    <section class="panel" id="p5">
+      <div class="card" style="margin-bottom:16px">
+        <h3>Multi-Stage Quality Sampling <span class="right">4 titik kritikal</span></h3>
+        <div class="stage-track">
+          <div class="stage done">
+            <div class="sn">Titik 1</div><div class="st">Bahan Baku Mentah</div>
+            <div class="sv">MC 27,8% · GCV 3.180 kcal/kg<br>Asal: Minerva Blok A3</div>
+          </div>
+          <div class="stage done">
+            <div class="sn">Titik 2</div><div class="st">Dryer Output</div>
+            <div class="sv">MC 14,2% · GCV 3.940 kcal/kg<br>Serbuk kering</div>
+          </div>
+          <div class="stage done">
+            <div class="sn">Titik 3</div><div class="st">Pellet Output</div>
+            <div class="sv">MC 9,6% · PDI 98,1%<br>Selesai dicetak</div>
+          </div>
+          <div class="stage">
+            <div class="sn">Titik 4</div><div class="st">Pre-Loading</div>
+            <div class="sv">Menunggu sampling<br>Batch PLT-2521</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid g-21">
+        <div class="card">
+          <h3>Laboratorium Parametrik Biomassa <span class="right">vs standar ISO/ASTM</span></h3>
+          <div id="chRadar" style="min-height:340px"></div>
+          <div class="legend-inline">
+            <span><i style="background:#2ee66b"></i>Hasil uji aktual</span>
+            <span><i style="background:#f5b942"></i>Standar kontrak</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Generasi Certificate of Analysis (CoA)</h3>
+          <div class="form-grid">
+            <div class="field"><label>Batch</label><input type="text" id="coaBatch" value="PLT-2521"></div>
+            <div class="field"><label>Offtaker</label><input type="text" id="coaBuyer" value="PLN PLTU Pelabuhan Ratu"></div>
+            <div class="field"><label>GCV (kcal/kg)</label><input type="number" id="coaGcv" value="4210"></div>
+            <div class="field"><label>Moisture (%)</label><input type="number" id="coaMc" value="9.4" step="0.1"></div>
+            <div class="field"><label>Ash (%)</label><input type="number" id="coaAsh" value="1.28" step="0.01"></div>
+            <div class="field"><label>PDI (%)</label><input type="number" id="coaPdi" value="98.2" step="0.1"></div>
+          </div>
+          <button class="btn" style="margin-top:12px;width:100%" onclick="generateCoA()">◈ Terbitkan Certificate of Analysis</button>
+          <div class="result-box" id="coaResult">
+            <div class="rlabel">Status Sertifikasi</div>
+            <div class="rval" style="font-size:16px">Siap diterbitkan</div>
+            <div class="rnote">Semua parameter memenuhi standar kontrak offtaker.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Riwayat Hasil Uji Laboratorium <span class="right">Editable</span></h3>
+        <div id="tblLab"></div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 6 — WAREHOUSE & INVENTORY ================= -->
+    <section class="panel" id="p6">
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi t"><div class="kpi-top"><span class="kpi-label">Stok Silo</span><span class="kpi-ico">▦</span></div><div class="kpi-val">4.120 <small>Ton</small></div><div class="kpi-sub">Dari 6.000 Ton kapasitas</div><div class="kpi-bar"><i style="width:69%"></i></div></div>
+        <div class="kpi b"><div class="kpi-top"><span class="kpi-label">Stok Bulk Warehouse</span><span class="kpi-ico">🏭</span></div><div class="kpi-val">2.120 <small>Ton</small></div><div class="kpi-sub">Dari 4.000 Ton kapasitas</div><div class="kpi-bar"><i style="width:53%"></i></div></div>
+        <div class="kpi a"><div class="kpi-top"><span class="kpi-label">Suhu Tumpukan Maks</span><span class="kpi-ico">🌡</span></div><div class="kpi-val">48 <small>°C</small></div><div class="kpi-sub">Ambang bahaya 55°C</div><div class="kpi-bar"><i style="width:87%"></i></div></div>
+        <div class="kpi g"><div class="kpi-top"><span class="kpi-label">Kepatuhan FIFO</span><span class="kpi-ico">◍</span></div><div class="kpi-val">96,8 <small>%</small></div><div class="kpi-sub">Target 100%</div><div class="kpi-bar"><i style="width:97%"></i></div></div>
+      </div>
+
+      <div class="grid g-2">
+        <div class="card">
+          <h3>Kapasitas Silo &amp; Gudang Curah <span class="right">Berdasarkan zona MC</span></h3>
+          <div id="chStorage" style="min-height:300px"></div>
+        </div>
+        <div class="card">
+          <h3>Monitoring Suhu Tumpukan <span class="right">Self-heating prevention · 24 jam</span></h3>
+          <div id="chTemp" style="min-height:300px"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Packaging &amp; Bagging Line</h3>
+        <div class="sync-row"><span>📦</span><span style="flex:1">Jumbo Bag (1 Ton)</span><b>1.240 bag</b><span class="badge b-green">Aktif</span></div>
+        <div class="sync-row"><span>🛍</span><span style="flex:1">Small Bag (15–25 kg)</span><b>8.420 bag</b><span class="badge b-green">Aktif</span></div>
+        <div class="sync-row"><span>⛲</span><span style="flex:1">Curah / Bulk</span><b>3.180 Ton</b><span class="badge b-blue">Dominan</span></div>
+        <div class="sync-row"><span>⚙</span><span style="flex:1">Line Utilisation</span><b>74,2%</b><span class="badge b-amber">Optimalisasi</span></div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>FIFO &amp; Batch Tracking <span class="right">Editable</span></h3>
+        <div id="tblBatches"></div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 7 — FLEET & TRANSPORT ================= -->
+    <section class="panel" id="p7">
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi b"><div class="kpi-top"><span class="kpi-label">Total Armada</span><span class="kpi-ico">🚚</span></div><div class="kpi-val">48 <small>unit</small></div><div class="kpi-sub">32 milik · 16 mitra 3PL</div><div class="kpi-bar"><i style="width:100%"></i></div></div>
+        <div class="kpi g"><div class="kpi-top"><span class="kpi-label">Utilisasi Armada</span><span class="kpi-ico">◍</span></div><div class="kpi-val">82,4 <small>%</small></div><div class="kpi-sub">Target 85%</div><div class="kpi-bar"><i style="width:82%"></i></div></div>
+        <div class="kpi a"><div class="kpi-top"><span class="kpi-label">Biaya per Trip</span><span class="kpi-ico">⛃</span></div><div class="kpi-val">1.240.000 <small>Rp</small></div><div class="kpi-sub">Rata-rata 12 rute</div><div class="kpi-bar"><i style="width:74%"></i></div></div>
+        <div class="kpi r"><div class="kpi-top"><span class="kpi-label">Deviasi Rute</span><span class="kpi-ico">⚠</span></div><div class="kpi-val">2 <small>kejadian</small></div><div class="kpi-sub">Unauthorized stop terdeteksi</div><div class="kpi-bar"><i style="width:20%"></i></div></div>
+      </div>
+
+      <div class="grid g-21">
+        <div class="card">
+          <h3>Fleet Registry <span class="right">Editable</span></h3>
+          <div id="tblFleet"></div>
+        </div>
+        <div class="card">
+          <h3>Biaya Armada per Komponen <span class="right">Rp / bulan</span></h3>
+          <div id="chFleetCost" style="min-height:300px"></div>
+        </div>
+      </div>
+
+      <div class="grid g-2" style="margin-top:16px">
+        <div class="card">
+          <h3>Telematika GPS &amp; ETA <span class="right">Live tracking</span></h3>
+          <div class="sync-row"><span>🟢</span><span style="flex:1">B-9421-MGA · Cisolok → Pabrik</span><b>ETA 14:20</b><span class="badge b-amber">Delay</span></div>
+          <div class="sync-row"><span>🟢</span><span style="flex:1">B-9034-VAN · Pabrik → Pelabuhan</span><b>ETA 12:05</b><span class="badge b-green">On-time</span></div>
+          <div class="sync-row"><span>🟢</span><span style="flex:1">B-8871-VAN · TPK Cibadak → Pabrik</span><b>ETA 11:48</b><span class="badge b-green">On-time</span></div>
+          <div class="sync-row"><span>🔴</span><span style="flex:1">B-9412-MGA · Surade → Pabrik</span><b>ETA —</b><span class="badge b-red">Offline</span></div>
+        </div>
+        <div class="card">
+          <h3>e-POD / Bukti Serah Terima Digital</h3>
+          <div class="sync-row"><span>📸</span><span style="flex:1">POD-1182 · Bongkar di Silo A</span><b>12:04 WIB</b><span class="badge b-green">Terverifikasi</span></div>
+          <div class="sync-row"><span>📸</span><span style="flex:1">POD-1181 · Bongkar di Gudang Bulk</span><b>11:32 WIB</b><span class="badge b-green">Terverifikasi</span></div>
+          <div class="sync-row"><span>📸</span><span style="flex:1">POD-1180 · Muat di TPK Cibadak</span><b>10:18 WIB</b><span class="badge b-green">Terverifikasi</span></div>
+          <div class="sync-row"><span>✍</span><span style="flex:1">Signature digital driver</span><b>Aktif</b><span class="badge b-teal">PWA</span></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Fleet Costing per Trip <span class="right">Editable</span></h3>
+        <div id="tblTrips"></div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 8 — PORT & SHIPPING ================= -->
+    <section class="panel" id="p8">
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi a"><div class="kpi-top"><span class="kpi-label">Loading Rate</span><span class="kpi-ico">⚓</span></div><div class="kpi-val">1.240 <small>Ton/hari</small></div><div class="kpi-sub">Rencana 1.800 Ton/hari</div><div class="kpi-bar"><i style="width:69%"></i></div></div>
+        <div class="kpi b"><div class="kpi-top"><span class="kpi-label">Vessel In-Port</span><span class="kpi-ico">🚢</span></div><div class="kpi-val">2 <small>unit</small></div><div class="kpi-sub">1 tongkang · 1 vessel ekspor</div><div class="kpi-bar"><i style="width:60%"></i></div></div>
+        <div class="kpi r"><div class="kpi-top"><span class="kpi-label">Demurrage Risk</span><span class="kpi-ico">⚠</span></div><div class="kpi-val">84 <small>juta Rp</small></div><div class="kpi-sub">Laytime tersisa 9 jam</div><div class="kpi-bar"><i style="width:78%"></i></div></div>
+        <div class="kpi g"><div class="kpi-top"><span class="kpi-label">Dokumen Ekspor Lengkap</span><span class="kpi-ico">📜</span></div><div class="kpi-val">5/6 <small>dok</small></div><div class="kpi-sub">COO menunggu verifikasi</div><div class="kpi-bar"><i style="width:83%"></i></div></div>
+      </div>
+
+      <div class="grid g-21">
+        <div class="card">
+          <h3>Jadwal Kapal &amp; Tongkang <span class="right">Editable</span></h3>
+          <div id="tblVessels"></div>
+        </div>
+        <div class="card">
+          <h3>Kalkulator Demurrage / Despatch</h3>
+          <div class="form-grid">
+            <div class="field"><label>Laytime Disetujui (jam)</label><input type="number" id="dmLay" value="72" oninput="calcDemurrage()"></div>
+            <div class="field"><label>Waktu Terpakai (jam)</label><input type="number" id="dmUsed" value="81" oninput="calcDemurrage()"></div>
+            <div class="field"><label>Tarif Demurrage (Rp/jam)</label><input type="number" id="dmRate" value="28000000" step="1000000" oninput="calcDemurrage()"></div>
+            <div class="field"><label>Despatch Rate (%)</label><input type="number" id="dmDesp" value="50" oninput="calcDemurrage()"></div>
+          </div>
+          <div class="result-box warn" id="dmResult">
+            <div class="rlabel">Potensi Demurrage</div>
+            <div class="rval" style="font-size:18px">Rp 252.000.000</div>
+            <div class="rnote">Kelebihan 9 jam × Rp 28.000.000/jam</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid g-2" style="margin-top:16px">
+        <div class="card">
+          <h3>Loading Rate Harian <span class="right">Ton / hari</span></h3>
+          <div id="chLoading" style="min-height:300px"></div>
+        </div>
+        <div class="card">
+          <h3>Dokumen Kehutanan &amp; Ekspor <span class="right">Editable</span></h3>
+          <div id="tblDocs"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Draft Survey &amp; Muatan</h3>
+        <div class="sync-row"><span>⚖</span><span style="flex:1">Draft Awal</span><b>4,82 m</b></div>
+        <div class="sync-row"><span>⚖</span><span style="flex:1">Draft Akhir</span><b>8,14 m</b></div>
+        <div class="sync-row"><span>📐</span><span style="flex:1">Konstanta Kapal</span><b>182 Ton</b></div>
+        <div class="sync-row"><span>🚢</span><span style="flex:1">Muatan Bersih (Draft Survey)</span><b>7.420 Ton</b><span class="badge b-green">Sesuai B/L</span></div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 9 — FINANCIALS & HPP ================= -->
+    <section class="panel" id="p9">
+      <div class="grid g-21">
+        <div class="card">
+          <h3>Kalkulator HPP Biomassa Terpadu</h3>
+          <div class="field" style="margin-bottom:11px">
+            <label>Biaya Bahan Baku (Rp/Ton) — <b id="hppFeedLbl" style="color:#8be9dc">485.000</b></label>
+            <input type="range" id="hppFeed" min="250000" max="900000" step="5000" value="485000" oninput="calcHPP()">
+          </div>
+          <div class="field" style="margin-bottom:11px">
+            <label>Biaya Processing (Rp/Ton) — <b id="hppProcLbl" style="color:#8be9dc">392.000</b></label>
+            <input type="range" id="hppProc" min="150000" max="800000" step="5000" value="392000" oninput="calcHPP()">
+          </div>
+          <div class="field" style="margin-bottom:11px">
+            <label>Biaya Logistik Darat &amp; Pelabuhan (Rp/Ton) — <b id="hppLogLbl" style="color:#8be9dc">407.500</b></label>
+            <input type="range" id="hppLog" min="100000" max="900000" step="5000" value="407500" oninput="calcHPP()">
+          </div>
+          <div class="result-box" id="hppBox">
+            <div class="rlabel">HPP Total</div>
+            <div class="rval" id="hppVal">Rp 1.284.500 /Ton</div>
+            <div class="rnote" id="hppNote">—</div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Struktur HPP <span class="right">Komposisi biaya</span></h3>
+          <div id="chHpp" style="min-height:320px"></div>
+        </div>
+      </div>
+
+      <div class="grid g-2" style="margin-top:16px">
+        <div class="card">
+          <h3>Freight Cost &amp; Margin Analysis <span class="right">Rp/Ton-km</span></h3>
+          <div id="chFreight" style="min-height:300px"></div>
+        </div>
+        <div class="card">
+          <h3>Analisis Profitabilitas per Offtaker</h3>
+          <div class="sync-row"><span>⚡</span><span style="flex:1">PLN PLTU Pelabuhan Ratu</span><b>Margin 38,8%</b><span class="badge b-green">Sehat</span></div>
+          <div class="sync-row"><span>🌏</span><span style="flex:1">Ekspor — Jepang (Co-firing)</span><b>Margin 42,4%</b><span class="badge b-green">Sehat</span></div>
+          <div class="sync-row"><span>🌏</span><span style="flex:1">Ekspor — Korea Selatan</span><b>Margin 31,2%</b><span class="badge b-amber">Waspada</span></div>
+          <div class="sync-row"><span>🏭</span><span style="flex:1">Industri Semen Domestik</span><b>Margin 24,6%</b><span class="badge b-amber">Waspada</span></div>
+          <div class="sub" style="margin-top:10px">Margin dihitung setelah HPP gabungan, freight, dan penyesuaian GCV/MC sesuai klausul kontrak.</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Modul Penagihan &amp; Kontrak Pembeli <span class="right">Editable</span></h3>
+        <div id="tblInvoices"></div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Integrasi ERP Eksternal (Dolibarr REST API)</h3>
+        <div class="sync-row"><span>📦</span><span style="flex:1">Purchase Order — Bahan Baku</span><span class="badge b-green">Tersinkron</span></div>
+        <div class="sync-row"><span>🏭</span><span style="flex:1">Inventory Stock — Pellet</span><span class="badge b-green">Tersinkron</span></div>
+        <div class="sync-row"><span>📒</span><span style="flex:1">General Ledger / Accounting</span><span class="badge b-amber">Antrean 12</span></div>
+        <div class="sync-row"><span>🔗</span><span style="flex:1">Endpoint API</span><b style="font-size:10.5px">https://erp.verdantia.co.id/api</b></div>
+      </div>
+    </section>
+
+    <!-- ================= PANEL 10 — SYSTEM & IoT ================= -->
+    <section class="panel" id="p10">
+      <div class="grid g-2">
+        <div class="card">
+          <h3>Role-Based Access Control <span class="right">Klik ✔/✕ untuk toggle</span></h3>
+          <div id="tblRbac"></div>
+        </div>
+        <div class="card">
+          <h3>Engine PWA Offline-First</h3>
+          <div class="sync-row"><span>💾</span><span style="flex:1">IndexedDB lokal</span><b>2.418 record</b></div>
+          <div class="sync-row"><span>📶</span><span style="flex:1">Status koneksi</span><span class="badge b-green">Online</span></div>
+          <div class="sync-row"><span>🔄</span><span style="flex:1">Auto-Conflict Resolution</span><span class="badge b-green">Aktif</span></div>
+          <div class="sync-row"><span>📱</span><span style="flex:1">PWA Lapangan &amp; Driver App</span><span class="badge b-teal">Terpasang 86</span></div>
+          <div class="progress teal" style="margin-top:14px"><i style="width:96%"></i></div>
+          <div class="sub" style="margin-top:6px">Kesiapan cache offline: <b>96%</b> · sinkronisasi otomatis saat sinyal tersedia.</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Hub Telemetri IoT <span class="right">Sensor &amp; perangkat terhubung</span></h3>
+        <div class="grid g-3" style="margin:0">
+          <div class="sync-row"><span>🌡</span><span style="flex:1">Sensor Suhu Silo</span><span class="badge b-green">12 unit</span></div>
+          <div class="sync-row"><span>📡</span><span style="flex:1">GPS Tracker Truk</span><span class="badge b-green">48 unit</span></div>
+          <div class="sync-row"><span>⚖</span><span style="flex:1">Jembatan Timbang Digital</span><span class="badge b-green">2 unit</span></div>
+          <div class="sync-row"><span>💧</span><span style="flex:1">Moisture Sensor Inline</span><span class="badge b-green">6 unit</span></div>
+          <div class="sync-row"><span>☁</span><span style="flex:1">API Cuaca BMKG</span><span class="badge b-teal">Tersambung</span></div>
+          <div class="sync-row"><span>⚓</span><span style="flex:1">API Pelabuhan</span><span class="badge b-amber">Latency 2,4 s</span></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Log Audit &amp; Keamanan Sistem <span class="right">Editable</span></h3>
+        <div id="tblAudit"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast" id="toast">Tersimpan</div>
+
+<script>
+/* ============================================================
+   PT VERDANTIA AGRI NATURE — Command Center
+   Biomass Pellet Supply Chain · Sukabumi
+   Integrasi: PT Minerva Green Agro (minerva.html)
+   ============================================================ */
+
+const fmt = n => Math.round(+n || 0).toLocaleString('id-ID');
+const fmt1 = n => (+n || 0).toFixed(1).replace('.', ',');
+const esc = s => String(s ?? '').replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+const toast = (msg='Tersimpan') => {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), 1800);
+};
+const STATUS_COLOR = { persiapan:'#ff5c6c', tumbuh:'#f5b942', siap:'#2ee66b', istirahat:'#38bdf8' };
+const STATUS_LABEL = { persiapan:'Persiapan', tumbuh:'Tumbuh', siap:'Siap Panen', istirahat:'Istirahat' };
+
+/* ============================================================
+   DATABASE DEMO
+   ============================================================ */
+const DEFAULT_DB = {
+  /* ---- fallback blok bila Minerva belum tersinkron ---- */
+  blocks: [
+    {id:'A1', area:900,  status:'siap',      pop:8460000, prod:26.8},
+    {id:'A2', area:800,  status:'tumbuh',    pop:7520000, prod:0},
+    {id:'A3', area:950,  status:'siap',      pop:8930000, prod:27.4},
+    {id:'B1', area:850,  status:'persiapan', pop:0,       prod:0},
+    {id:'B2', area:800,  status:'istirahat', pop:7520000, prod:0},
+    {id:'B3', area:700,  status:'tumbuh',    pop:6580000, prod:0},
+    {id:'C1', area:1000, status:'siap',      pop:9400000, prod:28.1},
+    {id:'C2', area:950,  status:'tumbuh',    pop:8930000, prod:0},
+    {id:'C3', area:750,  status:'persiapan', pop:0,       prod:0},
+    {id:'D1', area:850,  status:'istirahat', pop:7990000, prod:0},
+    {id:'D2', area:800,  status:'siap',      pop:7520000, prod:25.9},
+    {id:'D3', area:650,  status:'tumbuh',    pop:6110000, prod:0}
+  ],
+  outgrowers: [
+    {nama:'Koperasi Tani Cibadak',    lokasi:'Cibadak',    anggota:42, kapasitas:180, kontribusi:'7,4%', status:'Aktif'},
+    {nama:'Kelompok Tani Surade',     lokasi:'Surade',     anggota:28, kapasitas:96,  kontribusi:'4,1%', status:'Aktif'},
+    {nama:'Gapoktan Ciemas',          lokasi:'Ciemas',     anggota:36, kapasitas:124, kontribusi:'5,2%', status:'Aktif'},
+    {nama:'UD Serbuk Gergaji Jaya',   lokasi:'Warungkiara',anggota:0,  kapasitas:64,  kontribusi:'2,8%', status:'Aktif'},
+    {nama:'Kelompok Tani Cisolok',    lokasi:'Cisolok',    anggota:22, kapasitas:58,  kontribusi:'1,9%', status:'Negosiasi'},
+    {nama:'CV Limbah Kayu Nusantara', lokasi:'Sukabumi',   anggota:0,  kapasitas:42,  kontribusi:'1,2%', status:'Aktif'}
+  ],
+  contracts: [
+    {kode:'KTR-2401', mitra:'Koperasi Tani Cibadak',    spesies:'Gamal',    volume:2400, harga:485000, mc:'≤ 30%', status:'Berjalan'},
+    {kode:'KTR-2402', mitra:'Gapoktan Ciemas',          spesies:'Kaliandra',volume:1600, harga:512000, mc:'≤ 28%', status:'Berjalan'},
+    {kode:'KTR-2403', mitra:'UD Serbuk Gergaji Jaya',   spesies:'Sawdust',  volume:800,  harga:398000, mc:'≤ 22%', status:'Berjalan'},
+    {kode:'KTR-2404', mitra:'Kelompok Tani Surade',     spesies:'Lamtoro',  volume:1200, harga:472000, mc:'≤ 30%', status:'Berjalan'},
+    {kode:'KTR-2405', mitra:'Kelompok Tani Cisolok',    spesies:'Gamal',    volume:900,  harga:498000, mc:'≤ 30%', status:'Negosiasi'}
+  ],
+  harvest: [
+    {tgl:'2025-07-02', blok:'A3', tpk:'TPK-01 Cibadak', estimasi:146, armada:'3 Truk',  status:'Terjadwal'},
+    {tgl:'2025-07-04', blok:'C1', tpk:'TPK-02 Ciemas',  estimasi:184, armada:'4 Truk',  status:'Terjadwal'},
+    {tgl:'2025-07-06', blok:'D2', tpk:'TPK-03 Surade',  estimasi:132, armada:'3 Truk',  status:'Konfirmasi'},
+    {tgl:'2025-07-09', blok:'A1', tpk:'TPK-01 Cibadak', estimasi:158, armada:'3 Truk',  status:'Konfirmasi'},
+    {tgl:'2025-07-11', blok:'C2', tpk:'TPK-04 Cisolok', estimasi:96,  armada:'2 Truk',  status:'Draft'}
+  ],
+  dispatch: [
+    {truk:'B-9421-MGA', driver:'Hendra S.', asal:'Minerva A3',  tujuan:'Pabrik', muatan:'18,4 Ton', etd:'09:10', eta:'14:20', status:'Delay'},
+    {truk:'B-9034-VAN', driver:'Rudi A.',   asal:'Pabrik',      tujuan:'Pelabuhan', muatan:'24,0 Ton', etd:'08:40', eta:'12:05', status:'On-time'},
+    {truk:'B-8871-VAN', driver:'Iwan K.',   asal:'TPK Cibadak', tujuan:'Pabrik', muatan:'16,2 Ton', etd:'10:05', eta:'11:48', status:'On-time'},
+    {truk:'B-9412-MGA', driver:'Dedi M.',   asal:'TPK Surade',  tujuan:'Pabrik', muatan:'15,8 Ton', etd:'09:55', eta:'—',     status:'Offline'},
+    {truk:'B-8990-VAN', driver:'Asep S.',   asal:'Pabrik',      tujuan:'Pelabuhan', muatan:'26,4 Ton', etd:'11:20', eta:'14:40', status:'On-time'}
+  ],
+  weigh: [
+    {tiket:'WB-2418', supplier:'Minerva A3',        gross:19240, tare:7180, nett:12060, mc:27.2, status:'Diterima'},
+    {tiket:'WB-2419', supplier:'Koperasi Cibadak',  gross:20110, tare:7240, nett:12870, mc:26.4, status:'Diterima'},
+    {tiket:'WB-2420', supplier:'Gapoktan Ciemas',   gross:18870, tare:7150, nett:11720, mc:31.8, status:'Re-drying'},
+    {tiket:'WB-2421', supplier:'Minerva C1',        gross:19560, tare:7230, nett:12330, mc:24.1, status:'Diterima'},
+    {tiket:'WB-2422', supplier:'UD Serbuk Jaya',    gross:17990, tare:7100, nett:10890, mc:35.6, status:'Ditolak'},
+    {tiket:'WB-2423', supplier:'Minerva A1',        gross:20340, tare:7260, nett:13080, mc:25.9, status:'Diterima'}
+  ],
+  downtime: [
+    {mesin:'Rotary Dryer',   mulai:'06:12', durasi:0.8, penyebab:'Kadar air feed tinggi', tindakan:'Penyesuaian damper', status:'Selesai'},
+    {mesin:'Pellet Press #2',mulai:'09:40', durasi:1.0, penyebab:'Ganti die & roller',    tindakan:'Preventive maintenance', status:'Selesai'},
+    {mesin:'Hammer Mill',    mulai:'13:05', durasi:0.5, penyebab:'Bearing overheat',     tindakan:'Pelumasan ulang', status:'Selesai'},
+    {mesin:'Chipper',        mulai:'15:20', durasi:0.0, penyebab:'Menunggu bahan baku',   tindakan:'—', status:'Berjalan'}
+  ],
+  lab: [
+    {kode:'LAB-0101', batch:'PLT-2516', titik:'Pellet Output', gcv:4190, mc:9.8, ash:1.42, pdi:97.9, bulk:628, status:'Lolos'},
+    {kode:'LAB-0102', batch:'PLT-2517', titik:'Pre-Loading',   gcv:4210, mc:9.4, ash:1.28, pdi:98.2, bulk:634, status:'Lolos'},
+    {kode:'LAB-0103', batch:'PLT-2518', titik:'Pellet Output', gcv:4060, mc:11.4,ash:1.61, pdi:96.8, bulk:612, status:'Deviasi'},
+    {kode:'LAB-0104', batch:'PLT-2519', titik:'Dryer Output',  gcv:3940, mc:14.2,ash:1.88, pdi:0,    bulk:0,   status:'Lolos'},
+    {kode:'LAB-0105', batch:'PLT-2520', titik:'Pre-Loading',   gcv:4240, mc:9.1, ash:1.19, pdi:98.6, bulk:641, status:'Lolos'}
+  ],
+  batches: [
+    {batch:'PLT-2516', produk:'Bulk',      tanggal:'2025-06-24', mc:9.8, gcv:4190, lokasi:'Silo A', qty:1240, status:'Siap Kirim'},
+    {batch:'PLT-2517', produk:'Jumbo Bag', tanggal:'2025-06-25', mc:9.4, gcv:4210, lokasi:'Gudang 1', qty:860, status:'Siap Kirim'},
+    {batch:'PLT-2518', produk:'Bulk',      tanggal:'2025-06-26', mc:11.4,gcv:4060, lokasi:'Silo B', qty:1180, status:'Re-drying'},
+    {batch:'PLT-2519', produk:'Small Bag', tanggal:'2025-06-27', mc:9.6, gcv:4180, lokasi:'Gudang 2', qty:640, status:'Siap Kirim'},
+    {batch:'PLT-2520', produk:'Bulk',      tanggal:'2025-06-28', mc:9.1, gcv:4240, lokasi:'Silo A', qty:1420, status:'Siap Kirim'}
+  ],
+  fleet: [
+    {nopol:'B-9421-MGA', jenis:'Dump Truck',  kapasitas:20, driver:'Hendra S.', kir:'2026-02-14', bbm:'2,8 km/L', status:'Aktif'},
+    {nopol:'B-9034-VAN', jenis:'Tronton',     kapasitas:24, driver:'Rudi A.',   kir:'2025-11-03', bbm:'3,1 km/L', status:'Aktif'},
+    {nopol:'B-8871-VAN', jenis:'Colt Diesel', kapasitas:8,  driver:'Iwan K.',   kir:'2026-05-22', bbm:'4,2 km/L', status:'Aktif'},
+    {nopol:'B-9412-MGA', jenis:'Dump Truck',  kapasitas:20, driver:'Dedi M.',   kir:'2025-08-19', bbm:'2,6 km/L', status:'Perawatan'},
+    {nopol:'B-8990-VAN', jenis:'Tronton',     kapasitas:24, driver:'Asep S.',   kir:'2026-01-30', bbm:'3,0 km/L', status:'Aktif'},
+    {nopol:'B-9120-VAN', jenis:'Flatbed',     kapasitas:18, driver:'Yusuf H.',  kir:'2026-03-11', bbm:'3,3 km/L', status:'Aktif'}
+  ],
+  trips: [
+    {trip:'TRP-0410', rute:'Estate A3 → Pabrik',        jarak:42, bbm:14.2, tol:0,     biaya:1240000, status:'Selesai'},
+    {trip:'TRP-0411', rute:'Pabrik → Pelabuhan Ratu',   jarak:28, bbm:9.8,  tol:0,     biaya:920000,  status:'Selesai'},
+    {trip:'TRP-0412', rute:'TPK Surade → Pabrik',       jarak:36, bbm:12.6, tol:0,     biaya:1180000, status:'Berjalan'},
+    {trip:'TRP-0413', rute:'TPK Cibadak → Pabrik',      jarak:31, bbm:10.4, tol:0,     biaya:1040000, status:'Berjalan'},
+    {trip:'TRP-0414', rute:'Pabrik → Pelabuhan Ratu',   jarak:28, bbm:9.4,  tol:0,     biaya:910000,  status:'Terjadwal'}
+  ],
+  vessels: [
+    {kapal:'MV Nusantara Star', jenis:'Vessel Ekspor', laycan:'2025-07-01', muat:7420, rate:1240, status:'Loading'},
+    {kapal:'BG Samudra 08',     jenis:'Tongkang',      laycan:'2025-07-03', muat:3200, rate:0,    status:'Sandar'},
+    {kapal:'MV Bahari Jaya',    jenis:'Vessel Ekspor', laycan:'2025-07-08', muat:8600, rate:0,    status:'Dalam Perjalanan'}
+  ],
+  docs: [
+    {dokumen:'SVLK / V-LK',        nomor:'SVLK-2025-0441', terbit:'2025-06-20', berlaku:'2026-06-20', status:'Aktif'},
+    {dokumen:'SIPUHH',             nomor:'SIPUHH-88210',   terbit:'2025-06-28', berlaku:'2025-12-31', status:'Aktif'},
+    {dokumen:'Sertifikat Fitosanitari', nomor:'FITO-1182', terbit:'2025-06-30', berlaku:'2025-07-30', status:'Aktif'},
+    {dokumen:'Bill of Lading (B/L)', nomor:'BL-99214',     terbit:'2025-07-01', berlaku:'—',          status:'Terbit'},
+    {dokumen:'Certificate of Origin (COO)', nomor:'—',     terbit:'—',          berlaku:'—',          status:'Menunggu'}
+  ],
+  invoices: [
+    {no:'INV-2506-001', offtaker:'PLN PLTU Pelabuhan Ratu', tonase:4200, harga:1450000, gcv:4190, status:'Terbayar'},
+    {no:'INV-2506-002', offtaker:'Ekspor Jepang — Marubeni', tonase:6800, harga:1980000, gcv:4210, status:'Terbayar'},
+    {no:'INV-2507-001', offtaker:'PLN PLTU Pelabuhan Ratu', tonase:3900, harga:1450000, gcv:4180, status:'Jatuh Tempo'},
+    {no:'INV-2507-002', offtaker:'Ekspor Korea — KEPCO',     tonase:5200, harga:1860000, gcv:4060, status:'Penyesuaian GCV'}
+  ],
+  rbac: [
+    {role:'Super Admin',                kebun:1, timbang:1, pabrik:1, qc:1, logistik:1, keuangan:1},
+    {role:'Manajer Kebun / Field Officer', kebun:1, timbang:1, pabrik:0, qc:0, logistik:0, keuangan:0},
+    {role:'Operator Timbangan & Pabrik',   kebun:0, timbang:1, pabrik:1, qc:0, logistik:0, keuangan:0},
+    {role:'Petugas QC & Laboratorium',     kebun:0, timbang:0, pabrik:1, qc:1, logistik:0, keuangan:0},
+    {role:'Dispatcher / Logistik & Supir', kebun:0, timbang:1, pabrik:0, qc:0, logistik:1, keuangan:0},
+    {role:'Manajer Keuangan & Eksekutif',  kebun:1, timbang:1, pabrik:1, qc:1, logistik:1, keuangan:1}
+  ],
+  audit: [
+    {waktu:'06:12:44', user:'Ahmad Mulyadi',  role:'Manager',   aksi:'Sinkronisasi Minerva', objek:'12 blok estate', status:'Sukses'},
+    {waktu:'06:08:11', user:'Siti Nurhaliza', role:'QC',        aksi:'Input hasil lab',      objek:'Batch PLT-2521', status:'Sukses'},
+    {waktu:'05:57:03', user:'Budi Santoso',   role:'Operator',  aksi:'Validasi tiket timbang',objek:'WB-2423',       status:'Sukses'},
+    {waktu:'05:31:52', user:'Rahmat Hidayat', role:'Field',     aksi:'Presensi offline',     objek:'TPK Cibadak — 12 pekerja', status:'Antrean Sync'},
+    {waktu:'04:58:41', user:'Andi Wijaya',    role:'QC',        aksi:'Koreksi kadar abu',    objek:'LAB-0103', status:'Direvisi'}
+  ]
+};
+
+let DB = loadDB();
+function loadDB() {
+  try {
+    const saved = localStorage.getItem('van_db_v1');
+    if (saved) return Object.assign(JSON.parse(JSON.stringify(DEFAULT_DB)), JSON.parse(saved));
+  } catch(e) {}
+  return JSON.parse(JSON.stringify(DEFAULT_DB));
+}
+function saveDB() {
+  try { localStorage.setItem('van_db_v1', JSON.stringify(DB)); } catch(e) {}
+}
+function resetDB() {
+  if (!confirm('Reset semua data ke default demo?')) return;
+  localStorage.removeItem('van_db_v1');
+  DB = JSON.parse(JSON.stringify(DEFAULT_DB));
+  location.reload();
+}
+
+/* ============================================================
+   GEOMETRI BLOK (mengikuti pola estate Minerva)
+   ============================================================ */
+const BLOCK_LAYOUT = [
+  ['A1', -6.872, 106.885, 0.0140, 0.0146, 7,  0],
+  ['A2', -6.872, 106.922, 0.0133, 0.0139, 13, 0],
+  ['A3', -6.872, 106.959, 0.0144, 0.0150, 19, 1],
+  ['B1', -6.906, 106.885, 0.0138, 0.0143, 23, 0],
+  ['B2', -6.906, 106.922, 0.0133, 0.0139, 29, 1],
+  ['B3', -6.906, 106.959, 0.0125, 0.0130, 31, 0],
+  ['C1', -6.940, 106.885, 0.0148, 0.0154, 37, 0],
+  ['C2', -6.940, 106.922, 0.0144, 0.0150, 41, 1],
+  ['C3', -6.940, 106.959, 0.0129, 0.0135, 43, 0],
+  ['D1', -6.974, 106.885, 0.0138, 0.0143, 47, 0],
+  ['D2', -6.974, 106.922, 0.0133, 0.0139, 53, 0],
+  ['D3', -6.974, 106.959, 0.0120, 0.0125, 59, 1]
+];
+
+function generateBlockPolygon(cLat, cLng, rLat, rLng, seed, notch) {
+  const n = 11 + (seed % 3);
+  const pts = [];
+  let s = seed * 1337 + 1;
+  const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+  for (let i = 0; i < n; i++) {
+    const angle = (i / n) * 2 * Math.PI - Math.PI / 2;
+    const rj = 0.78 + rand() * 0.32;
+    const aj = (rand() - 0.5) * 0.30;
+    pts.push([cLat + Math.sin(angle + aj) * rLat * rj, cLng + Math.cos(angle + aj) * rLng * rj]);
+  }
+  if (notch) {
+    const bi = Math.floor(n * 0.35);
+    const a = pts[bi], b = pts[bi + 1] || pts[0];
+    pts.splice(bi + 1, 0, [
+      (a[0]+b[0])/2 + (cLat - (a[0]+b[0])/2) * 0.48,
+      (a[1]+b[1])/2 + (cLng - (a[1]+b[1])/2) * 0.48
+    ]);
+  }
+  return pts;
+}
+
+const BLOCK_SHAPES = {};
+BLOCK_LAYOUT.forEach(([id, cLat, cLng, rLat, rLng, seed, notch]) => {
+  BLOCK_SHAPES[id] = generateBlockPolygon(cLat, cLng, rLat, rLng, seed, notch);
+});
+function getBlockShape(id) {
+  if (BLOCK_SHAPES[id]) return BLOCK_SHAPES[id];
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
+  return generateBlockPolygon(-6.92, 106.92, 0.014, 0.015, Math.abs(h) % 1000 + 1, 0);
+}
+
+/* ============================================================
+   LOKASI & RUTE LOGISTIK
+   ============================================================ */
+const FACTORY = [-6.955, 106.640];
+const PORT    = [-6.988, 106.545];
+const PLTU    = [-6.996, 106.534];
+const ESTATE  = [-6.922, 106.918];
+
+const ROUTE_INBOUND  = [[-6.922,106.918],[-6.930,106.860],[-6.940,106.790],[-6.948,106.710],[-6.955,106.640]];
+const ROUTE_OUTBOUND = [[-6.955,106.640],[-6.968,106.600],[-6.978,106.570],[-6.988,106.545]];
+const ROUTE_SEA      = [[-6.988,106.545],[-6.900,106.600],[-6.700,106.700],[-6.400,106.820],[-6.140,106.880]];
+const ROUTE_PLTU     = [[-6.988,106.545],[-6.996,106.534]];
+
+const OUTGROWER_POINTS = [
+  {name:'Koperasi Tani Cibadak', coords:[-6.900,106.860]},
+  {name:'Kelompok Tani Surade',  coords:[-7.005,106.890]},
+  {name:'Gapoktan Ciemas',       coords:[-6.936,107.005]},
+  {name:'UD Serbuk Gergaji Jaya',coords:[-6.820,106.955]}
+];
+
+/* ============================================================
+   MAP ENGINE
+   ============================================================ */
+const ESRI = {
+  imagery:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  topo:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+  street:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}'
+};
+
+let mapLive = null, mapFarm = null;
+const liveMarkers = [];
+let animTimer = null;
+
+function alongRoute(route, t) {
+  const n = route.length - 1;
+  const f = Math.max(0, Math.min(1, t)) * n;
+  const i = Math.min(n - 1, Math.floor(f));
+  const r = f - i;
+  const a = route[i], b = route[i + 1];
+  return [a[0] + (b[0] - a[0]) * r, a[1] + (b[1] - a[1]) * r];
+}
+
+function initLiveMap() {
+  if (mapLive) return;
+  mapLive = L.map('mapLive', { zoomControl: true });
+  const base = {
+    'Esri World Imagery': L.tileLayer(ESRI.imagery, { attribution:'Tiles © Esri', maxZoom:19 }),
+    'Esri World Topographic': L.tileLayer(ESRI.topo, { attribution:'Tiles © Esri', maxZoom:19 }),
+    'Esri World Street Map': L.tileLayer(ESRI.street, { attribution:'Tiles © Esri', maxZoom:19 })
+  };
+  base['Esri World Imagery'].addTo(mapLive);
+
+  /* rute */
+  L.polyline(ROUTE_INBOUND, { color:'#2ee66b', weight:3, opacity:.8 })
+    .bindTooltip('Rute Inbound — Estate ke Pabrik', { sticky:true }).addTo(mapLive);
+  L.polyline(ROUTE_OUTBOUND, { color:'#38bdf8', weight:3, opacity:.85 })
+    .bindTooltip('Rute Outbound — Pabrik ke Pelabuhan', { sticky:true }).addTo(mapLive);
+  L.polyline(ROUTE_PLTU, { color:'#f5b942', weight:2.5, opacity:.9, dashArray:'6,5' })
+    .bindTooltip('Rute Tongkang — PLTU Pelabuhan Ratu', { sticky:true }).addTo(mapLive);
+  L.polyline(ROUTE_SEA, { color:'#a78bfa', weight:2.5, opacity:.85, dashArray:'9,7' })
+    .bindTooltip('Rute Ekspor — Tanjung Priok / Luar Negeri', { sticky:true }).addTo(mapLive);
+
+  /* node statis */
+  const nodeIcon = (emoji, color) => L.divIcon({
+    html:`<div style="font-size:19px;line-height:1;filter:drop-shadow(0 2px 5px #000)">${emoji}</div>`,
+    className:'', iconSize:[22,22], iconAnchor:[11,11]
+  });
+
+  L.marker(ESTATE, { icon: nodeIcon('🌳') }).addTo(mapLive)
+    .bindPopup('<b>Estate Sukabumi — PT Minerva Green Agro</b><br>12 blok · 10.000 Ha<br>Pemasok biomassa basah utama');
+  L.marker(FACTORY, { icon: nodeIcon('🏭') }).addTo(mapLive)
+    .bindPopup('<b>Pabrik Pellet Verdantia</b><br>Kapasitas 22 Ton/jam<br>Chipper · Hammer Mill · Dryer · Pellet Press');
+  L.marker(PORT, { icon: nodeIcon('⚓') }).addTo(mapLive)
+    .bindPopup('<b>Jetty Pelabuhan Ratu</b><br>Loading rate 1.240 Ton/hari<br>Draft survey &amp; demurrage monitoring');
+  L.marker(PLTU, { icon: nodeIcon('⚡') }).addTo(mapLive)
+    .bindPopup('<b>PLTU Pelabuhan Ratu</b><br>Offtaker utama — co-firing biomassa<br>Kontrak 12.000 Ton/bulan');
+
+  OUTGROWER_POINTS.forEach(o => {
+    L.marker(o.coords, { icon: nodeIcon('🌾') }).addTo(mapLive)
+      .bindTooltip(o.name, { direction:'top' })
+      .bindPopup(`<b>${esc(o.name)}</b><br>Mitra plasma / pemasok lokal`);
+  });
+
+  /* armada bergerak */
+  const TRUCKS = [
+    { id:'B-9421-MGA', route:ROUTE_INBOUND,  t:0.15, speed:0.014, emoji:'🚚' },
+    { id:'B-8871-VAN', route:ROUTE_INBOUND,  t:0.52, speed:0.011, emoji:'🚛' },
+    { id:'B-9034-VAN', route:ROUTE_OUTBOUND, t:0.30, speed:0.016, emoji:'🚚' },
+    { id:'B-8990-VAN', route:ROUTE_OUTBOUND, t:0.68, speed:0.013, emoji:'🚛' }
+  ];
+  TRUCKS.forEach(tk => {
+    const m = L.marker(alongRoute(tk.route, tk.t), {
+      icon: L.divIcon({ html:`<div class="truck-ico">${tk.emoji}</div>`, className:'', iconSize:[20,20], iconAnchor:[10,10] })
+    }).addTo(mapLive).bindTooltip(tk.id, { direction:'top' });
+    liveMarkers.push({ marker:m, route:tk.route, t:tk.t, speed:tk.speed });
+  });
+
+  const barge = L.marker(alongRoute(ROUTE_SEA, 0.12), {
+    icon: L.divIcon({ html:'<div class="boat-ico">🚢</div>', className:'', iconSize:[22,22], iconAnchor:[11,11] })
+  }).addTo(mapLive).bindTooltip('MV Nusantara Star — Ekspor', { direction:'top' });
+  liveMarkers.push({ marker:barge, route:ROUTE_SEA, t:0.12, speed:0.006 });
+
+  L.control.layers(base, {}, { collapsed:true, position:'topright' }).addTo(mapLive);
+  mapLive.fitBounds([[-7.05, 106.48], [-6.10, 106.98]]);
+  setTimeout(() => mapLive.invalidateSize(), 220);
+
+  animTimer = setInterval(() => {
+    liveMarkers.forEach(o => {
+      o.t += o.speed;
+      if (o.t > 1) o.t = 0;
+      o.marker.setLatLng(alongRoute(o.route, o.t));
+    });
+  }, 1200);
+}
+
+function initFarmMap() {
+  if (mapFarm) return;
+  mapFarm = L.map('mapFarm', { zoomControl: true });
+  L.tileLayer(ESRI.imagery, { attribution:'Tiles © Esri', maxZoom:19 }).addTo(mapFarm);
+  const grp = L.layerGroup().addTo(mapFarm);
+
+  DB.blocks.forEach(b => {
+    const shape = getBlockShape(b.id);
+    const color = STATUS_COLOR[b.status] || '#888';
+    L.polygon(shape, { color, fillColor:color, fillOpacity:.42, weight:2 })
+      .bindPopup(`<b>Blok ${esc(b.id)}</b><br>
+        Luas: <b>${fmt(b.area)} Ha</b><br>
+        Status: ${STATUS_LABEL[b.status] || b.status}<br>
+        Populasi: ${fmt(b.pop)} pohon<br>
+        Prediksi: <b>${b.prod ? fmt1(b.prod) + ' Ton/Ha' : '—'}</b>`)
+      .bindTooltip(`Blok ${b.id} · ${fmt(b.area)} Ha`, { sticky:true })
+      .addTo(grp);
+  });
+
+  L.polyline(ROUTE_INBOUND, { color:'#f5b942', weight:2.5, opacity:.7, dashArray:'7,6' }).addTo(mapFarm);
+  mapFarm.fitBounds([[-6.998, 106.84], [-6.83, 107.02]]);
+  setTimeout(() => mapFarm.invalidateSize(), 220);
+}
+
+function refreshFarmMap() {
+  if (!mapFarm) return;
+  mapFarm.eachLayer(l => { if (l instanceof L.Polygon) mapFarm.removeLayer(l); });
+  DB.blocks.forEach(b => {
+    const shape = getBlockShape(b.id);
+    const color = STATUS_COLOR[b.status] || '#888';
+    L.polygon(shape, { color, fillColor:color, fillOpacity:.42, weight:2 })
+      .bindPopup(`<b>Blok ${esc(b.id)}</b><br>Luas: <b>${fmt(b.area)} Ha</b><br>Status: ${STATUS_LABEL[b.status] || b.status}`)
+      .bindTooltip(`Blok ${b.id} · ${fmt(b.area)} Ha`, { sticky:true })
+      .addTo(mapFarm);
+  });
+}
+
+/* ============================================================
+   EDITABLE TABLE ENGINE
+   ============================================================ */
+const SCHEMAS = {
+  blocks: {
+    columns:[
+      {key:'id',label:'ID Blok',type:'text'},{key:'area',label:'Luas (Ha)',type:'num'},
+      {key:'status',label:'Status',type:'text'},{key:'pop',label:'Populasi',type:'num'},
+      {key:'prod',label:'Produktivitas (Ton/Ha)',type:'num'}
+    ],
+    defaults:{id:'NEW',area:0,status:'tumbuh',pop:0,prod:0},
+    afterChange: () => { refreshFarmMap(); renderFarmBlocks(); renderFarmChart(); toast('Data blok diperbarui'); }
+  },
+  outgrowers: {
+    columns:[
+      {key:'nama',label:'Nama Mitra',type:'text'},{key:'lokasi',label:'Lokasi',type:'text'},
+      {key:'anggota',label:'Anggota (KK)',type:'num'},{key:'kapasitas',label:'Kapasitas (Ton/bln)',type:'num'},
+      {key:'kontribusi',label:'Kontribusi',type:'text'},{key:'status',label:'Status',type:'text'}
+    ],
+    defaults:{nama:'',lokasi:'',anggota:0,kapasitas:0,kontribusi:'0%',status:'Aktif'},
+    afterChange: () => toast('Data mitra diperbarui')
+  },
+  contracts: {
+    columns:[
+      {key:'kode',label:'Kode',type:'text'},{key:'mitra',label:'Mitra',type:'text'},
+      {key:'spesies',label:'Spesies',type:'text'},{key:'volume',label:'Volume (Ton)',type:'num'},
+      {key:'harga',label:'Harga (Rp/Ton)',type:'num'},{key:'mc',label:'Batas MC',type:'text'},
+      {key:'status',label:'Status',type:'text'}
+    ],
+    defaults:{kode:'NEW',mitra:'',spesies:'Gamal',volume:0,harga:0,mc:'≤ 30%',status:'Berjalan'},
+    afterChange: () => toast('Kontrak diperbarui')
+  },
+  harvest: {
+    columns:[
+      {key:'tgl',label:'Tanggal',type:'text'},{key:'blok',label:'Blok',type:'text'},
+      {key:'tpk',label:'TPK',type:'text'},{key:'estimasi',label:'Estimasi (Ton)',type:'num'},
+      {key:'armada',label:'Armada',type:'text'},{key:'status',label:'Status',type:'text'}
+    ],
+    defaults:{tgl:'',blok:'',tpk:'',estimasi:0,armada:'',status:'Draft'},
+    afterChange: () => toast('Jadwal panen diperbarui')
+  },
+  dispatch: {
+    columns:[
+      {key:'truk',label:'Nopol',type:'text'},{key:'driver',label:'Driver',type:'text'},
+      {key:'asal',label:'Asal',type:'text'},{key:'tujuan',label:'Tujuan',type:'text'},
+      {key:'muatan',label:'Muatan',type:'text'},{key:'etd',label:'ETD',type:'text'},
+      {key:'eta',label:'ETA',type:'text'},{key:'status',label:'Status',type:'text'}
+    ],
+    defaults:{truk:'',driver:'',asal:'',tujuan:'',muatan:'0 Ton',etd:'',eta:'',status:'On-time'},
+    afterChange: () => toast('Dispatch diperbarui')
+  },
+  weigh: {
+    columns:[
+      {key:'tiket',label:'No. Tiket',type:'text'},{key:'supplier',label:'Supplier',type:'text'},
+      {key:'gross',label:'Gross (kg)',type:'num'},{key:'tare',label:'Tare (kg)',type:'num'},
+      {key:'nett',label:'Nett (kg)',type:'num'},{key:'mc',label:'MC (%)',type:'num'},
+      {key:'status',label:'Status',type:'text'}
+    ],
+    defaults:{tiket:'NEW',supplier:'',gross:0,tare:0,nett:0,mc:0,status:'Diterima'},
+    afterChange: () => toast('Data timbang diperbarui')
+  },
+  downtime: {
+    columns:[
+      {key:'mesin',label:'Mesin',type:'text'},{key:'mulai',label:'Mulai',type:'text'},
+      {key:'durasi',label:'Durasi (jam)',type:'num'},{key:'penyebab',label:'Penyebab',type:'text'},
+      {key:'tindakan',label:'Tindakan',type:'text'},{key:'status',label:'Status',type:'text'}
+    ],
+    defaults:{mesin:'',mulai:'',durasi:0,penyebab:'',tindakan:'',status:'Selesai'},
+    afterChange: () => toast('Log maintenance diperbarui')
+  },
+  lab: {
+    columns:[
+      {key:'kode',label:'Kode Uji',type:'text'},{key:'batch',label:'Batch',type:'text'},
+      {key:'titik',label:'Titik Sampling',type:'text'},{key:'gcv',label:'GCV (kcal/kg)',type:'num'},
+      {key:'mc',label:'MC (%)',type:'num'},{key:'ash',label:'Ash (%)',type:'num'},
+      {key:'pdi',label:'PDI (%)',type:'num'},{key:'bulk',label:'Bulk (kg/m³)',type:'num'},
+      {key:'status',label:'Status',type:'text'}
+    ],
+    defaults:{kode:'NEW',batch:'',titik:'Pellet Output',gcv:0,mc:0,ash:0,pdi:0,bulk:0,status:'Lolos'},
+    afterChange: () => toast('Hasil lab diperbarui')
+  },
+  batches: {
+    columns:[
+      {key:'batch',label:'Batch',type:'text'},{key:'produk',label:'Produk',type:'text'},
+      {key:'tanggal',label:'Tanggal',type:'text'},{key:'mc',label:'MC (%)',type:'num'},
+      {key:'gcv',label:'GCV',type:'num'},{key:'lokasi',label:'Lokasi',type:'text'},
+      {key:'qty',label:'Qty (Ton)',type:'num'},{key:'status',label:'Status',type:'text'}
+    ],
+    defaults:{batch:'NEW',produk:'Bulk',tanggal:'',mc:0,gcv:0,lokasi:'',qty:0,status:'Siap Kirim'},
+    afterChange: () => toast('Batch diperbarui')
+  },
+  fleet: {
+    columns:[
+      {key:'nopol',label:'Nopol',type:'text'},{key:'jenis',label:'Jenis',type:'text'},
+      {key:'kapasitas',label:'Kapasitas (Ton)',type:'num'},{key:'driver',label:'Driver',type:'text'},
+      {key:'kir',label:'Masa KIR',type:'text'},{key:'bbm',label:'Konsumsi BBM',type:'text'},
+      {key:'status',label:'Status',type:'text'}
+    ],
+    defaults:{nopol:'',jenis:'Dump Truck',kapasitas:20,driver:'',kir:'',bbm:'',status:'Aktif'},
+    afterChange: () => toast('Data armada diperbarui')
+  },
+  trips: {
+    columns:[
+      {key:'trip',label:'Trip',type:'text'},{key:'rute',label:'Rute',type:'text'},
+      {key:'jarak',label:'Jarak (km)',type:'num'},{key:'bbm',label:'BBM (L)',type:'num'},
+      {key:'tol',label:'Tol & Retribusi',type:'num'},{key:'biaya',label:'Biaya (Rp)',type:'num'},
+      {key:'status',label:'Status',type:'text'}
+    ],
+    defaults:{trip:'TRP-NEW',rute:'',jarak:0,bbm:0,tol:0,biaya:0,status:'Terjadwal'},
+    afterChange: () => toast('Data trip diperbarui')
+  },
+  vessels: {
+    columns:[
+      {key:'kapal',label:'Kapal',type:'text'},{key:'jenis',label:'Jenis',type:'text'},
+      {key:'laycan',label:'Laycan',type:'text'},{key:'muat',label:'Muatan (Ton)',type:'num'},
+      {key:'rate',label:'Loading Rate (Ton/hari)',type:'num'},{key:'status',label:'Status',type:'text'}
+    ],
+    defaults:{kapal:'',jenis:'Tongkang',laycan:'',muat:0,rate:0,status:'Sandar'},
+    afterChange: () => toast('Jadwal kapal diperbarui')
+  },
+  docs: {
+    columns:[
+      {key:'dokumen',label:'Dokumen',type:'text'},{key:'nomor',label:'Nomor',type:'text'},
+      {key:'terbit',label:'Terbit',type:'text'},{key:'berlaku',label:'Berlaku s/d',type:'text'},
+      {key:'status',label:'Status',type:'text'}
+    ],
+    defaults:{dokumen:'',nomor:'',terbit:'',berlaku:'',status:'Menunggu'},
+    afterChange: () => toast('Dokumen diperbarui')
+  },
+  invoices: {
+    columns:[
+      {key:'no',label:'No. Invoice',type:'text'},{key:'offtaker',label:'Offtaker',type:'text'},
+      {key:'tonase',label:'Tonase (Ton)',type:'num'},{key:'harga',label:'Harga (Rp/Ton)',type:'num'},
+      {key:'gcv',label:'GCV',type:'num'},{key:'status',label:'Status',type:'text'}
+    ],
+    defaults:{no:'INV-NEW',offtaker:'',tonase:0,harga:0,gcv:0,status:'Jatuh Tempo'},
+    afterChange: () => toast('Invoice diperbarui')
+  },
+  audit: {
+    columns:[
+      {key:'waktu',label:'Waktu',type:'text'},{key:'user',label:'Pengguna',type:'text'},
+      {key:'role',label:'Peran',type:'text'},{key:'aksi',label:'Aktivitas',type:'text'},
+      {key:'objek',label:'Objek',type:'text'},{key:'status',label:'Status',type:'text'}
+    ],
+    defaults:{waktu:'',user:'',role:'',aksi:'',objek:'',status:'Sukses'},
+    afterChange: () => toast('Log audit diperbarui')
+  }
+};
+
+function renderEditableTable(containerId, dataKey) {
+  const cont = document.getElementById(containerId);
+  if (!cont) return;
+  const schema = SCHEMAS[dataKey];
+  const data = DB[dataKey] || [];
+
+  let html = '<div class="tbl-scroll"><table class="tbl"><thead><tr>';
+  schema.columns.forEach(c => html += `<th>${c.label}</th>`);
+  html += '<th class="act">Hapus</th></tr></thead><tbody>';
+
+  data.forEach((row, i) => {
+    html += `<tr data-idx="${i}">`;
+    schema.columns.forEach(c => {
+      const v = row[c.key] ?? '';
+      const shown = (c.type === 'num' && v !== '' && !isNaN(v)) ? fmt(v) : v;
+      html += `<td contenteditable="true" data-key="${c.key}" data-type="${c.type}">${esc(shown)}</td>`;
+    });
+    html += `<td class="act"><button class="btn danger small" data-del="${i}">✕</button></td></tr>`;
+  });
+  html += '</tbody></table></div>';
+  html += `<div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <button class="btn small" data-add="${dataKey}">+ Tambah Baris</button>
+    <span class="sub">Klik sel untuk edit · tersimpan otomatis</span></div>`;
+  cont.innerHTML = html;
+
+  cont.querySelectorAll('[data-del]').forEach(b => b.onclick = () => {
+    if (!confirm('Hapus baris ini?')) return;
+    DB[dataKey].splice(+b.dataset.del, 1);
+    saveDB(); renderEditableTable(containerId, dataKey);
+    schema.afterChange && schema.afterChange();
+  });
+
+  cont.querySelector('[data-add]').onclick = () => {
+    DB[dataKey].push(Object.assign({}, schema.defaults));
+    saveDB(); renderEditableTable(containerId, dataKey);
+    schema.afterChange && schema.afterChange();
+  };
+
+  cont.querySelectorAll('td[contenteditable]').forEach(td => {
+    td.addEventListener('blur', () => {
+      const idx = +td.closest('tr').dataset.idx;
+      const key = td.dataset.key;
+      const type = td.dataset.type;
+      let val = td.textContent.trim();
+      if (type === 'num') {
+        const cleaned = val.replace(/[^0-9,.\-]/g, '').replace(/\./g, '').replace(',', '.');
+        val = parseFloat(cleaned) || 0;
+        td.textContent = fmt(val);
+      }
+      if (DB[dataKey][idx][key] !== val) {
+        DB[dataKey][idx][key] = val;
+        saveDB();
+        schema.afterChange && schema.afterChange();
+      }
+    });
+    td.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); td.blur(); } });
+  });
+}
+
+function renderRbac() {
+  const cont = document.getElementById('tblRbac');
+  const cols = [
+    {key:'kebun',label:'Kebun'},{key:'timbang',label:'Timbang'},
+    {key:'pabrik',label:'Pabrik'},{key:'qc',label:'QC'},
+    {key:'logistik',label:'Logistik'},{key:'keuangan',label:'Keuangan'}
+  ];
+  let html = '<div class="tbl-scroll"><table class="tbl matrix"><thead><tr><th>Peran</th>';
+  cols.forEach(c => html += `<th>${c.label}</th>`);
+  html += '</tr></thead><tbody>';
+  DB.rbac.forEach((r, i) => {
+    html += `<tr><td contenteditable="true" data-idx="${i}">${esc(r.role)}</td>`;
+    cols.forEach(c => {
+      html += `<td class="${r[c.key] ? 'tick' : 'cross'}" data-tog="${c.key}" data-idx="${i}">${r[c.key] ? '✔' : '✕'}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  cont.innerHTML = html;
+
+  cont.querySelectorAll('[data-tog]').forEach(td => td.onclick = () => {
+    const i = +td.dataset.idx;
+    DB.rbac[i][td.dataset.tog] = DB.rbac[i][td.dataset.tog] ? 0 : 1;
+    saveDB(); renderRbac(); toast('Hak akses diperbarui');
+  });
+  cont.querySelectorAll('td[contenteditable]').forEach(td => {
+    td.addEventListener('blur', () => {
+      DB.rbac[+td.dataset.idx].role = td.textContent.trim();
+      saveDB();
+    });
+  });
+}
+
+/* ============================================================
+   CHART ENGINE
+   ============================================================ */
+const CHARTS = {};
+function mk(id, opts) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (CHARTS[id]) CHARTS[id].destroy();
+  CHARTS[id] = new ApexCharts(el, opts);
+  CHARTS[id].render();
+}
+function base(extra={}) {
+  return Object.assign({
+    chart:{ height:300, fontFamily:'Inter, system-ui, sans-serif', foreColor:'#8ea1bb',
+      toolbar:{ show:false }, background:'transparent' },
+    theme:{ mode:'dark' },
+    dataLabels:{ enabled:false },
+    grid:{ borderColor:'rgba(148,163,184,.1)', strokeDashArray:3 },
+    legend:{ labels:{ colors:'#8ea1bb' } },
+    tooltip:{ theme:'dark' }
+  }, extra);
+}
+const GRAD = { type:'gradient', gradient:{ shadeIntensity:1, opacityFrom:.92, opacityTo:.38, stops:[0,100] } };
+
+/* ---- P1 ---- */
+function renderFlow() {
+  mk('chFlow', base({
+    chart:{ type:'area', height:300, background:'transparent' },
+    series:[
+      { name:'Pasokan Bahan Baku', data:[9800,10200,10800,11200,10900,11800,12480,12100,12800,13100,12600,12480] },
+      { name:'Produksi Pellet', data:[4200,4600,5100,5400,5200,5800,6100,5900,6400,6600,6300,6240] },
+      { name:'Pengiriman', data:[3900,4300,4800,5100,5000,5500,5800,5600,6100,6300,6000,5980] }
+    ],
+    xaxis:{ categories:['Jul','Agu','Sep','Okt','Nov','Des','Jan','Feb','Mar','Apr','Mei','Jun'],
+      labels:{ style:{ colors:'#8ea1bb' } } },
+    yaxis:{ labels:{ style:{ colors:'#8ea1bb' }, formatter:v => v.toLocaleString('id-ID') } },
+    colors:['#2ee66b','#38bdf8','#f5b942'],
+    stroke:{ curve:'smooth', width:2.5 },
+    fill:GRAD
+  }));
+}
+
+function renderOfftaker() {
+  mk('chOfftaker', base({
+    chart:{ type:'bar', height:300, background:'transparent' },
+    series:[
+      { name:'Realisasi', type:'column', data:[4200,6800,3900,5200] },
+      { name:'Target', type:'line', data:[4500,7200,4500,5600] }
+    ],
+    xaxis:{ categories:['PLTU PR','Ekspor JP','PLTU PR (Jul)','Ekspor KR'],
+      labels:{ style:{ colors:'#8ea1bb', fontSize:'10px' }, rotate:-20 } },
+    yaxis:{ labels:{ style:{ colors:'#8ea1bb' }, formatter:v => v.toLocaleString('id-ID') } },
+    colors:['#2dd4bf','#f5b942'],
+    plotOptions:{ bar:{ borderRadius:5, columnWidth:'55%' } },
+    stroke:{ width:[0,2.5], curve:'smooth', dashArray:[0,6] },
+    fill:{ type:['gradient','solid'], gradient:{ shadeIntensity:1, opacityFrom:.92, opacityTo:.35, stops:[0,100] } },
+    legend:{ position:'top', horizontalAlign:'right', labels:{ colors:'#8ea1bb' }, fontSize:'11px' }
+  }));
+}
+
+function renderQuota() {
+  mk('chQuota', base({
+    chart:{ type:'radialBar', height:300, background:'transparent' },
+    series:[78.4], labels:['Kuota'],
+    colors:['#2dd4bf'],
+    plotOptions:{ radialBar:{
+      hollow:{ size:'62%' },
+      track:{ background:'rgba(148,163,184,.14)', strokeWidth:'100%' },
+      dataLabels:{
+        name:{ fontSize:'12px', color:'#8ea1bb', offsetY:20 },
+        value:{ fontSize:'32px', fontWeight:800, color:'#e8eef7', offsetY:-10, formatter:v => fmt1(v)+'%' }
+      }
+    } },
+    fill:{ type:'gradient', gradient:{ shadeIntensity:1, opacityFrom:.95, opacityTo:.5, stops:[0,100] } },
+    stroke:{ lineCap:'round' }
+  }));
+}
+
+function renderQuality() {
+  mk('chQuality', base({
+    chart:{ type:'line', height:300, background:'transparent' },
+    series:[
+      { name:'GCV (kcal/kg)', type:'column', data:[4180,4200,4190,4210,4220,4200,4195,4210,4230,4215,4205,4210] },
+      { name:'Moisture (%)', type:'line', data:[9.8,9.6,9.9,9.4,9.2,9.6,9.8,9.4,9.1,9.3,9.5,9.4] },
+      { name:'Ash (%)', type:'line', data:[1.42,1.38,1.45,1.28,1.22,1.31,1.35,1.28,1.19,1.24,1.30,1.28] }
+    ],
+    xaxis:{ categories:['W1','W2','W3','W4','W5','W6','W7','W8','W9','W10','W11','W12'],
+      labels:{ style:{ colors:'#8ea1bb' } } },
+    yaxis:[
+      { min:3900, max:4400, labels:{ style:{ colors:'#8ea1bb' }}, title:{ text:'GCV', style:{ color:'#8ea1bb', fontSize:'10px' }} },
+      { opposite:true, min:0, max:20, labels:{ style:{ colors:'#8ea1bb' }}, title:{ text:'% (MC / Ash)', style:{ color:'#8ea1bb', fontSize:'10px' }} }
+    ],
+    colors:['#2dd4bf','#38bdf8','#f5b942'],
+    plotOptions:{ bar:{ borderRadius:4, columnWidth:'50%' } },
+    stroke:{ width:[0,2.5,2], curve:'smooth', dashArray:[0,0,6] },
+    fill:{ type:['gradient','solid','solid'], gradient:{ shadeIntensity:1, opacityFrom:.9, opacityTo:.35, stops:[0,100] } },
+    markers:{ size:3, strokeColors:'#071019', strokeWidth:2 },
+    legend:{ position:'top', horizontalAlign:'right', labels:{ colors:'#8ea1bb' }, fontSize:'11px' }
+  }));
+}
+
+/* ---- P2 ---- */
+function renderFarmBlocks() {
+  const ready = DB.blocks.filter(b => b.status === 'siap');
+  const cats = ready.map(b => b.id);
+  const vals = ready.map(b => Math.round((+b.area || 0) * (b.prod || 26)));
+  mk('chFarmBlocks', base({
+    chart:{ type:'bar', height:380, background:'transparent' },
+    series:[{ name:'Ton basah / siklus', data: vals.length ? vals : [0] }],
+    xaxis:{ categories: cats.length ? cats : ['—'], labels:{ style:{ colors:'#8ea1bb' } } },
+    yaxis:{ labels:{ style:{ colors:'#8ea1bb' }, formatter:v => v.toLocaleString('id-ID') } },
+    colors:['#2ee66b'],
+    plotOptions:{ bar:{ borderRadius:5, columnWidth:'55%', distributed:true } },
+    fill:GRAD,
+    legend:{ show:false },
+    dataLabels:{ enabled:true, style:{ colors:['#04180c'], fontSize:'10px', fontWeight:700 } }
+  }));
+}
+
+/* ---- P4 ---- */
+function renderConvert() {
+  mk('chConvert', base({
+    chart:{ type:'bar', height:300, background:'transparent' },
+    series:[
+      { name:'Input Bahan Baku Basah (Ton)', type:'column', data:[4200,4500,4800,5100,4900,5200] },
+      { name:'Woodchip Kering (Ton)', type:'column', data:[2600,2780,2960,3150,3020,3210] },
+      { name:'Output Pellet (Ton)', type:'column', data:[1980,2120,2260,2400,2300,2450] }
+    ],
+    xaxis:{ categories:['Hari 1','Hari 2','Hari 3','Hari 4','Hari 5','Hari 6'],
+      labels:{ style:{ colors:'#8ea1bb', fontSize:'10px' } } },
+    yaxis:{ labels:{ style:{ colors:'#8ea1bb' }, formatter:v => v.toLocaleString('id-ID') } },
+    colors:['#f5b942','#38bdf8','#2dd4bf'],
+    plotOptions:{ bar:{ borderRadius:5, columnWidth:'62%' } },
+    fill:GRAD,
+    legend:{ position:'top', horizontalAlign:'right', labels:{ colors:'#8ea1bb' }, fontSize:'11px' }
+  }));
+}
+
+/* ---- P5 ---- */
+function renderRadar() {
+  mk('chRadar', base({
+    chart:{ type:'radar', height:340, background:'transparent' },
+    series:[
+      { name:'Hasil Uji Aktual', data:[4210, 9.4, 1.28, 98.2, 634] },
+      { name:'Standar Kontrak', data:[4000, 10, 1.5, 97.5, 600] }
+    ],
+    xaxis:{ categories:['GCV','Moisture','Ash','PDI','Bulk Density'] },
+    yaxis:{ show:false, min:0, max:110 },
+    colors:['#2ee66b','#f5b942'],
+    stroke:{ width:2 },
+    fill:{ opacity:[0.28, 0.12] },
+    markers:{ size:4, strokeColors:'#071019', strokeWidth:2 },
+    plotOptions:{ radar:{ polygons:{ fill:{ colors:['rgba(45,212,191,.06)','rgba(245,185,66,.05)'] }, stroke:{ colors:['rgba(148,163,184,.2)'] } } } },
+    legend:{ position:'bottom', labels:{ colors:'#8ea1bb' }, fontSize:'11px' }
+  }));
+}
+
+/* ---- P6 ---- */
+function renderStorage() {
+  mk('chStorage', base({
+    chart:{ type:'bar', height:300, background:'transparent' },
+    series:[{ name:'Terisi (Ton)', data:[2480, 1640, 980, 620, 480] }],
+    xaxis:{ categories:['Silo A','Silo B','Gudang Bulk 1','Gudang Jumbo Bag','Gudang Small Bag'],
+      labels:{ style:{ colors:'#8ea1bb', fontSize:'10px' }, rotate:-18 } },
+    yaxis:{ labels:{ style:{ colors:'#8ea1bb' }, formatter:v => v.toLocaleString('id-ID') } },
+    colors:['#2dd4bf'],
+    plotOptions:{ bar:{ borderRadius:5, horizontal:true, barHeight:'58%' } },
+    fill:GRAD,
+    legend:{ show:false },
+    dataLabels:{ enabled:true, style:{ colors:['#04180c'], fontSize:'10px', fontWeight:700 } }
+  }));
+}
+
+function renderTemp() {
+  const hrs = Array.from({length:12}, (_,i) => (i*2) + ':00');
+  mk('chTemp', base({
+    chart:{ type:'line', height:300, background:'transparent' },
+    series:[
+      { name:'Silo A', data:[38,37,38,39,41,43,44,43,42,41,40,39] },
+      { name:'Silo B', data:[42,43,45,47,48,49,50,49,48,47,46,45] },
+      { name:'Gudang Bulk', data:[34,34,35,35,36,37,37,36,36,35,35,34] }
+    ],
+    xaxis:{ categories: hrs, labels:{ style:{ colors:'#8ea1bb', fontSize:'10px' } } },
+    yaxis:{ min:25, max:60, labels:{ style:{ colors:'#8ea1bb' }, formatter:v => v + '°C' } },
+    colors:['#2dd4bf','#ff5c6c','#38bdf8'],
+    stroke:{ curve:'smooth', width:2.5 },
+    annotations:{ yaxis:[{ y:55, borderColor:'#ff5c6c', label:{ text:'Ambang bahaya 55°C', style:{ color:'#ff9aa5', background:'rgba(255,92,108,.15)', fontSize:'10px' } } }] },
+    markers:{ size:3, strokeColors:'#071019', strokeWidth:2 },
+    legend:{ position:'top', horizontalAlign:'right', labels:{ colors:'#8ea1bb' }, fontSize:'11px' }
+  }));
+}
+
+/* ---- P7 ---- */
+function renderFleetCost() {
+  mk('chFleetCost', base({
+    chart:{ type:'donut', height:300, background:'transparent' },
+    series:[38, 26, 18, 12, 6],
+    labels:['BBM','Upah & Uang Jalan','Perawatan','Tol & Retribusi','Asuransi & KIR'],
+    colors:['#2dd4bf','#38bdf8','#f5b942','#a78bfa','#2ee66b'],
+    plotOptions:{ pie:{ donut:{ size:'62%' } } },
+    stroke:{ width:2, colors:['#0a1524'] },
+    legend:{ position:'right', labels:{ colors:'#8ea1bb' }, fontSize:'11px' }
+  }));
+}
+
+/* ---- P8 ---- */
+function renderLoading() {
+  mk('chLoading', base({
+    chart:{ type:'bar', height:300, background:'transparent' },
+    series:[
+      { name:'Loading Rate (Ton/hari)', type:'column', data:[1450,1520,1380,1240,1180,1320,1410] },
+      { name:'Rencana', type:'line', data:[1800,1800,1800,1800,1800,1800,1800] }
+    ],
+    xaxis:{ categories:['Sen','Sel','Rab','Kam','Jum','Sab','Min'],
+      labels:{ style:{ colors:'#8ea1bb' } } },
+    yaxis:{ labels:{ style:{ colors:'#8ea1bb' }, formatter:v => v.toLocaleString('id-ID') } },
+    colors:['#f5b942','#38bdf8'],
+    plotOptions:{ bar:{ borderRadius:5, columnWidth:'55%' } },
+    stroke:{ width:[0,2.5], curve:'smooth', dashArray:[0,6] },
+    fill:{ type:['gradient','solid'], gradient:{ shadeIntensity:1, opacityFrom:.92, opacityTo:.35, stops:[0,100] } },
+    legend:{ position:'top', horizontalAlign:'right', labels:{ colors:'#8ea1bb' }, fontSize:'11px' }
+  }));
+}
+
+/* ---- P9 ---- */
+function renderHppChart() {
+  const feed = +document.getElementById('hppFeed').value;
+  const proc = +document.getElementById('hppProc').value;
+  const log  = +document.getElementById('hppLog').value;
+  mk('chHpp', base({
+    chart:{ type:'donut', height:320, background:'transparent' },
+    series:[feed, proc, log],
+    labels:['Bahan Baku','Processing','Logistik & Pelabuhan'],
+    colors:['#2ee66b','#38bdf8','#f5b942'],
+    plotOptions:{ pie:{ donut:{ size:'64%', labels:{
+      show:true,
+      value:{ fontSize:'15px', fontWeight:800, color:'#e8eef7', formatter:v => 'Rp ' + fmt(v) },
+      total:{ show:true, label:'HPP Total', fontSize:'11px', color:'#8ea1bb',
+        formatter:w => 'Rp ' + fmt(w.globals.seriesTotals.reduce((a,b)=>a+b,0)) }
+    } } } },
+    stroke:{ width:2, colors:['#0a1524'] },
+    legend:{ position:'bottom', labels:{ colors:'#8ea1bb' }, fontSize:'11px' }
+  }));
+}
+
+function renderFreight() {
+  mk('chFreight', base({
+    chart:{ type:'bar', height:300, background:'transparent' },
+    series:[
+      { name:'Rp / Ton-km', type:'column', data:[286, 312, 348, 402, 368] },
+      { name:'Benchmark', type:'line', data:[350, 350, 350, 350, 350] }
+    ],
+    xaxis:{ categories:['Estate→Pabrik','Pabrik→Pelabuhan','Mitra Surade','Mitra Ciemas','Mitra Cisolok'],
+      labels:{ style:{ colors:'#8ea1bb', fontSize:'10px' }, rotate:-18 } },
+    yaxis:{ labels:{ style:{ colors:'#8ea1bb' }, formatter:v => 'Rp ' + v } },
+    colors:['#2dd4bf','#f5b942'],
+    plotOptions:{ bar:{ borderRadius:5, columnWidth:'55%' } },
+    stroke:{ width:[0,2.5], curve:'smooth', dashArray:[0,6] },
+    fill:{ type:['gradient','solid'], gradient:{ shadeIntensity:1, opacityFrom:.92, opacityTo:.35, stops:[0,100] } },
+    legend:{ position:'top', horizontalAlign:'right', labels:{ colors:'#8ea1bb' }, fontSize:'11px' }
+  }));
+}
+
+/* ============================================================
+   KALKULATOR
+   ============================================================ */
+function calcInbound() {
+  const gross = +document.getElementById('inGross').value || 0;
+  const tare  = +document.getElementById('inTare').value || 0;
+  const mc    = +document.getElementById('inMc').value || 0;
+  const price = +document.getElementById('inPrice').value || 0;
+  const nett  = Math.max(0, gross - tare);
+  const baseMc = 20;
+  const excess = Math.max(0, mc - baseMc);
+  const penaltyPct = excess * 1.5;
+  const effectiveTon = (nett * (1 - penaltyPct / 100)) / 1000;
+  const value = effectiveTon * price;
+  document.getElementById('inResult').innerHTML = `
+    <div class="rlabel">Nilai Pembayaran Supplier</div>
+    <div class="rval">Rp ${fmt(value)}</div>
+    <div class="rnote">
+      Nett <b>${fmt(nett)} kg</b> · Kelebihan MC <b>${fmt1(excess)}%</b> · Penalti tonase
+      <b style="color:#ff9aa5">${fmt1(penaltyPct)}%</b><br>
+      Tonase efektif bayar: <b style="color:#8be9dc">${(effectiveTon).toFixed(3).replace('.',',')} Ton</b>
+    </div>`;
+}
+
+function calcEnergy() {
+  const kwh  = +document.getElementById('enKwh').value || 0;
+  const ton  = +document.getElementById('enTon').value || 1;
+  const fuel = +document.getElementById('enFuel').value || 0;
+  const int  = kwh / (ton || 1);
+  const fuelPct = (fuel / (ton || 1)) * 100;
+  const grade = int <= 85 ? ['EFISIEN','#8bf0b3'] : int <= 100 ? ['WAJAR','#ffd68a'] : ['PERLU AUDIT','#ff9aa5'];
+  document.getElementById('enResult').innerHTML = `
+    <div class="rlabel">Intensitas Energi</div>
+    <div class="rval">${fmt1(int)} <span style="font-size:13px;color:#8be9dc">kWh/Ton</span></div>
+    <div class="rnote">Rasio bahan bakar: <b style="color:#8be9dc">${fmt1(fuelPct)}%</b> dari output ·
+      Status: <b style="color:${grade[1]}">${grade[0]}</b></div>`;
+}
+
+function calcDemurrage() {
+  const lay  = +document.getElementById('dmLay').value || 0;
+  const used = +document.getElementById('dmUsed').value || 0;
+  const rate = +document.getElementById('dmRate').value || 0;
+  const despPct = +document.getElementById('dmDesp').value || 0;
+  const box = document.getElementById('dmResult');
+  const diff = used - lay;
+  if (diff > 0) {
+    const val = diff * rate;
+    box.className = 'result-box warn';
+    box.innerHTML = `
+      <div class="rlabel">Potensi Demurrage</div>
+      <div class="rval" style="font-size:18px">Rp ${fmt(val)}</div>
+      <div class="rnote">Kelebihan <b>${fmt1(diff)} jam</b> × Rp ${fmt(rate)}/jam</div>`;
+  } else {
+    const val = Math.abs(diff) * rate * (despPct / 100);
+    box.className = 'result-box';
+    box.innerHTML = `
+      <div class="rlabel">Potensi Despatch (Insentif)</div>
+      <div class="rval" style="font-size:18px">Rp ${fmt(val)}</div>
+      <div class="rnote">Penghematan <b>${fmt1(Math.abs(diff))} jam</b> × Rp ${fmt(rate)}/jam × ${despPct}%</div>`;
+  }
+}
+
+function calcHPP() {
+  const feed = +document.getElementById('hppFeed').value;
+  const proc = +document.getElementById('hppProc').value;
+  const log  = +document.getElementById('hppLog').value;
+  document.getElementById('hppFeedLbl').textContent = fmt(feed);
+  document.getElementById('hppProcLbl').textContent = fmt(proc);
+  document.getElementById('hppLogLbl').textContent  = fmt(log);
+  const total = feed + proc + log;
+  document.getElementById('hppVal').textContent = 'Rp ' + fmt(total) + ' /Ton';
+  const sell = 1450000;
+  const margin = ((sell - total) / sell) * 100;
+  let grade, color;
+  if (margin >= 25) { grade='SANGAT SEHAT'; color='#8bf0b3'; }
+  else if (margin >= 12) { grade='WAJAR'; color='#ffd68a'; }
+  else { grade='PERLU EFISIENSI'; color='#ff9aa5'; }
+  document.getElementById('hppNote').innerHTML =
+    `Margin terhadap harga jual PLTU Rp ${fmt(sell)}/Ton: <b style="color:${color}">${fmt1(margin)}%</b> — <b style="color:${color}">${grade}</b>`;
+  renderHppChart();
+}
+
+/* ============================================================
+   INTEGRASI PT MINERVA GREEN AGRO
+   ============================================================ */
+const MINERVA_KEY = 'mga_db_v5';
+const MINERVA_REQ_KEY = 'van_harvest_request_v1';
+let minervaData = null;
+
+function syncMinerva() {
+  let data = null, live = false;
+  try {
+    const raw = localStorage.getItem(MINERVA_KEY);
+    if (raw) { data = JSON.parse(raw); live = true; }
+  } catch (e) { data = null; }
+
+  if (data && Array.isArray(data.blocks) && data.blocks.length) {
+    minervaData = data;
+    /* adopsi blok Minerva */
+    DB.blocks = data.blocks.map(b => ({
+      id: b.id,
+      area: +b.area || 0,
+      status: b.status || 'tumbuh',
+      pop: +b.pop || 0,
+      prod: parseFloat(String(b.prod || '0').replace(',', '.')) || 0
+    }));
+    saveDB();
+
+    const ready = DB.blocks.filter(b => b.status === 'siap');
+    const wet = ready.reduce((s,b) => s + (b.area * (b.prod || 26)), 0);
+    const dry = wet * 0.52;
+    const pop = DB.blocks.reduce((s,b) => s + (+b.pop || 0), 0);
+
+    document.getElementById('mgStatus').textContent = 'Terhubung';
+    document.getElementById('mgStatus').className = 'badge b-green';
+    document.getElementById('mgLastSync').textContent =
+      new Date().toLocaleString('id-ID', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+    document.getElementById('mgReady').textContent = ready.length + ' blok (' + ready.map(b=>b.id).join(', ') + ')';
+    document.getElementById('mgTonnage').textContent = fmt(wet) + ' Ton basah ≈ ' + fmt(dry) + ' Ton kering';
+    document.getElementById('mgPop').textContent = (pop/1e6).toFixed(1).replace('.', ',') + ' juta pohon';
+    document.getElementById('mgNote').innerHTML =
+      'Data blok, status panen, dan estimasi tonase berhasil ditarik dari <b>Command Center Minerva</b>. ' +
+      'Pasokan kering diperhitungkan pada rasio susut 48% (MC 56% → MC 13%).';
+    document.getElementById('mgSideStatus').textContent = 'Terhubung · ' + ready.length + ' blok siap panen';
+
+    refreshFarmMap();
+    renderEditableTable('tblBlocksFarm', 'blocks');
+    renderFarmBlocks();
+    toast('✓ Data Minerva tersinkron — ' + DB.blocks.length + ' blok');
+  } else {
+    /* fallback: mode simulasi */
+    minervaData = { simulated:true, blocks: DEFAULT_DB.blocks };
+    document.getElementById('mgStatus').textContent = 'Mode Simulasi';
+    document.getElementById('mgStatus').className = 'badge b-amber';
+    document.getElementById('mgLastSync').textContent = '—';
+    const ready = DB.blocks.filter(b => b.status === 'siap');
+    const wet = ready.reduce((s,b) => s + (b.area * (b.prod || 26)), 0);
+    document.getElementById('mgReady').textContent = ready.length + ' blok (' + ready.map(b=>b.id).join(', ') + ')';
+    document.getElementById('mgTonnage').textContent = fmt(wet) + ' Ton basah';
+    document.getElementById('mgPop').textContent = (DB.blocks.reduce((s,b)=>s+(+b.pop||0),0)/1e6).toFixed(1).replace('.',',') + ' juta pohon';
+    document.getElementById('mgNote').innerHTML =
+      'Berkas <code>minerva.html</code> belum pernah dijalankan pada browser/origin yang sama, sehingga ' +
+      '<b style="color:#ffd68a">bridge localStorage tidak tersedia</b>. Aplikasi menampilkan dataset simulasi. ' +
+      'Buka <code>minerva.html</code> terlebih dahulu, lalu tekan tarik data kembali.';
+    document.getElementById('mgSideStatus').textContent = 'Mode simulasi';
+    renderFarmBlocks();
+    toast('⚠ Bridge Minerva tidak tersedia — memakai data simulasi');
+  }
+}
+
+function pushHarvestPlan() {
+  const ready = DB.blocks.filter(b => b.status === 'siap');
+  const plan = {
+    from: 'PT Verdantia Agri Nature',
+    createdAt: new Date().toISOString(),
+    request: ready.map(b => ({
+      blok: b.id,
+      area: b.area,
+      estimasiTonase: Math.round(b.area * (b.prod || 26)),
+      prioritas: b.prod >= 27 ? 'Tinggi' : 'Normal'
+    }))
+  };
+  try {
+    localStorage.setItem(MINERVA_REQ_KEY, JSON.stringify(plan));
+    toast('✓ Rencana panen terkirim ke Minerva (' + ready.length + ' blok)');
+    document.getElementById('mgNote').innerHTML =
+      'Rencana panen <b>' + ready.length + ' blok</b> ditulis ke kanal <code>' + MINERVA_REQ_KEY +
+      '</code>. Command Center Minerva dapat membacanya untuk penjadwalan coppicing.';
+  } catch (e) {
+    toast('Gagal mengirim rencana panen');
+  }
+}
+
+/* ============================================================
+   CoA GENERATOR
+   ============================================================ */
+function generateCoA() {
+  const batch = document.getElementById('coaBatch').value.trim() || '—';
+  const buyer = document.getElementById('coaBuyer').value.trim() || '—';
+  const gcv = +document.getElementById('coaGcv').value;
+  const mc  = +document.getElementById('coaMc').value;
+  const ash = +document.getElementById('coaAsh').value;
+  const pdi = +document.getElementById('coaPdi').value;
+
+  const checks = [
+    { n:'GCV', ok: gcv >= 4000, v: gcv + ' kcal/kg', std:'≥ 4.000' },
+    { n:'Moisture', ok: mc <= 10, v: mc + ' %', std:'≤ 10%' },
+    { n:'Ash', ok: ash <= 1.5, v: ash + ' %', std:'≤ 1,5%' },
+    { n:'PDI', ok: pdi >= 97.5, v: pdi + ' %', std:'≥ 97,5%' }
+  ];
+  const allOk = checks.every(c => c.ok);
+  const box = document.getElementById('coaResult');
+  box.className = allOk ? 'result-box' : 'result-box warn';
+  box.innerHTML = `
+    <div class="rlabel">${allOk ? 'CoA Siap Diterbitkan' : 'CoA Ditolak — Parameter Deviasi'}</div>
+    <div class="rval" style="font-size:15px">${esc(batch)} · ${esc(buyer)}</div>
+    <div class="rnote">
+      ${checks.map(c => `<span style="color:${c.ok ? '#8bf0b3' : '#ff9aa5'}">${c.ok ? '✓' : '✕'} ${c.n}
+        <b>${c.v}</b> (std ${c.std})</span>`).join(' &nbsp;·&nbsp; ')}
+    </div>`;
+  toast(allOk ? '✓ CoA diterbitkan untuk ' + batch : '⚠ CoA ditolak — parameter deviasi');
+}
+
+/* ============================================================
+   RENDER: MESIN & QR
+   ============================================================ */
+const MACHINES = [
+  { n:'Chipper',           m:'Kapasitas 25 Ton/jam · pisau baru', s:'Beroperasi', c:'b-green' },
+  { n:'Hammer Mill',       m:'Screen 8 mm · throughput 20 Ton/jam', s:'Beroperasi', c:'b-green' },
+  { n:'Rotary Dryer',      m:'Inlet 320°C · outlet MC 14,2%', s:'Beroperasi', c:'b-green' },
+  { n:'Pellet Press #1',   m:'Die 6 mm · 18,4 Ton/jam', s:'Beroperasi', c:'b-green' },
+  { n:'Pellet Press #2',   m:'Ganti die & roller', s:'Maintenance', c:'b-amber' },
+  { n:'Cooling & Sieving', m:'Suhu output 38°C', s:'Beroperasi', c:'b-green' },
+  { n:'Bagging Line',      m:'Utilisasi 74,2%', s:'Beroperasi', c:'b-green' }
+];
+
+function renderMachines() {
+  const c = document.getElementById('machineList');
+  if (!c) return;
+  c.innerHTML = MACHINES.map(m => `
+    <div class="machine">
+      <div class="mi">⚙</div>
+      <div style="flex:1">
+        <div class="mname">${m.n}</div>
+        <div class="mmeta">${m.m}</div>
+      </div>
+      <span class="badge ${m.c}">${m.s}</span>
+    </div>`).join('');
+}
+
+function drawQR(canvasId, seedBase) {
+  const c = document.getElementById(canvasId);
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const N = 25, cell = 150 / N;
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 150, 150);
+  ctx.fillStyle = '#0a1524';
+  let seed = seedBase || 20250702;
+  const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const inFinder = (x < 7 && y < 7) || (x >= N-7 && y < 7) || (x < 7 && y >= N-7);
+    if (inFinder) continue;
+    if (rnd() > 0.52) ctx.fillRect(x*cell, y*cell, cell*0.92, cell*0.92);
+  }
+  const finder = (fx, fy) => {
+    ctx.fillStyle = '#0a1524'; ctx.fillRect(fx*cell, fy*cell, 7*cell, 7*cell);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect((fx+1)*cell, (fy+1)*cell, 5*cell, 5*cell);
+    ctx.fillStyle = '#0a1524'; ctx.fillRect((fx+2)*cell, (fy+2)*cell, 3*cell, 3*cell);
+  };
+  finder(0,0); finder(N-7,0); finder(0,N-7);
+  ctx.fillStyle = 'rgba(45,212,191,.95)';
+  ctx.fillRect(63, 63, 26, 26);
+  ctx.fillStyle = '#04180c';
+  ctx.font = 'bold 11px Inter, sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('VN', 76, 76);
+}
+
+/* ============================================================
+   NAVIGASI
+   ============================================================ */
+const PANEL_META = {
+  p1:['Control Tower & Executive Dashboard','End-to-End Supply Chain · PLTU Pelabuhan Ratu & Pasar Ekspor'],
+  p2:['Agribusiness & Farm Network','In-House Estate · Mitra Plasma · Kontrak Pasokan · Integrasi Minerva'],
+  p3:['Procurement & Inbound Logistics','Dispatch Armada · Weighbridge Digital · Sampling Kadar Air · Gate Pass'],
+  p4:['Processing Plant & Production','Lini Pellet Mill · Konversi Input-Output · Energi · Downtime & OEE'],
+  p5:['Quality Control & Laboratory','Multi-Stage Sampling · Parameter ISO/ASTM · Certificate of Analysis'],
+  p6:['Warehouse, Yard & Inventory','Silo & Bulk Storage · Monitoring Suhu · Packaging · FIFO Batch'],
+  p7:['Fleet Management & Transportation','Registrasi Armada · Telematika GPS · e-POD · Fleet Costing'],
+  p8:['Multimodal Shipping & Port Operations','Laycan · Loading Rate · Dokumen Ekspor · Demurrage'],
+  p9:['Financials, Freight Costing & HPP','HPP Terpadu · Margin per Offtaker · Invoicing · ERP Dolibarr'],
+  p10:['System Settings, IoT Telemetry & PWA','RBAC · Offline-First PWA · Hub Telemetri · Audit Trail']
+};
+
+const CHART_RENDERERS = {
+  p1:[renderFlow, renderOfftaker, renderQuota, renderQuality],
+  p2:[renderFarmBlocks],
+  p4:[renderConvert],
+  p5:[renderRadar],
+  p6:[renderStorage, renderTemp],
+  p7:[renderFleetCost],
+  p8:[renderLoading],
+  p9:[renderHppChart, renderFreight]
+};
+
+const MAP_RENDERERS = {
+  p1: () => { if (!mapLive) initLiveMap(); else setTimeout(()=>mapLive.invalidateSize(), 120); },
+  p2: () => { if (!mapFarm) initFarmMap(); else setTimeout(()=>mapFarm.invalidateSize(), 120); }
+};
+
+function buildPanel(id) {
+  (CHART_RENDERERS[id] || []).forEach(fn => { try { fn(); } catch(e){} });
+  if (MAP_RENDERERS[id]) { try { MAP_RENDERERS[id](); } catch(e){} }
+}
+
+document.getElementById('nav').addEventListener('click', e => {
+  const btn = e.target.closest('.nav-item');
+  if (!btn) return;
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const id = btn.dataset.panel;
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('panelTitle').textContent = PANEL_META[id][0];
+  document.getElementById('panelCrumb').textContent = PANEL_META[id][1];
+  window.scrollTo({ top:0, behavior:'smooth' });
+  setTimeout(() => buildPanel(id), 70);
+});
+
+/* KPI editable */
+document.querySelectorAll('.kpi-val[contenteditable]').forEach(el => {
+  el.addEventListener('blur', () => { saveDB(); toast('KPI diperbarui'); });
+  el.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } });
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+document.getElementById('today').textContent =
+  new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
+
+renderEditableTable('tblOutgrowers', 'outgrowers');
+renderEditableTable('tblContracts', 'contracts');
+renderEditableTable('tblHarvest', 'harvest');
+renderEditableTable('tblDispatch', 'dispatch');
+renderEditableTable('tblWeigh', 'weigh');
+renderEditableTable('tblDowntime', 'downtime');
+renderEditableTable('tblLab', 'lab');
+renderEditableTable('tblBatches', 'batches');
+renderEditableTable('tblFleet', 'fleet');
+renderEditableTable('tblTrips', 'trips');
+renderEditableTable('tblVessels', 'vessels');
+renderEditableTable('tblDocs', 'docs');
+renderEditableTable('tblInvoices', 'invoices');
+renderEditableTable('tblAudit', 'audit');
+renderRbac();
+renderMachines();
+drawQR('qrGate', 20250702);
+
+calcInbound();
+calcEnergy();
+calcDemurrage();
+calcHPP();
+
+setTimeout(() => buildPanel('p1'), 120);
+setTimeout(() => syncMinerva(), 600);
+</script>
+</body>
+</html>
